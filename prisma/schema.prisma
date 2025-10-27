@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------
+// Currency
+// ------------------
+model Currency {
+  id             String          @id @default(cuid())
+  name           String
+  symbol         String
+  trips          Trip[]
+  flights        Flight[]
+  carRentals     CarRental[]
+  accommodations Accommodation[]
+}
+
+// ------------------
+// Trip
+// ------------------
+model Trip {
+  id                  String    @id @default(cuid())
+  title               String
+  startDate           DateTime?
+  endDate             DateTime?
+  people              Int       @default(1)
+  totalCostEUR        Decimal
+  currencyId          String
+  selectedFlightId    String?   @unique
+  selectedCarRentalId String?   @unique
+
+  // Relations
+  currency          Currency    @relation(fields: [currencyId], references: [id])
+  flights           Flight[]    @relation("TripFlights")
+  carRentals        CarRental[] @relation("TripCarRentals")
+  tripStops         TripStop[]
+  selectedFlight    Flight?     @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
+  selectedCarRental CarRental?  @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------
+// Flight
+// ------------------
+model Flight {
+  id            String    @id @default(cuid())
+  airline       Json
+  fromAirport   Json
+  toAirport     Json
+  departureDate DateTime?
+  arrivalDate   DateTime?
+  travelClass   String
+  baseFare      Decimal
+  extras        Json?
+  currencyId    String
+  totalCostEUR  Decimal
+  tripId        String
+
+  // Relations
+  trip           Trip     @relation("TripFlights", fields: [tripId], references: [id])
+  currency       Currency @relation(fields: [currencyId], references: [id])
+  selectedOnTrip Trip?    @relation("SelectedFlightOnTrip")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------
+// CarRental
+// ------------------
+model CarType {
+  id      String      @id @default(cuid())
+  name    String
+  rentals CarRental[]
+}
+
+model CarRental {
+  id              String    @id @default(cuid())
+  provider        String
+  carTypeId       String?
+  pickupDate      DateTime?
+  dropoffDate     DateTime?
+  pickupLocation  String
+  dropoffLocation String
+  baseRate        Decimal
+  fees            Decimal?
+  insurancePerDay Decimal?
+  currencyId      String
+  totalCostEUR    Decimal?
+  tripId          String
+
+  // Relations
+  trip           Trip     @relation("TripCarRentals", fields: [tripId], references: [id])
+  currency       Currency @relation(fields: [currencyId], references: [id])
+  selectedOnTrip Trip?    @relation("SelectedCarOnTrip")
+  carType        CarType? @relation(fields: [carTypeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------
+// TripStop
+// ------------------
+model TripStop {
+  id                      String   @id @default(cuid())
+  name                    String
+  startDate               DateTime
+  endDate                 DateTime
+  lat                     Float?
+  lng                     Float?
+  selectedAccommodationId String?  @unique
+  tripId                  String
+
+  // Relations
+  trip                  Trip            @relation(fields: [tripId], references: [id])
+  accommodations        Accommodation[] @relation("TripStopAccommodation")
+  selectedAccommodation Accommodation?  @relation("SelectedAccommodationOnStop", fields: [selectedAccommodationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------
+// Accommodation
+// ------------------
+model Accommodation {
+  id           String   @id @default(cuid())
+  name         String
+  provider     String?
+  roomType     String?
+  nightlyRate  Decimal?
+  totalCostEUR Decimal?
+  currencyId   String
+  tripStopId   String?
+
+  // Relations
+  tripStop       TripStop? @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
+  currency       Currency  @relation(fields: [currencyId], references: [id])
+  selectedOnStop TripStop? @relation("SelectedAccommodationOnStop")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
