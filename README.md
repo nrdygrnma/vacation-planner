@@ -1,6 +1,6 @@
-# Trip Planner Application
+# Vacation Planner Application
 
-This is a full-featured Trip Planner application built with **Nuxt 4**, **Vue 3**, **TypeScript**, **Pinia**, *
+This is a full-featured Vacation Planner application built with **Nuxt 4**, **Vue 3**, **TypeScript**, **Pinia**, *
 *TailwindCSS**, and **Prisma** (SQLite). It allows users to manage trips, flights, car rentals, accommodations, and
 stops, with full relational data support.
 
