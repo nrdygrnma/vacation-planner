@@ -1,75 +1,62 @@
-# Nuxt Minimal Starter
+# Trip Planner Application
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This is a full-featured Trip Planner application built with **Nuxt 4**, **Vue 3**, **TypeScript**, **Pinia**, *
+*TailwindCSS**, and **Prisma** (SQLite). It allows users to manage trips, flights, car rentals, accommodations, and
+stops, with full relational data support.
 
-## Setup
+---
 
-Make sure to install dependencies:
+## Table of Contents
 
-```bash
-# npm
-npm install
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prisma Setup](#prisma-setup)
+- [Running the Application](#running-the-application)
 
-# pnpm
-pnpm install
+---
 
-# yarn
-yarn install
+## Features
 
-# bun
-bun install
-```
+- Create and manage **Trips** with multiple **Flights**, **Car Rentals**, and **Trip Stops**
+- Assign a **selected Flight** and **selected Car Rental** per trip
+- Manage **Trip Stops** with multiple **Accommodations**
+- Track **costs in EUR** and associate a **Currency**
+- Fully typed using TypeScript with Prisma-generated types
+- Drag-and-drop assignment of flights, cars, and accommodations (via Vue components)
 
-## Development Server
+---
 
-Start the development server on `http://localhost:3000`:
+## Tech Stack
 
-```bash
-# npm
-npm run dev
+- **Frontend:** Nuxt 4, Vue 3, Pinia, TailwindCSS, shadcn-vue
+- **Backend / ORM:** Prisma with SQLite (can switch to PostgreSQL or MySQL)
+- **Language:** TypeScript
+- **Validation:** vee-validate + zod
+- **State Management:** Pinia
 
-# pnpm
-pnpm dev
+---
 
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
+## Prisma Setup
 
 ```bash
-# npm
-npm run build
+# Create SQLite database & initial migration
+bunx prisma migrate dev --name init
 
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+# Open Prisma Studio
+bunx prisma studio
 ```
 
-Locally preview production build:
+---
+
+## Running the Application
 
 ```bash
-# npm
-npm run preview
+# Development mode
+bun dev
 
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+# Production build
+bun build
+bun start
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+---
