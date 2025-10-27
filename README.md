@@ -23,6 +23,7 @@ stops, with full relational data support.
 - Track **costs in EUR** and associate a **Currency**
 - Fully typed using TypeScript with Prisma-generated types
 - Drag-and-drop assignment of flights, cars, and accommodations (via Vue components)
+- Uses flyonui (https://flyonui.com/)
 
 ---
 
