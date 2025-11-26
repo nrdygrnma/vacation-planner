@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFlyonModal } from "@/composables/useFlyonModal";
+import { useFlyonModal } from "~/composables/useFlyonModal";
 import { nextTick, onBeforeUnmount, onMounted } from "vue";
 
 const props = defineProps<{

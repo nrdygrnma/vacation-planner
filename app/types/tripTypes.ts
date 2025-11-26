@@ -32,15 +32,15 @@ export interface FlightOption {
   airline: { name: string; symbol: string };
   fromAirport: { name: string; symbol: string };
   toAirport: { name: string; symbol: string };
+  flightNumber: string;
   departureDate: string;
   arrivalDate: string;
-  stopsCount: number;
+  stops: number;
   travelClass: "economy" | "premium_economy" | "business";
   baseFare: number;
   extras?: FlightExtras;
   bookingUrl?: string;
   notes?: string;
-  stops?: number;
   durationMin?: number;
   currencyId: string;
   currency?: Currency;

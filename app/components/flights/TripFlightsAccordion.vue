@@ -60,7 +60,7 @@
 </template>
 
 <script lang="ts" setup>
-import TripFlightsModal from "@/components/flights/TripFlightsModal.vue";
+import TripFlightsModal from "~/components/flights/modals/TripFlightsModal.vue";
 import type { Trip } from "@/types/tripTypes";
 
 defineProps<{ trip: Trip }>();

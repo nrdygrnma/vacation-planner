@@ -3,13 +3,13 @@
     <TripsToolbar v-model="search" @created="refresh()" />
 
     <TripGrid
-      v-if="filteredTrips.length"
-      :trips="filteredTrips"
+      v-if="filtered.length"
+      :trips="filtered"
       @changed="refresh()"
       @open="onCardOpen"
     />
 
-    <TripsEmptyState v-else :total="trips?.length || 0" />
+    <TripsEmptyState v-else :total="items?.length || 0" />
   </section>
 </template>
 
@@ -17,17 +17,19 @@
 import TripsToolbar from "@/components/trips/TripsToolbar.vue";
 import TripGrid from "@/components/trips/TripGrid.vue";
 import TripsEmptyState from "@/components/trips/TripsEmptyState.vue";
-import { useTrips } from "@/composables/useTrips";
+import { storeToRefs } from "pinia";
+import { useTripsStore } from "@/stores/trips";
 import type { Trip } from "@/types/tripTypes";
 
-const { trips, filteredTrips, search, refresh } = useTrips();
+const tripsStore = useTripsStore();
+const { items, filtered, search, pending } = storeToRefs(tripsStore);
 
 const onCardOpen = (trip: Trip) => {
   navigateTo(`/trips/${trip.id}`);
 };
 
 watch(
-  () => filteredTrips.value.length,
+  () => filtered.value.length,
   async () => {
     await nextTick();
     (window as any).HSOverlay?.autoInit?.();
@@ -41,4 +43,10 @@ watch(
     });
   },
 );
+
+const refresh = () => tripsStore.fetchTrips();
+
+onMounted(() => {
+  if (!items.value?.length) tripsStore.fetchTrips();
+});
 </script>

@@ -31,13 +31,14 @@
             <div class="text-sm">
               <div class="font-medium">
                 {{ f.airline || "—" }} {{ f.flightNumber || "" }} ·
-                {{ f.fromIata }} → {{ f.toIata }}
+                {{ f.fromAirport }} → {{ f.toAirport }}
               </div>
               <div class="text-xs opacity-80">
-                {{ formatDT(f.departAt) }} → {{ formatDT(f.arriveAt) }} ·
+                {{ formatDT(f.departureDate) }} →
+                {{ formatDT(f.arrivalDate) }} ·
                 {{ humanDuration(f.durationMin) }} · Stops: {{ f.stops }}
-                <span v-if="f.price">
-                  · {{ f.price }}
+                <span v-if="f.totalCostEUR">
+                  · {{ f.totalCostEUR }}
                   <small v-if="f.currencyId"
                     >({{ currencyCode(f.currencyId) }})</small
                   ></span
@@ -78,81 +79,115 @@
 </template>
 
 <script lang="ts" setup>
-import FlyonModal from "@/components/modals/FlyonModal.vue";
-import FlyonModalTrigger from "@/components/modals/FlyonModalTrigger.vue";
-import FlightForm from "@/components/flights/FlightForm.vue";
-import { useTripFlights } from "@/composables/useTripFlights";
-import type { Currency, Trip } from "@/types/tripTypes";
+import FlyonModal from "~/components/base/modals/FlyonModal.vue";
+import FlyonModalTrigger from "~/components/base/modals/FlyonModalTrigger.vue";
+import FlightForm from "~/components/flights/FlightForm.vue";
+import { useFlightsStore } from "~/stores/flights";
+import type { Currency, FlightOption, Trip } from "~/types/tripTypes";
 
 const props = defineProps<{
   trip: Trip;
   currencies?: Currency[];
 }>();
 
+const flightsStore = useFlightsStore();
+
+const { byTrip } = storeToRefs(flightsStore);
+
+const bucket = computed(
+  () =>
+    byTrip.value[props.trip.id] ?? {
+      items: [] as FlightOption[],
+      pending: false,
+    },
+);
+
+const flights = computed<FlightOption[]>(
+  () => (flightsStore.byTrip[props.trip.id]?.items ?? []) as FlightOption[],
+);
+const pending = computed<boolean>(
+  () => flightsStore.byTrip[props.trip.id]?.pending ?? false,
+);
+
 const modalId = `trip-flights-${props.trip.id}`;
 const addId = `trip-flights-add-${props.trip.id}`;
 const modalRef = ref();
 const aeRef = ref();
 
-const {
-  flights,
-  pending,
-  refresh,
-  addFlight,
-  updateFlight,
-  deleteFlight,
-  selectFinalFlight,
-} = useTripFlights(props.trip.id);
-
 const aeMode = ref<"add" | "edit">("add");
 const aeInitial = ref<any>(null);
 
-function edit(f: any) {
+const edit = (f: any) => {
   aeMode.value = "edit";
+
+  // Parse extras if it’s stored as a JSON string
+  let extras: any = undefined;
+  try {
+    if (typeof f.extras === "string") extras = JSON.parse(f.extras);
+    else if (f.extras && typeof f.extras === "object") extras = f.extras;
+  } catch {}
+
+  // For <input type="date"> the value should be YYYY-MM-DD
+  const toDateInput = (iso?: string | null) =>
+    iso ? String(iso).slice(0, 10) : "";
+
   aeInitial.value = {
-    airline: f.airline,
-    flightNo: f.flightNo,
-    fromIata: f.fromIata,
-    toIata: f.toIata,
-    departAt: f.departAt?.slice(0, 16),
-    arriveAt: f.arriveAt?.slice(0, 16),
-    stops: f.stops,
-    cabin: f.cabin,
-    price: f.price,
+    // FlightForm expects nested objects for airline/airports in initialValues
+    airline: { name: f.airline ?? "", symbol: f.flightNumber ?? "" },
+    fromAirport: { name: "", symbol: f.fromAirport ?? "" },
+    toAirport: { name: "", symbol: f.toAirport ?? "" },
+
+    // Align to FlightForm’s date inputs (type="date")
+    departureDate: toDateInput(f.departureDate),
+    arrivalDate: toDateInput(f.arrivalDate),
+
+    travelClass: f.travelClass || "economy",
+    stops: f.stops ?? 0,
+    baseFare: Number(f.baseFare) || 0,
     currencyId: f.currencyId,
-    bookingUrl: f.bookingUrl,
-    notes: f.notes,
+    bookingUrl: f.bookingUrl ?? "",
+    notes: f.notes ?? "",
+    extras, // object or undefined
+
+    // Optional helpers the form can show but won’t strictly need to edit
+    totalCostEUR: Number(f.totalCostEUR) || 0,
+    durationMin: f.durationMin ?? undefined,
+
+    // Keep id so save() knows whether it’s an edit
     id: f.id,
   };
-  aeRef.value?.open?.();
-}
 
-async function save(payload: any) {
+  aeRef.value?.open?.();
+};
+
+const save = async (payload: any) => {
   if (aeMode.value === "edit" && aeInitial.value?.id) {
-    await updateFlight(aeInitial.value.id, payload);
+    await flightsStore.update(props.trip.id, aeInitial.value.id, payload);
   } else {
-    await addFlight(payload);
+    await flightsStore.add(props.trip.id, payload);
   }
   aeRef.value?.close?.();
-}
+};
 
-async function remove(f: any) {
-  await deleteFlight(f.id);
-}
-async function select(f: any) {
-  await selectFinalFlight(f.id);
-}
+const remove = async (f: any) => {
+  await flightsStore.remove(props.trip.id, f.id);
+};
+const select = async (f: any) => {
+  await flightsStore.selectFinal(props.trip.id, f.id);
+};
 
-function formatDT(iso?: string) {
+const formatDT = (iso?: string) => {
   return iso ? new Date(iso).toLocaleString() : "—";
-}
-function humanDuration(min?: number | null) {
+};
+const humanDuration = (min?: number | null) => {
   if (!min && min !== 0) return "—";
   const h = Math.floor(min / 60),
     m = min % 60;
   return `${h}h ${m}m`;
-}
-function currencyCode(id?: string | null) {
-  return props.currencies?.find((c) => c.id === id)?.code || "";
-}
+};
+const currencyCode = (id?: string | null) => {
+  return props.currencies?.find((c) => c.id === id)?.symbol || "";
+};
+
+onMounted(() => flightsStore.fetchByTrip(props.trip.id));
 </script>

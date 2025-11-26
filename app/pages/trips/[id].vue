@@ -24,11 +24,11 @@
 </template>
 
 <script lang="ts" setup>
-import TripEditModal from "@/components/trips/TripEditModal.vue";
-import TripDeleteModal from "@/components/trips/TripDeleteModal.vue";
+import TripEditModal from "~/components/trips/modals/TripEditModal.vue";
+import TripDeleteModal from "~/components/trips/modals/TripDeleteModal.vue";
 import TripDetailsHero from "~/components/trips/TripDetailsHero.vue";
 import TripDetailsHeader from "~/components/trips/TripDetailsHeader.vue";
-import TripCarRentalsAccordion from "~/components/car-rental/TripCarRentalsAccordion.vue";
+import TripCarRentalsAccordion from "~/components/carRentals/TripCarRentalsAccordion.vue";
 import TripFlightsAccordion from "~/components/flights/TripFlightsAccordion.vue";
 import { useTrip } from "@/composables/useTrip";
 

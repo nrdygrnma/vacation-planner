@@ -17,8 +17,8 @@
 </template>
 
 <script lang="ts" setup>
-import FlyonModal from "~/components/modals/FlyonModal.vue";
-import FlyonModalTrigger from "~/components/modals/FlyonModalTrigger.vue";
+import FlyonModal from "~/components/base/modals/FlyonModal.vue";
+import FlyonModalTrigger from "~/components/base/modals/FlyonModalTrigger.vue";
 import FlightForm from "~/components/flights/FlightForm.vue";
 import { toast } from "vue-sonner";
 
@@ -70,7 +70,7 @@ const mapFormToApi = (data: any) => {
     departureDate: data.departureDate || null,
     arrivalDate: data.arrivalDate || null,
     travelClass: data.travelClass,
-    stops: Number(data.stopsCount) || 0,
+    stops: Number(data.stops) || 0,
     baseFare: Number(data.baseFare) || 0,
     currencyId: data.currencyId || props.defaultCurrencyId || "",
     totalCostEUR: Number(data.totalCostEUR) || 0,

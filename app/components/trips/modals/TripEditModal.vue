@@ -18,13 +18,16 @@
 </template>
 
 <script lang="ts" setup>
-import FlyonModal from "~/components/modals/FlyonModal.vue";
-import FlyonModalTrigger from "~/components/modals/FlyonModalTrigger.vue";
-import TripForm from "./TripForm.vue";
-import type { Trip } from "@/types/tripTypes";
+import FlyonModal from "~/components/base/modals/FlyonModal.vue";
+import FlyonModalTrigger from "~/components/base/modals/FlyonModalTrigger.vue";
+import TripForm from "../TripForm.vue";
+import { useTripsStore } from "~/stores/trips";
+import type { Trip } from "~/types/tripTypes";
 import { toast } from "vue-sonner";
 
 const props = defineProps<{ trip: Trip }>();
+
+const tripStore = useTripsStore();
 const modalId = `trip-edit-${props.trip.id}`;
 const modalRef = ref();
 
@@ -40,10 +43,7 @@ const initialValues = {
 const emit = defineEmits(["saved"]);
 
 const submit = async (data: any) => {
-  await $fetch(`/api/trips/${props.trip.id}`, {
-    method: "PUT",
-    body: data,
-  });
+  await tripStore.updateTrip(props.trip.id, data);
 
   modalRef.value?.close?.();
   emit("saved");

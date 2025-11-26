@@ -12,6 +12,6 @@
 </template>
 
 <script lang="ts" setup>
-import NavBar from "~/components/navigation/NavBar.vue";
+import NavBar from "~/components/base/navigation/NavBar.vue";
 import { Toaster } from "vue-sonner";
 </script>

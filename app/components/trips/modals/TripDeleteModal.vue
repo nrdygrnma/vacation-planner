@@ -19,18 +19,21 @@
 </template>
 
 <script lang="ts" setup>
-import FlyonModal from "~/components/modals/FlyonModal.vue";
-import FlyonModalTrigger from "~/components/modals/FlyonModalTrigger.vue";
+import FlyonModal from "~/components/base/modals/FlyonModal.vue";
+import FlyonModalTrigger from "~/components/base/modals/FlyonModalTrigger.vue";
+import { useTripsStore } from "~/stores/trips";
 import { toast } from "vue-sonner";
 
 const props = defineProps<{ trip: any }>();
 const emit = defineEmits(["deleted"]);
+
+const tripStore = useTripsStore();
 const modalRef = ref();
 const modalId = `trip-delete-${props.trip.id}`;
 
 const onDelete = async () => {
   try {
-    await $fetch(`/api/trips/${props.trip.id}`, { method: "DELETE" });
+    await tripStore.deleteTrip(props.trip.id);
 
     modalRef.value?.close?.();
 

@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import TripCreateModal from "./TripCreateModal.vue";
+import TripCreateModal from "./modals/TripCreateModal.vue";
 
 defineProps<{ modelValue: string }>();
 

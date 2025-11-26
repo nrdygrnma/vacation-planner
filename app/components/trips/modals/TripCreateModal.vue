@@ -12,12 +12,15 @@
 </template>
 
 <script lang="ts" setup>
-import FlyonModal from "~/components/modals/FlyonModal.vue";
-import FlyonModalTrigger from "~/components/modals/FlyonModalTrigger.vue";
-import TripForm from "./TripForm.vue";
+import FlyonModal from "~/components/base/modals/FlyonModal.vue";
+import FlyonModalTrigger from "~/components/base/modals/FlyonModalTrigger.vue";
+import { useTripsStore } from "~/stores/trips";
+import TripForm from "../TripForm.vue";
 import { toast } from "vue-sonner";
 
 const emit = defineEmits(["saved"]);
+
+const tripStore = useTripsStore();
 
 const modalRef = ref();
 const formKey = ref(0);
@@ -32,7 +35,7 @@ const onCancel = () => {
 
 const submit = async (data: any) => {
   try {
-    await $fetch("/api/trips", { method: "POST", body: data });
+    await tripStore.createTrip(data);
 
     modalRef.value?.close?.();
     resetForm();
