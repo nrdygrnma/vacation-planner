@@ -6,7 +6,7 @@
     </FlyonModalTrigger>
 
     <FlyonModal id="trip-create-modal" ref="modalRef" title="Create Trip">
-      <TripForm :key="formKey" @cancel="modalRef?.close" @submit="submit" />
+      <TripForm :key="formKey" @cancel="onCancel" @submit="submit" />
     </FlyonModal>
   </div>
 </template>
