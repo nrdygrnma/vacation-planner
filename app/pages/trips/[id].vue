@@ -10,7 +10,7 @@
       </div>
     </div>
 
-    <div class="space-y-3">
+    <div class="accordion divide-neutral/20 divide-y space-y-2">
       <TripFlightsAccordion :trip="trip" />
       <TripCarRentalsAccordion :trip="trip" />
       <TripStopsAccordion :trip="trip" />
