@@ -3,8 +3,8 @@
     class="group card card-compact border shadow-sm hover:shadow-md hover:border-accent-300/30 hover:bg-accent/10 transition-all duration-300 overflow-hidden text-xs cursor-pointer"
     role="region"
     tabindex="0"
-    @click.self="handleClick"
-    @keyup.enter="handleClick"
+    @click="handleClick"
+    @keyup.enter="handleEnter"
   >
     <figure class="relative aspect-[16/9] bg-base-200">
       <img
@@ -77,7 +77,22 @@ const onImgError = (ev: Event) => {
   img.src = defaultImage;
 };
 
-const handleClick = () => {
+const isInteractiveTarget = (el: HTMLElement | null): boolean => {
+  if (!el) return false;
+  return !!el.closest(
+    'button, a, input, textarea, select, [role="button"], .btn, [data-overlay]',
+  );
+};
+
+const handleClick = (ev: MouseEvent) => {
+  const target = ev.target as HTMLElement | null;
+  if (isInteractiveTarget(target)) {
+    return;
+  }
+  emit("open", props.trip);
+};
+
+const handleEnter = () => {
   emit("open", props.trip);
 };
 </script>

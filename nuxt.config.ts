@@ -9,7 +9,13 @@ const prismaBrowserShim = new URL(
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
+
+    timeline: {
+      enabled: true,
+    },
+  },
   modules: ["@nuxt/icon", "vue-sonner/nuxt", "@nuxt/fonts"],
   icon: {
     serverBundle: {

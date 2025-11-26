@@ -18,3 +18,4 @@ defineProps<{ trips: Trip[] }>();
 
 defineEmits<{ (e: "open", trip: Trip): void; (e: "changed"): void }>();
 </script>
+ö

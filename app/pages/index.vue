@@ -23,9 +23,7 @@ import type { Trip } from "@/types/tripTypes";
 const { trips, filteredTrips, search, refresh } = useTrips();
 
 const onCardOpen = (trip: Trip) => {
-  // Placeholder for future navigation to trip details page
-  // navigateTo(`/trips/${trip.id}`)
-  console.debug("Card clicked:", trip.id);
+  navigateTo(`/trips/${trip.id}`);
 };
 
 watch(
