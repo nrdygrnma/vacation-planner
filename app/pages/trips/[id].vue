@@ -1,11 +1,11 @@
 <template>
-  <section v-if="trip" class="space-y-6">
-    <!-- Header / summary row -->
+  <section v-if="trip" class="space-y-4">
+    <button class="btn btn-soft btn-xs" @click="navigateTo('/')">← Back</button>
+
+    <TripHeader :coverPosition="'center_20%'" :trip="trip" />
+
     <div class="flex items-start justify-between gap-4">
       <div class="space-y-1">
-        <button class="btn btn-ghost btn-sm" @click="navigateTo('/')">
-          ← Back
-        </button>
         <h1 class="text-3xl font-light text-primary">{{ trip.title }}</h1>
         <p class="text-sm opacity-80">
           {{ formatDate(trip.startDate) }} → {{ formatDate(trip.endDate) }} ·
@@ -114,9 +114,10 @@ import TripDeleteModal from "@/components/trips/TripDeleteModal.vue";
 import TripFlightsModal from "@/components/flights/TripFlightsModal.vue";
 import { useTrip } from "@/composables/useTrip";
 import { useDateUtils } from "@/composables/useDateUtils";
+import TripHeader from "~/components/trips/TripHeader.vue";
 
 const route = useRoute();
-const tripId = computed(() => String(route.params.tripId || ""));
+const tripId = computed(() => String(route.params.id || ""));
 const { trip, refresh, pending } = useTrip(tripId.value);
 
 const onDeleted = () => navigateTo("/");

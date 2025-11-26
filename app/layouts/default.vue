@@ -1,8 +1,8 @@
 <template>
-  <div class="container mx-auto pt-6 pb-16">
+  <div class="container mx-auto pt-4 pb-16">
     <NavBar />
 
-    <div class="px-6 mt-12">
+    <div class="px-6 mt-8">
       <slot />
     </div>
 
