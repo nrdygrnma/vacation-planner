@@ -1,7 +1,7 @@
 import { prisma } from "~~/server/utils/prisma";
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id");
+  const id = getRouterParam(event, "tripId");
   if (!id) {
     throw createError({ statusCode: 400, statusMessage: "Missing trips id" });
   }
@@ -15,7 +15,6 @@ export default defineEventHandler(async (event) => {
     imageUrl?: string | null;
   }>(event);
 
-  // Build data object only with provided keys
   const data: any = {};
   if (body.title !== undefined) data.title = body.title;
   if (body.people !== undefined) data.people = body.people;
@@ -31,7 +30,6 @@ export default defineEventHandler(async (event) => {
     data.imageUrl = body.imageUrl || null;
   }
 
-  // Optional: basic validation
   if (data.people !== undefined && data.people < 1) {
     throw createError({
       statusCode: 400,
@@ -39,9 +37,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Enforce mandatory fields for edit as well (title, startDate, endDate, currencyId)
-  // If any of those fields are provided in the payload, ensure they are truthy; otherwise
-  // fetch current values to validate the final state won't be missing them.
   const existing = await prisma.trip.findUnique({ where: { id } });
   if (!existing) {
     throw createError({ statusCode: 404, statusMessage: "Trip not found" });
@@ -76,7 +71,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Validate currency exists if it changes (or always validate to be safe)
   const currency = await prisma.currency.findUnique({
     where: { id: finalCurrencyId },
   });

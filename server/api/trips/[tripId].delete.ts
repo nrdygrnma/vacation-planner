@@ -1,15 +1,13 @@
 import { prisma } from "~~/server/utils/prisma";
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id");
+  const id = getRouterParam(event, "tripId");
   if (!id) {
     throw createError({ statusCode: 400, statusMessage: "Missing trips id" });
   }
 
   try {
-    // Delete dependent records in a transaction to avoid FK constraint errors
     await prisma.$transaction(async (tx) => {
-      // Ensure optional FKs are cleared before deleting referenced rows
       await tx.trip.update({
         where: { id },
         data: {
@@ -18,13 +16,11 @@ export default defineEventHandler(async (event) => {
         },
       });
 
-      // TripStop may reference an Accommodation via selectedAccommodationId
       await tx.tripStop.updateMany({
         where: { tripId: id },
         data: { selectedAccommodationId: null },
       });
 
-      // Delete children in safe order
       await tx.accommodation.deleteMany({
         where: { tripStop: { tripId: id } },
       });
@@ -32,7 +28,6 @@ export default defineEventHandler(async (event) => {
       await tx.flight.deleteMany({ where: { tripId: id } });
       await tx.carRental.deleteMany({ where: { tripId: id } });
 
-      // Finally delete the Trip
       await tx.trip.delete({ where: { id } });
     });
     setResponseStatus(event, 204);
@@ -42,14 +37,12 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, statusMessage: "Trip not found" });
     }
     if (e.code === "P2003") {
-      // Foreign key constraint failed – trips has related records
       throw createError({
         statusCode: 400,
         statusMessage:
           "Cannot delete trips with linked items (flights, car rentals, or accommodations). Remove them first.",
       });
     }
-    // Fallback
     throw createError({
       statusCode: 500,
       statusMessage: "Failed to delete trips",

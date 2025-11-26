@@ -34,9 +34,12 @@ model Trip {
   carRentals          CarRental[] @relation("TripCarRentals")
   flights             Flight[]    @relation("TripFlights")
   currency            Currency    @relation(fields: [currencyId], references: [id])
-  selectedFlight      Flight?     @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
-  selectedCarRental   CarRental?  @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
+  selectedFlight      Flight?     @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id], onDelete: SetNull)
+  selectedCarRental   CarRental?  @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id], onDelete: SetNull)
   tripStops           TripStop[]
+
+  @@index([startDate])
+  @@index([endDate])
 }
 
 model Flight {
@@ -52,11 +55,20 @@ model Flight {
   currencyId     String
   totalCostEUR   Decimal
   tripId         String
+  flightNumber   String?
+  stops          Int?      @default(0)
+  bookingUrl     String?
+  notes          String?
+  durationMin    Int?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  trip           Trip      @relation("TripFlights", fields: [tripId], references: [id])
+  trip           Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
   currency       Currency  @relation(fields: [currencyId], references: [id])
   selectedOnTrip Trip?     @relation("SelectedFlightOnTrip")
+
+  @@index([tripId])
+  @@index([tripId, departureDate])
+  @@index([tripId, totalCostEUR])
 }
 
 model CarType {
@@ -81,7 +93,7 @@ model CarRental {
   tripId          String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  trip            Trip      @relation("TripCarRentals", fields: [tripId], references: [id])
+  trip            Trip      @relation("TripCarRentals", fields: [tripId], references: [id], onDelete: Cascade)
   currency        Currency  @relation(fields: [currencyId], references: [id])
   carType         CarType?  @relation(fields: [carTypeId], references: [id])
   selectedOnTrip  Trip?     @relation("SelectedCarOnTrip")
