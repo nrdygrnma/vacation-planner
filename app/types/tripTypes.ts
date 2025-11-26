@@ -113,6 +113,7 @@ export interface Trip {
     currency?: Currency; // optional loaded relation
     people: number;
     totalCostEUR: number;
+    imageUrl?: string | null;
     selectedFlightId?: string;
     selectedFlight?: FlightOption; // optional loaded relation
     selectedCarRentalId?: string;
