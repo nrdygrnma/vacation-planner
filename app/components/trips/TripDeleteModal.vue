@@ -19,8 +19,8 @@
 </template>
 
 <script lang="ts" setup>
-import FlyonModal from "@/components/base/FlyonModal.vue";
-import FlyonModalTrigger from "@/components/base/FlyonModalTrigger.vue";
+import FlyonModal from "~/components/modals/FlyonModal.vue";
+import FlyonModalTrigger from "~/components/modals/FlyonModalTrigger.vue";
 import { toast } from "vue-sonner";
 
 const props = defineProps<{ trip: any }>();

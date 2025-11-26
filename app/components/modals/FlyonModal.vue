@@ -44,35 +44,31 @@ const props = defineProps<{
 const overlayRef = ref<HTMLElement | null>(null);
 const { open, close, getInstance } = useFlyonModal(overlayRef);
 
-// Defensive cleanup if FlyonUI leaves a transparent backdrop after closing
 const cleanupAfterClose = async () => {
   await nextTick();
   const run = () => {
-    // Consider overlays "open" if they are visible (not hidden)
-    const anyVisible = document.querySelector('.overlay:not(.hidden)');
+    const anyVisible = document.querySelector(".overlay:not(.hidden)");
     if (!anyVisible) {
-      document.querySelectorAll<HTMLElement>('.overlay-backdrop').forEach((el) => el.remove());
-      document.documentElement.classList.remove('overlay-open', 'modal-open');
-      document.body.classList.remove('overlay-open', 'modal-open');
+      document
+        .querySelectorAll<HTMLElement>(".overlay-backdrop")
+        .forEach((el) => el.remove());
+      document.documentElement.classList.remove("overlay-open", "modal-open");
+      document.body.classList.remove("overlay-open", "modal-open");
     }
   };
   run();
-  // Run once more after a short delay to catch animation-end cleanup
   setTimeout(run, 150);
 };
 
 let attachTimer: any = null;
+let observer: MutationObserver | null = null;
 
 onMounted(() => {
   try {
     const inst: any = getInstance();
     inst?.on?.("close", () => cleanupAfterClose());
-  } catch {
-    /* no-op */
-  }
+  } catch {}
 
-  // Instances are often created lazily by FlyonUI on first open.
-  // Poll briefly to attach the 'close' listener once the instance exists.
   attachTimer = setInterval(() => {
     try {
       const inst: any = getInstance();
@@ -81,18 +77,36 @@ onMounted(() => {
         clearInterval(attachTimer);
         attachTimer = null;
       }
-    } catch {
-      /* ignore */
-    }
+    } catch {}
   }, 300);
+
+  if (overlayRef.value) {
+    observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type === "attributes" && m.attributeName === "class") {
+          const el = overlayRef.value;
+          if (el && el.classList.contains("hidden")) {
+            cleanupAfterClose();
+          }
+        }
+      }
+    });
+    observer.observe(overlayRef.value, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  }
 });
 
 onBeforeUnmount(() => {
-  // Ensure nothing blocks clicks if component is removed while backdrop exists
   cleanupAfterClose();
   if (attachTimer) {
     clearInterval(attachTimer);
     attachTimer = null;
+  }
+  if (observer) {
+    observer.disconnect();
+    observer = null;
   }
 });
 

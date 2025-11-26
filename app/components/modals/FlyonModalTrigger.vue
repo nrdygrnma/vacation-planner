@@ -12,5 +12,5 @@
 </template>
 
 <script lang="ts" setup>
-defineProps<{ id: string; buttonClasses: string[] }>();
+const props = defineProps<{ id: string; buttonClasses: string[] }>();
 </script>

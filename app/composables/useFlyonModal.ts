@@ -6,7 +6,7 @@ export function useFlyonModal(overlayRef: Ref<HTMLElement | null>) {
     if (!HS?.getInstance) return null;
     try {
       const raw = HS.getInstance(overlayRef.value, true);
-      // FlyonUI/Preline may wrap instance under different keys
+
       const inst = raw?.element || raw?.overlay || raw || null;
       return inst;
     } catch {
@@ -28,7 +28,6 @@ export function useFlyonModal(overlayRef: Ref<HTMLElement | null>) {
     const HS = getHS();
     const inst = getInstance();
 
-    // Prepare a safe waiter that always resolves
     const waitClosed = new Promise<void>((resolve) => {
       let resolved = false;
       const done = () => {
@@ -41,7 +40,6 @@ export function useFlyonModal(overlayRef: Ref<HTMLElement | null>) {
         if (typeof inst?.on === "function") {
           inst.on("close", () => done());
         } else {
-          // If there's no event API, resolve immediately to avoid deadlocks
           done();
         }
       } catch {
@@ -49,7 +47,6 @@ export function useFlyonModal(overlayRef: Ref<HTMLElement | null>) {
       }
     });
 
-    // Try instance close first, then static
     if (typeof inst?.close === "function") {
       try {
         inst.close();
@@ -62,7 +59,6 @@ export function useFlyonModal(overlayRef: Ref<HTMLElement | null>) {
 
     await waitClosed;
 
-    // Defensive cleanup in case library didn't finish
     try {
       inst?.backdrop?.remove?.();
     } catch {}

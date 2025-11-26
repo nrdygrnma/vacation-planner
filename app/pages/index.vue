@@ -27,4 +27,20 @@ const onCardOpen = (trip: Trip) => {
   // navigateTo(`/trips/${trip.id}`)
   console.debug("Card clicked:", trip.id);
 };
+
+watch(
+  () => filteredTrips.value.length,
+  async () => {
+    await nextTick();
+    (window as any).HSOverlay?.autoInit?.();
+
+    document.querySelectorAll(".overlay").forEach((el) => {
+      try {
+        const raw = (window as any).HSOverlay?.getInstance(el, true);
+        const inst = raw?.element || raw?.overlay || raw;
+        inst?.updateToggles?.();
+      } catch {}
+    });
+  },
+);
 </script>
