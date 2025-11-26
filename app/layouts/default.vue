@@ -2,7 +2,7 @@
   <div class="container mx-auto pt-4 pb-16">
     <NavBar />
 
-    <div class="px-6 mt-8">
+    <div class="mt-8">
       <slot />
     </div>
 
