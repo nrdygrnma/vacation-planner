@@ -6,7 +6,7 @@
     </FlyonModalTrigger>
 
     <FlyonModal id="trip-create-modal" ref="modalRef" title="Create Trip">
-      <TripForm @cancel="modalRef?.close" @submit="submit" />
+      <TripForm :key="formKey" @cancel="modalRef?.close" @submit="submit" />
     </FlyonModal>
   </div>
 </template>
@@ -17,15 +17,25 @@ import FlyonModalTrigger from "~/components/modals/FlyonModalTrigger.vue";
 import TripForm from "./TripForm.vue";
 import { toast } from "vue-sonner";
 
-const modalRef = ref();
-
 const emit = defineEmits(["saved"]);
+
+const modalRef = ref();
+const formKey = ref(0);
+const resetForm = () => {
+  formKey.value++;
+};
+
+const onCancel = () => {
+  modalRef.value?.close?.();
+  resetForm();
+};
 
 const submit = async (data: any) => {
   try {
     await $fetch("/api/trips", { method: "POST", body: data });
 
     modalRef.value?.close?.();
+    resetForm();
 
     emit("saved");
     toast.success("Trip created");

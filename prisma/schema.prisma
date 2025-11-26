@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
@@ -25,16 +26,16 @@ model Trip {
   people              Int         @default(1)
   totalCostEUR        Decimal
   currencyId          String
-  imageUrl            String?
   selectedFlightId    String?     @unique
   selectedCarRentalId String?     @unique
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
+  imageUrl            String?
   carRentals          CarRental[] @relation("TripCarRentals")
   flights             Flight[]    @relation("TripFlights")
-  selectedCarRental   CarRental?  @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
-  selectedFlight      Flight?     @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
   currency            Currency    @relation(fields: [currencyId], references: [id])
+  selectedFlight      Flight?     @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
+  selectedCarRental   CarRental?  @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
   tripStops           TripStop[]
 }
 
@@ -53,8 +54,8 @@ model Flight {
   tripId         String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  currency       Currency  @relation(fields: [currencyId], references: [id])
   trip           Trip      @relation("TripFlights", fields: [tripId], references: [id])
+  currency       Currency  @relation(fields: [currencyId], references: [id])
   selectedOnTrip Trip?     @relation("SelectedFlightOnTrip")
 }
 
@@ -80,9 +81,9 @@ model CarRental {
   tripId          String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  carType         CarType?  @relation(fields: [carTypeId], references: [id])
-  currency        Currency  @relation(fields: [currencyId], references: [id])
   trip            Trip      @relation("TripCarRentals", fields: [tripId], references: [id])
+  currency        Currency  @relation(fields: [currencyId], references: [id])
+  carType         CarType?  @relation(fields: [carTypeId], references: [id])
   selectedOnTrip  Trip?     @relation("SelectedCarOnTrip")
 }
 
@@ -98,8 +99,8 @@ model TripStop {
   createdAt               DateTime        @default(now())
   updatedAt               DateTime        @updatedAt
   accommodations          Accommodation[] @relation("TripStopAccommodation")
-  selectedAccommodation   Accommodation?  @relation("SelectedAccommodationOnStop", fields: [selectedAccommodationId], references: [id])
   trip                    Trip            @relation(fields: [tripId], references: [id])
+  selectedAccommodation   Accommodation?  @relation("SelectedAccommodationOnStop", fields: [selectedAccommodationId], references: [id])
 }
 
 model Accommodation {
@@ -113,7 +114,7 @@ model Accommodation {
   tripStopId     String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  currency       Currency  @relation(fields: [currencyId], references: [id])
   tripStop       TripStop? @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
+  currency       Currency  @relation(fields: [currencyId], references: [id])
   selectedOnStop TripStop? @relation("SelectedAccommodationOnStop")
 }
