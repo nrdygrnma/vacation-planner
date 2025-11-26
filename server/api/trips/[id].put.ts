@@ -3,7 +3,7 @@ import { prisma } from "~~/server/utils/prisma";
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id");
   if (!id) {
-    throw createError({ statusCode: 400, statusMessage: "Missing trip id" });
+    throw createError({ statusCode: 400, statusMessage: "Missing trips id" });
   }
 
   const body = await readBody<{
@@ -48,25 +48,38 @@ export default defineEventHandler(async (event) => {
   }
 
   const finalTitle = data.title !== undefined ? data.title : existing.title;
-  const finalStart = data.startDate !== undefined ? data.startDate : existing.startDate;
+  const finalStart =
+    data.startDate !== undefined ? data.startDate : existing.startDate;
   const finalEnd = data.endDate !== undefined ? data.endDate : existing.endDate;
-  const finalCurrencyId = data.currencyId !== undefined ? data.currencyId : existing.currencyId;
+  const finalCurrencyId =
+    data.currencyId !== undefined ? data.currencyId : existing.currencyId;
 
   if (!finalTitle || !String(finalTitle).trim()) {
     throw createError({ statusCode: 400, statusMessage: "Title is required." });
   }
   if (!finalStart) {
-    throw createError({ statusCode: 400, statusMessage: "Start date is required." });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Start date is required.",
+    });
   }
   if (!finalEnd) {
-    throw createError({ statusCode: 400, statusMessage: "End date is required." });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "End date is required.",
+    });
   }
   if (!finalCurrencyId) {
-    throw createError({ statusCode: 400, statusMessage: "Currency is required." });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Currency is required.",
+    });
   }
 
   // Validate currency exists if it changes (or always validate to be safe)
-  const currency = await prisma.currency.findUnique({ where: { id: finalCurrencyId } });
+  const currency = await prisma.currency.findUnique({
+    where: { id: finalCurrencyId },
+  });
   if (!currency) {
     throw createError({ statusCode: 400, statusMessage: "Invalid currency." });
   }
@@ -84,7 +97,7 @@ export default defineEventHandler(async (event) => {
     }
     throw createError({
       statusCode: 500,
-      statusMessage: "Failed to update trip",
+      statusMessage: "Failed to update trips",
     });
   }
 });

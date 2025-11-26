@@ -3,7 +3,7 @@ import { prisma } from "~~/server/utils/prisma";
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id");
   if (!id) {
-    throw createError({ statusCode: 400, statusMessage: "Missing trip id" });
+    throw createError({ statusCode: 400, statusMessage: "Missing trips id" });
   }
 
   try {
@@ -25,7 +25,9 @@ export default defineEventHandler(async (event) => {
       });
 
       // Delete children in safe order
-      await tx.accommodation.deleteMany({ where: { tripStop: { tripId: id } } });
+      await tx.accommodation.deleteMany({
+        where: { tripStop: { tripId: id } },
+      });
       await tx.tripStop.deleteMany({ where: { tripId: id } });
       await tx.flight.deleteMany({ where: { tripId: id } });
       await tx.carRental.deleteMany({ where: { tripId: id } });
@@ -40,13 +42,17 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, statusMessage: "Trip not found" });
     }
     if (e.code === "P2003") {
-      // Foreign key constraint failed – trip has related records
+      // Foreign key constraint failed – trips has related records
       throw createError({
         statusCode: 400,
-        statusMessage: "Cannot delete trip with linked items (flights, car rentals, or accommodations). Remove them first.",
+        statusMessage:
+          "Cannot delete trips with linked items (flights, car rentals, or accommodations). Remove them first.",
       });
     }
     // Fallback
-    throw createError({ statusCode: 500, statusMessage: "Failed to delete trip" });
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Failed to delete trips",
+    });
   }
 });
