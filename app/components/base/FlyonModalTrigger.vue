@@ -1,9 +1,10 @@
 <template>
   <button
     :aria-controls="id"
+    :class="buttonClasses"
     :data-overlay="`#${id}`"
     aria-haspopup="dialog"
-    class="btn btn-primary btn-sm inline-flex items-center gap-2"
+    class="btn btn-sm inline-flex items-center gap-2"
     type="button"
   >
     <slot />
@@ -11,5 +12,5 @@
 </template>
 
 <script lang="ts" setup>
-defineProps<{ id: string }>();
+defineProps<{ id: string; buttonClasses: string[] }>();
 </script>

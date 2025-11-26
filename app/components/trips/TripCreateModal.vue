@@ -1,6 +1,6 @@
 <template>
   <div>
-    <FlyonModalTrigger id="trip-create-modal">
+    <FlyonModalTrigger id="trip-create-modal" :buttonClasses="['btn-primary']">
       <Icon class="size-4" name="lucide:map-pin-plus" />
       Create trip
     </FlyonModalTrigger>

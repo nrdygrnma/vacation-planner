@@ -1,6 +1,9 @@
 <template>
   <div>
-    <FlyonModalTrigger :id="modalId">
+    <FlyonModalTrigger
+      :id="modalId"
+      :buttonClasses="['btn-circle btn-secondary']"
+    >
       <Icon class="size-4" name="lucide:pencil" />
     </FlyonModalTrigger>
 

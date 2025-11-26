@@ -1,6 +1,6 @@
 <template>
   <div>
-    <FlyonModalTrigger :id="modalId">
+    <FlyonModalTrigger :id="modalId" :buttonClasses="['btn-circle btn-error']">
       <Icon class="size-4" name="lucide:trash-2" />
     </FlyonModalTrigger>
 
