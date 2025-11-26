@@ -151,7 +151,7 @@ const errors = reactive<Record<Field, string | "">>({
   currencyId: "",
 });
 
-function validateField(field: Field) {
+const validateField = (field: Field) => {
   switch (field) {
     case "title":
       errors.title = form.title.trim() ? "" : "Title is required.";
@@ -166,9 +166,9 @@ function validateField(field: Field) {
       errors.currencyId = form.currencyId ? "" : "Currency is required.";
       break;
   }
-}
+};
 
-function validateAll() {
+const validateAll = () => {
   validateField("title");
   validateField("startDate");
   validateField("endDate");
@@ -176,7 +176,7 @@ function validateAll() {
   return (
     !errors.title && !errors.startDate && !errors.endDate && !errors.currencyId
   );
-}
+};
 
 const onSubmit = () => {
   if (!validateAll()) {

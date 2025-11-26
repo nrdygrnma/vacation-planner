@@ -9,7 +9,6 @@ declare global {
     DataTable;
     Dropzone;
 
-    // FlyonUI
     HSStaticMethods: IStaticMethods;
   }
 }
