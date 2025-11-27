@@ -77,6 +77,8 @@
       </div>
     </div>
 
+    <hr class="my-2 border-base-200" />
+
     <!-- Route -->
     <div class="flex gap-2">
       <div>
@@ -121,6 +123,8 @@
       </div>
     </div>
 
+    <hr class="my-2 border-base-200" />
+
     <!-- Times -->
     <div class="flex flex-col gap-3">
       <div class="flex gap-2">
@@ -133,7 +137,7 @@
             "
             :aria-invalid="!!errors.departureDate"
             :class="['input w-full', errors.departureDate && 'input-error']"
-            required
+            :required="!hasSegmentInput"
             type="date"
             @blur="validateField('departureDate')"
           />
@@ -167,7 +171,7 @@
             "
             :aria-invalid="!!errors.arrivalDate"
             :class="['input w-full', errors.arrivalDate && 'input-error']"
-            required
+            :required="!hasSegmentInput"
             type="date"
             @blur="validateField('arrivalDate')"
           />
@@ -192,7 +196,8 @@
       </div>
     </div>
 
-    <!-- Travel meta -->
+
+    <!-- Travel & Stops -->
     <div class="flex gap-2">
       <div class="w-1/2">
         <label class="label-text">Travel Class</label>
@@ -241,6 +246,64 @@
       </div>
     </div>
 
+    <!-- Stopover section for 1 stop -->
+    <div v-if="Number(form.stops) === 1">
+      <hr class="my-2 border-base-200" />
+      <h5 class="text-sm font-medium mb-2">Stopover details</h5>
+      <div class="flex gap-2 mb-2">
+        <div class="w-1/2">
+          <label class="label-text">Stopover Airport</label>
+          <input v-model="form.stop1Airport" class="input w-full" type="text" />
+        </div>
+        <div class="w-1/2 text-xs opacity-70 flex items-end">
+          <div>
+            Leg 1: {{ form.fromAirport || '—' }} → {{ form.stop1Airport || '—' }}
+            · Leg 2: {{ form.stop1Airport || '—' }} → {{ form.toAirport || '—' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="label-text">Leg 1 Departure Date</label>
+          <input v-model="form.seg1DepartureDate" class="input w-full" type="date" />
+        </div>
+        <div>
+          <label class="label-text">Leg 1 Departure Time</label>
+          <input v-model="form.seg1DepartureTime" class="input w-full" type="time" step="60" />
+        </div>
+        <div>
+          <label class="label-text">Leg 1 Arrival Date</label>
+          <input v-model="form.seg1ArrivalDate" class="input w-full" type="date" />
+        </div>
+        <div>
+          <label class="label-text">Leg 1 Arrival Time</label>
+          <input v-model="form.seg1ArrivalTime" class="input w-full" type="time" step="60" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 mt-2">
+        <div>
+          <label class="label-text">Leg 2 Departure Date</label>
+          <input v-model="form.seg2DepartureDate" class="input w-full" type="date" />
+        </div>
+        <div>
+          <label class="label-text">Leg 2 Departure Time</label>
+          <input v-model="form.seg2DepartureTime" class="input w-full" type="time" step="60" />
+        </div>
+        <div>
+          <label class="label-text">Leg 2 Arrival Date</label>
+          <input v-model="form.seg2ArrivalDate" class="input w-full" type="date" />
+        </div>
+        <div>
+          <label class="label-text">Leg 2 Arrival Time</label>
+          <input v-model="form.seg2ArrivalTime" class="input w-full" type="time" step="60" />
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-2 border-base-200" />
+
     <!-- Pricing -->
     <div class="flex gap-2">
       <div class="w-1/2">
@@ -288,6 +351,8 @@
       </div>
     </div>
 
+    <hr class="my-2 border-base-200" />
+
     <!-- Extras -->
     <fieldset class="flex gap-2">
       <div class="w-1/3">
@@ -319,6 +384,8 @@
       </div>
     </fieldset>
 
+    <hr class="my-2 border-base-200" />
+
     <!-- Links & notes -->
     <div class="w-full">
       <label class="label-text">Booking URL</label>
@@ -338,7 +405,9 @@
       ></textarea>
     </div>
 
-    <!-- Stopovers -->
+    <hr class="my-2 border-base-200" />
+
+    <!-- Stopovers (quick summary fields) -->
     <fieldset class="flex gap-2">
       <div class="w-1/3">
         <label class="label-text">Stopover Duration (min)</label>
@@ -360,6 +429,8 @@
         />
       </div>
     </fieldset>
+
+    <hr class="my-2 border-base-200" />
 
     <!-- Duration preview -->
     <div class="grid grid-cols-2 gap-2">
@@ -407,6 +478,12 @@ const props = defineProps<{
     };
     stopOverDurationMinutes?: number;
     stopOverAirports?: string[] | string;
+    segments?: Array<{
+      fromAirport: string;
+      toAirport: string;
+      departureDate: string;
+      arrivalDate: string;
+    }>;
   }>;
   resetOnSubmit?: boolean;
 }>();
@@ -471,6 +548,48 @@ const form = reactive({
     ? ((props.initialValues as any)?.stopOverAirports as string[]).join(", ")
     : typeof (props.initialValues as any)?.stopOverAirports === "string"
       ? String((props.initialValues as any)?.stopOverAirports)
+      : "",
+  // Segment helper fields (for 1 stop flow)
+  stop1Airport: (props.initialValues as any)?.segments?.[0]?.toAirport || "",
+  seg1DepartureDate:
+    (props.initialValues as any)?.segments?.[0]?.departureDate?.slice(0, 10) ||
+    "",
+  seg1DepartureTime:
+    (props.initialValues as any)?.segments?.[0]?.departureDate
+      ? new Date(
+          (props.initialValues as any)?.segments?.[0]?.departureDate,
+        )
+          .toISOString()
+          .slice(11, 16)
+      : "",
+  seg1ArrivalDate:
+    (props.initialValues as any)?.segments?.[0]?.arrivalDate?.slice(0, 10) ||
+    "",
+  seg1ArrivalTime:
+    (props.initialValues as any)?.segments?.[0]?.arrivalDate
+      ? new Date((props.initialValues as any)?.segments?.[0]?.arrivalDate)
+          .toISOString()
+          .slice(11, 16)
+      : "",
+  seg2DepartureDate:
+    (props.initialValues as any)?.segments?.[1]?.departureDate?.slice(0, 10) ||
+    "",
+  seg2DepartureTime:
+    (props.initialValues as any)?.segments?.[1]?.departureDate
+      ? new Date(
+          (props.initialValues as any)?.segments?.[1]?.departureDate,
+        )
+          .toISOString()
+          .slice(11, 16)
+      : "",
+  seg2ArrivalDate:
+    (props.initialValues as any)?.segments?.[1]?.arrivalDate?.slice(0, 10) ||
+    "",
+  seg2ArrivalTime:
+    (props.initialValues as any)?.segments?.[1]?.arrivalDate
+      ? new Date((props.initialValues as any)?.segments?.[1]?.arrivalDate)
+          .toISOString()
+          .slice(11, 16)
       : "",
 });
 
@@ -545,12 +664,32 @@ const validateField = (field: Field) => {
   }
 };
 
+const hasSegmentInput = computed(() => {
+  return (
+    Number(form.stops) === 1 &&
+    form.stop1Airport &&
+    form.seg1DepartureDate &&
+    form.seg1DepartureTime &&
+    form.seg1ArrivalDate &&
+    form.seg1ArrivalTime &&
+    form.seg2DepartureDate &&
+    form.seg2DepartureTime &&
+    form.seg2ArrivalDate &&
+    form.seg2ArrivalTime
+  );
+});
+
 const validateAll = () => {
   validateField("airlineName");
   validateField("fromAirport");
   validateField("toAirport");
-  validateField("departureDate");
-  validateField("arrivalDate");
+  if (!hasSegmentInput.value) {
+    validateField("departureDate");
+    validateField("arrivalDate");
+  } else {
+    errors.departureDate = "";
+    errors.arrivalDate = "";
+  }
   validateField("flightNumber");
   validateField("travelClass");
   validateField("stops");
@@ -560,8 +699,8 @@ const validateAll = () => {
     !errors.airlineName &&
     !errors.fromAirport &&
     !errors.toAirport &&
-    !errors.departureDate &&
-    !errors.arrivalDate &&
+    (!errors.departureDate || hasSegmentInput.value) &&
+    (!errors.arrivalDate || hasSegmentInput.value) &&
     !errors.flightNumber &&
     !errors.travelClass &&
     !errors.stops &&
@@ -594,6 +733,15 @@ const onSubmit = () => {
     form.notes = "";
     form.stopOverDurationMinutes = "" as any;
     form.stopOverAirportsText = "" as any;
+    form.stop1Airport = "" as any;
+    form.seg1DepartureDate = "" as any;
+    form.seg1DepartureTime = "" as any;
+    form.seg1ArrivalDate = "" as any;
+    form.seg1ArrivalTime = "" as any;
+    form.seg2DepartureDate = "" as any;
+    form.seg2DepartureTime = "" as any;
+    form.seg2ArrivalDate = "" as any;
+    form.seg2ArrivalTime = "" as any;
   }
 };
 

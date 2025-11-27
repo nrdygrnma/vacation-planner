@@ -35,6 +35,13 @@ export interface FlightExtras {
 // ------------------
 // FlightOption
 // ------------------
+export interface FlightSegment {
+  fromAirport: string;
+  toAirport: string;
+  departureDate: string; // ISO string
+  arrivalDate: string; // ISO string
+}
+
 export interface FlightOption {
   id: string;
   airline: { name: string; symbol: string };
@@ -53,6 +60,7 @@ export interface FlightOption {
   // New fields for calculating stopovers and refined timing
   stopOverDurationMinutes?: number; // total stopover time in minutes
   stopOverAirports?: string[]; // list of IATA codes or airport names
+  segments?: FlightSegment[]; // optional detailed legs
   currencyId: string;
   currency?: Currency;
   totalCostEUR: number;

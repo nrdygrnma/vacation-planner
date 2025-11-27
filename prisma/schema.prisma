@@ -67,6 +67,7 @@ model Flight {
   durationMin             Int?
   stopOverDurationMinutes Int?
   stopOverAirports        String?
+  segments                Json?
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
   trip                    Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)

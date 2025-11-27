@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
       notes?: string | null;
       stopOverDurationMinutes?: number | null;
       stopOverAirports?: any[] | null;
+      segments?: any[] | null;
     }>
   >(event);
 
@@ -73,6 +74,55 @@ export default defineEventHandler(async (event) => {
     data.stopOverAirports = Array.isArray(body.stopOverAirports)
       ? JSON.stringify(body.stopOverAirports)
       : (body.stopOverAirports as any);
+  }
+
+  // If segments provided, derive dates/durations/stops/stopovers
+  let derived: {
+    departureDate: Date | null;
+    arrivalDate: Date | null;
+    durationMin: number | null;
+    stops: number;
+    stopOverDurationMinutes: number | null;
+    stopOverAirports: string[] | null;
+  } | null = null;
+  const hasSegments = Array.isArray(body.segments) && body.segments.length > 0;
+  if (hasSegments) {
+    try {
+      const segs = [...(body.segments as any[])];
+      segs.sort((a, b) => +new Date(a.departureDate) - +new Date(b.departureDate));
+      const flightMinutes = segs.reduce((sum, s) => {
+        const d = +new Date(s.departureDate);
+        const a = +new Date(s.arrivalDate);
+        return sum + Math.max(0, Math.round((a - d) / 60000));
+      }, 0);
+      const stopMinutes = segs.length > 1
+        ? segs.slice(0, -1).reduce((sum, _s, i) => {
+            const arrive = +new Date(segs[i].arrivalDate);
+            const nextDepart = +new Date(segs[i + 1].departureDate);
+            return sum + Math.max(0, Math.round((nextDepart - arrive) / 60000));
+          }, 0)
+        : 0;
+      const stopAirports = segs.length > 1 ? segs.slice(0, -1).map((s: any) => s.toAirport).filter(Boolean) : [];
+      derived = {
+        departureDate: segs[0]?.departureDate ? new Date(segs[0].departureDate) : null,
+        arrivalDate: segs[segs.length - 1]?.arrivalDate ? new Date(segs[segs.length - 1].arrivalDate) : null,
+        durationMin: flightMinutes,
+        stops: Math.max(0, segs.length - 1),
+        stopOverDurationMinutes: stopMinutes,
+        stopOverAirports: stopAirports.length ? stopAirports : null,
+      };
+      data.segments = body.segments as any;
+      data.stops = derived.stops;
+      data.durationMin = derived.durationMin;
+      data.departureDate = derived.departureDate;
+      data.arrivalDate = derived.arrivalDate;
+      data.stopOverDurationMinutes = derived.stopOverDurationMinutes;
+      data.stopOverAirports = derived.stopOverAirports
+        ? JSON.stringify(derived.stopOverAirports)
+        : null;
+    } catch {
+      // ignore segment errors
+    }
   }
 
   let nextDeparture: Date | null | undefined = undefined;
@@ -113,5 +163,17 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  return prisma.flight.update({ where: { id: flightId }, data });
+  const updated = await prisma.flight.update({ where: { id: flightId }, data });
+  return {
+    ...updated,
+    stopOverAirports: (() => {
+      try {
+        return (updated as any).stopOverAirports
+          ? JSON.parse((updated as any).stopOverAirports as any)
+          : null;
+      } catch {
+        return null;
+      }
+    })(),
+  } as any;
 });

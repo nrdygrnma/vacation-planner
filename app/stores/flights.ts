@@ -51,6 +51,31 @@ export const useFlightsStore = defineStore("flights", () => {
       .map((s: string) => s.trim())
       .filter((s: string) => !!s);
 
+    // Build segments when exactly 1 stop is specified and segment details exist
+    let segments: any[] | null = null;
+    if (Number(data.stops) === 1 && data.stop1Airport) {
+      const s1d = combine(data.seg1DepartureDate, data.seg1DepartureTime);
+      const s1a = combine(data.seg1ArrivalDate, data.seg1ArrivalTime);
+      const s2d = combine(data.seg2DepartureDate, data.seg2DepartureTime);
+      const s2a = combine(data.seg2ArrivalDate, data.seg2ArrivalTime);
+      if (s1d && s1a && s2d && s2a) {
+        segments = [
+          {
+            fromAirport: (data.fromAirport || "").trim(),
+            toAirport: (data.stop1Airport || "").trim(),
+            departureDate: s1d,
+            arrivalDate: s1a,
+          },
+          {
+            fromAirport: (data.stop1Airport || "").trim(),
+            toAirport: (data.toAirport || "").trim(),
+            departureDate: s2d,
+            arrivalDate: s2a,
+          },
+        ];
+      }
+    }
+
     return {
       airline: (data.airlineName || "").trim(),
       fromAirport: (data.fromAirport || "").trim(),
@@ -70,9 +95,10 @@ export const useFlightsStore = defineStore("flights", () => {
         data.stopOverDurationMinutes != null && data.stopOverDurationMinutes !== ""
           ? Number(data.stopOverDurationMinutes)
           : null,
-      stopOverAirports: stopOverAirports && stopOverAirports.length
-        ? stopOverAirports
-        : null,
+      stopOverAirports:
+        (data.stop1Airport ? [String(data.stop1Airport).trim()] : undefined) ||
+        (stopOverAirports && stopOverAirports.length ? stopOverAirports : null),
+      segments: segments ?? null,
     };
   }
 

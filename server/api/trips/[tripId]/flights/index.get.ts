@@ -31,5 +31,6 @@ export default defineEventHandler(async (event) => {
         return null;
       }
     })(),
+    // segments is stored as Json, so it’s already proper JS; nothing to parse
   }));
 });

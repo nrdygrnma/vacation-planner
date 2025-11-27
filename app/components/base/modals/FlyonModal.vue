@@ -6,7 +6,7 @@
     role="dialog"
     tabindex="-1"
   >
-    <div class="modal-dialog modal-dialog-md">
+    <div :class="['modal-dialog', sizeClass]">
       <div class="modal-content">
         <div v-if="title" class="modal-header">
           <h3 class="modal-title">{{ title }}</h3>
@@ -39,10 +39,26 @@ import { nextTick, onBeforeUnmount, onMounted } from "vue";
 const props = defineProps<{
   id: string;
   title?: string;
+  size?: "sm" | "md" | "lg" | "xl" | "full";
 }>();
 
 const overlayRef = ref<HTMLElement | null>(null);
 const { open, close, getInstance } = useFlyonModal(overlayRef);
+
+const sizeClass = computed(() => {
+  switch (props.size) {
+    case "sm":
+      return "modal-dialog-sm";
+    case "lg":
+      return "modal-dialog-lg";
+    case "xl":
+      return "modal-dialog-xl";
+    case "full":
+      return "modal-dialog-full";
+    default:
+      return "modal-dialog-md";
+  }
+});
 
 const cleanupAfterClose = async () => {
   await nextTick();

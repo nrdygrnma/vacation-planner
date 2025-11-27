@@ -67,6 +67,7 @@
       :id="addId"
       ref="aeRef"
       :title="aeMode === 'add' ? 'Add Flight' : 'Edit Flight'"
+      size="xl"
     >
       <FlightForm
         :currencies="currencies"
@@ -152,6 +153,7 @@ const edit = (f: any) => {
     // Pass through stopover info if present so the form can show it
     stopOverDurationMinutes: (f as any).stopOverDurationMinutes ?? undefined,
     stopOverAirports: (f as any).stopOverAirports ?? undefined,
+    segments: (f as any).segments ?? undefined,
 
     // Keep id so save() knows whether it’s an edit
     id: f.id,
