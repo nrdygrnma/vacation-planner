@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return prisma.flight.findMany({
+  const flights = await prisma.flight.findMany({
     where: {
       tripId,
     },
@@ -21,4 +21,15 @@ export default defineEventHandler(async (event) => {
       { totalCostEUR: "asc" },
     ],
   });
+
+  return flights.map((f) => ({
+    ...f,
+    stopOverAirports: (() => {
+      try {
+        return f.stopOverAirports ? JSON.parse(f.stopOverAirports) : null;
+      } catch {
+        return null;
+      }
+    })(),
+  }));
 });

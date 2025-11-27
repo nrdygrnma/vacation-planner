@@ -4,17 +4,47 @@
     <div class="flex gap-2 w-full">
       <div class="w-2/3">
         <label class="label-text">Airline</label>
-        <input
-          v-model="form.airlineName"
-          :aria-describedby="
-            errors.airlineName ? 'error-airlineName' : undefined
-          "
-          :aria-invalid="!!errors.airlineName"
-          :class="['input w-full', errors.airlineName && 'input-error']"
-          required
-          type="text"
-          @blur="validateField('airlineName')"
-        />
+
+        <div
+          class="relative max-w-full"
+          data-combo-box='{
+      "apiUrl": "/api/airlines",
+      "apiQuery": "limit=50",
+      "apiSearchQuery": "search",
+      "outputEmptyTemplate": "<div class=\"dropdown-item\">No airlines found...</div>",
+      "outputItemTemplate": "<div class=\"dropdown-item combo-box-selected:dropdown-active\" data-combo-box-output-item><div class=\"flex justify-between items-center w-full\"><div data-combo-box-output-item-field=\"name\" data-combo-box-search-text data-combo-box-value></div><span class=\"icon-[tabler--check] text-primary combo-box-selected:block hidden size-4 shrink-0\"></span></div></div>"
+    }'
+        >
+          <div class="relative">
+            <input
+              v-model="form.airlineName"
+              :aria-describedby="
+                errors.airlineName ? 'error-airlineName' : undefined
+              "
+              :aria-invalid="!!errors.airlineName"
+              aria-expanded="false"
+              aria-label="Airline"
+              class="input w-full"
+              data-combo-box-input=""
+              required
+              role="combobox"
+              type="text"
+              @blur="validateField('airlineName')"
+              @change="validateField('airlineName')"
+            />
+            <span
+              class="icon-[tabler--caret-up-down] absolute end-3 top-1/2 size-4 -translate-y-1/2 text-base-content"
+              data-combo-box-toggle=""
+            ></span>
+          </div>
+
+          <div
+            class="bg-base-100 rounded-box shadow-base-300/20 absolute z-50 max-h-44 w-full space-y-0.5 overflow-y-auto p-2 shadow-lg"
+            data-combo-box-output=""
+            style="display: none"
+          ></div>
+        </div>
+
         <p
           v-if="errors.airlineName"
           id="error-airlineName"
@@ -92,48 +122,73 @@
     </div>
 
     <!-- Times -->
-    <div class="flex gap-2">
-      <div class="w-1/2">
-        <label class="label-text">Departure Date</label>
-        <input
-          v-model="form.departureDate"
-          :aria-describedby="
-            errors.departureDate ? 'error-departureDate' : undefined
-          "
-          :aria-invalid="!!errors.departureDate"
-          :class="['input w-full', errors.departureDate && 'input-error']"
-          required
-          type="date"
-          @blur="validateField('departureDate')"
-        />
-        <p
-          v-if="errors.departureDate"
-          id="error-departureDate"
-          class="mt-1 text-xs text-error"
-        >
-          {{ errors.departureDate }}
-        </p>
+    <div class="flex flex-col gap-3">
+      <div class="flex gap-2">
+        <div class="w-1/2">
+          <label class="label-text">Departure Date</label>
+          <input
+            v-model="form.departureDate"
+            :aria-describedby="
+              errors.departureDate ? 'error-departureDate' : undefined
+            "
+            :aria-invalid="!!errors.departureDate"
+            :class="['input w-full', errors.departureDate && 'input-error']"
+            required
+            type="date"
+            @blur="validateField('departureDate')"
+          />
+          <p
+            v-if="errors.departureDate"
+            id="error-departureDate"
+            class="mt-1 text-xs text-error"
+          >
+            {{ errors.departureDate }}
+          </p>
+        </div>
+        <div class="w-1/2">
+          <label class="label-text">Departure Time</label>
+          <input
+            v-model="form.departureTime"
+            class="input w-full"
+            placeholder="HH:MM"
+            step="60"
+            type="time"
+          />
+        </div>
       </div>
-      <div class="w-1/2">
-        <label class="label-text">Arrival Date</label>
-        <input
-          v-model="form.arrivalDate"
-          :aria-describedby="
-            errors.arrivalDate ? 'error-arrivalDate' : undefined
-          "
-          :aria-invalid="!!errors.arrivalDate"
-          :class="['input w-full', errors.arrivalDate && 'input-error']"
-          required
-          type="date"
-          @blur="validateField('arrivalDate')"
-        />
-        <p
-          v-if="errors.arrivalDate"
-          id="error-arrivalDate"
-          class="mt-1 text-xs text-error"
-        >
-          {{ errors.arrivalDate }}
-        </p>
+
+      <div class="flex gap-2">
+        <div class="w-1/2">
+          <label class="label-text">Arrival Date</label>
+          <input
+            v-model="form.arrivalDate"
+            :aria-describedby="
+              errors.arrivalDate ? 'error-arrivalDate' : undefined
+            "
+            :aria-invalid="!!errors.arrivalDate"
+            :class="['input w-full', errors.arrivalDate && 'input-error']"
+            required
+            type="date"
+            @blur="validateField('arrivalDate')"
+          />
+          <p
+            v-if="errors.arrivalDate"
+            id="error-arrivalDate"
+            class="mt-1 text-xs text-error"
+          >
+            {{ errors.arrivalDate }}
+          </p>
+        </div>
+        <div class="w-1/2">
+          <label class="label-text">Arrival Time</label>
+          <input
+            v-model="form.arrivalTime"
+            class="input w-full"
+            placeholder="HH:MM"
+            step="60"
+            type="time"
+          />
+        </div>
       </div>
     </div>
 
@@ -196,6 +251,7 @@
           :aria-invalid="!!errors.baseFare"
           :class="['input w-full', errors.baseFare && 'input-error']"
           required
+          type="number"
           @blur="validateField('baseFare')"
         />
         <p
@@ -282,7 +338,30 @@
       ></textarea>
     </div>
 
-    <!-- Optional normalized total in EUR -->
+    <!-- Stopovers -->
+    <fieldset class="flex gap-2">
+      <div class="w-1/3">
+        <label class="label-text">Stopover Duration (min)</label>
+        <input
+          v-model="form.stopOverDurationMinutes"
+          class="input w-full"
+          min="0"
+          placeholder="e.g. 90"
+          type="number"
+        />
+      </div>
+      <div class="w-2/3">
+        <label class="label-text">Stopover Airports (comma separated)</label>
+        <input
+          v-model="form.stopOverAirportsText"
+          class="input w-full"
+          placeholder="FRA, DXB"
+          type="text"
+        />
+      </div>
+    </fieldset>
+
+    <!-- Duration preview -->
     <div class="grid grid-cols-2 gap-2">
       <input
         :value="humanDuration(computedDurationMin)"
@@ -305,7 +384,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Currency, FlightOption } from "@/types/tripTypes";
+import type { Currency } from "@/types/tripTypes";
 
 const props = defineProps<{
   initialValues?: Partial<{
@@ -315,9 +394,9 @@ const props = defineProps<{
     flightNumber: string;
     departureDate: string;
     arrivalDate: string;
-    travelClass: FlightOption["travelClass"];
-    stops: FlightOption["stops"];
-    baseFare: FlightOption["baseFare"];
+    travelClass: string;
+    stops: number;
+    baseFare: number;
     currencyId: string;
     bookingUrl: string;
     notes: string;
@@ -326,6 +405,8 @@ const props = defineProps<{
       checkedBaggage: number;
       other: number;
     };
+    stopOverDurationMinutes?: number;
+    stopOverAirports?: string[] | string;
   }>;
   resetOnSubmit?: boolean;
 }>();
@@ -339,22 +420,58 @@ const { data: currencies } = useFetch<Currency[]>("/api/currencies", {
   server: false,
 });
 
+// Airlines
+const { data: airlinesAll } = useFetch<{ code: string; name: string }[]>(
+  "/api/airlines",
+  { server: false },
+);
+const airlineFilter = ref("");
+const filteredAirlines = computed(() => {
+  const q = airlineFilter.value.trim().toLowerCase();
+  const list = airlinesAll.value || [];
+  if (!q) return list;
+  return list.filter(
+    (a) => a.name.toLowerCase().includes(q) || a.code.toLowerCase().includes(q),
+  );
+});
+const airlinePresent = computed(() => {
+  const name = (form.airlineName || "").trim().toLowerCase();
+  return (airlinesAll.value || []).some(
+    (a) => a.name.trim().toLowerCase() === name,
+  );
+});
+
 const form = reactive({
   airlineName: props.initialValues?.airline?.name ?? "",
   fromAirport: props.initialValues?.fromAirport?.name ?? "",
   toAirport: props.initialValues?.toAirport?.name ?? "",
-  departureDate: props.initialValues?.departureDate ?? "",
-  arrivalDate: props.initialValues?.arrivalDate ?? "",
+  departureDate: props.initialValues?.departureDate?.slice(0, 10) ?? "",
+  arrivalDate: props.initialValues?.arrivalDate?.slice(0, 10) ?? "",
+  departureTime: props.initialValues?.departureDate
+    ? new Date(props.initialValues.departureDate).toISOString().slice(11, 16)
+    : "",
+  arrivalTime: props.initialValues?.arrivalDate
+    ? new Date(props.initialValues.arrivalDate).toISOString().slice(11, 16)
+    : "",
   flightNumber: props.initialValues?.flightNumber ?? "",
-  travelClass: props.initialValues?.travelClass ?? "economy",
-  stops: props.initialValues?.stops ?? 0,
-  baseFare: props.initialValues?.baseFare ?? 0,
-  currencyId: props.initialValues?.currencyId ?? "",
-  bookingUrl: props.initialValues?.bookingUrl ?? "",
-  notes: props.initialValues?.notes ?? "",
+  travelClass: (props.initialValues as any)?.travelClass ?? "economy",
+  stops: (props.initialValues as any)?.stops ?? 0,
+  baseFare: (props.initialValues as any)?.baseFare ?? 0,
+  currencyId: (props.initialValues as any)?.currencyId ?? "",
+  bookingUrl: (props.initialValues as any)?.bookingUrl ?? "",
+  notes: (props.initialValues as any)?.notes ?? "",
   extrasSeatReservation: props.initialValues?.extras?.seatReservation ?? 0,
   extrasCheckedBaggage: props.initialValues?.extras?.checkedBaggage ?? 0,
   extrasOther: props.initialValues?.extras?.other ?? 0,
+  stopOverDurationMinutes:
+    (props.initialValues as any)?.stopOverDurationMinutes ?? "",
+  stopOverAirportsText: Array.isArray(
+    (props.initialValues as any)?.stopOverAirports,
+  )
+    ? ((props.initialValues as any)?.stopOverAirports as string[]).join(", ")
+    : typeof (props.initialValues as any)?.stopOverAirports === "string"
+      ? String((props.initialValues as any)?.stopOverAirports)
+      : "",
 });
 
 type Field =
@@ -462,7 +579,9 @@ const onSubmit = () => {
     form.fromAirport = "";
     form.toAirport = "";
     form.departureDate = "";
+    form.departureTime = "";
     form.arrivalDate = "";
+    form.arrivalTime = "";
     form.flightNumber = "";
     form.travelClass = "economy";
     form.stops = 0;
@@ -473,6 +592,8 @@ const onSubmit = () => {
     form.currencyId = "";
     form.bookingUrl = "";
     form.notes = "";
+    form.stopOverDurationMinutes = "" as any;
+    form.stopOverAirportsText = "" as any;
   }
 };
 

@@ -30,6 +30,14 @@ export const useFlightsStore = defineStore("flights", () => {
   }
 
   function mapFormToApi(data: any, defaults?: { currencyId?: string }) {
+    const combine = (dateStr?: string | null, timeStr?: string | null) => {
+      if (!dateStr) return null;
+      const d = String(dateStr).trim();
+      const t = (timeStr || "").trim();
+      const iso = t ? `${d}T${t}:00` : `${d}T00:00:00`;
+      return iso;
+    };
+
     const extras = {
       seatReservation: Number(data.extrasSeatReservation) || 0,
       checkedBaggage: Number(data.extrasCheckedBaggage) || 0,
@@ -38,12 +46,17 @@ export const useFlightsStore = defineStore("flights", () => {
     const hasExtras =
       extras.seatReservation || extras.checkedBaggage || extras.other;
 
+    const stopOverAirports: string[] | null = (data.stopOverAirportsText || "")
+      .split(",")
+      .map((s: string) => s.trim())
+      .filter((s: string) => !!s);
+
     return {
       airline: (data.airlineName || "").trim(),
       fromAirport: (data.fromAirport || "").trim(),
       toAirport: (data.toAirport || "").trim(),
-      departureDate: data.departureDate || null,
-      arrivalDate: data.arrivalDate || null,
+      departureDate: combine(data.departureDate, data.departureTime),
+      arrivalDate: combine(data.arrivalDate, data.arrivalTime),
       travelClass: data.travelClass,
       flightNumber: data.flightNumber || null,
       stops: Number(data.stops) || 0,
@@ -53,6 +66,13 @@ export const useFlightsStore = defineStore("flights", () => {
       bookingUrl: data.bookingUrl || null,
       notes: data.notes || null,
       extras: hasExtras ? JSON.stringify(extras) : null,
+      stopOverDurationMinutes:
+        data.stopOverDurationMinutes != null && data.stopOverDurationMinutes !== ""
+          ? Number(data.stopOverDurationMinutes)
+          : null,
+      stopOverAirports: stopOverAirports && stopOverAirports.length
+        ? stopOverAirports
+        : null,
     };
   }
 
@@ -91,9 +111,14 @@ export const useFlightsStore = defineStore("flights", () => {
   }
 
   async function update(tripId: string, flightId: string, body: any) {
+    // Support being called with raw API shape OR with form payload shape.
+    const maybeForm =
+      body && (body.airlineName !== undefined || body.departureTime !== undefined);
+    const payload = maybeForm ? mapFormToApi(body) : body;
+
     const updated = await $fetch<FlightOption>(
       `/api/trips/${tripId}/flights/${flightId}`,
-      { method: "PUT", body },
+      { method: "PUT", body: payload },
     );
 
     const bucket = ensure(tripId);

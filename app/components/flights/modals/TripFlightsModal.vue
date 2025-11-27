@@ -127,19 +127,15 @@ const edit = (f: any) => {
     else if (f.extras && typeof f.extras === "object") extras = f.extras;
   } catch {}
 
-  // For <input type="date"> the value should be YYYY-MM-DD
-  const toDateInput = (iso?: string | null) =>
-    iso ? String(iso).slice(0, 10) : "";
-
   aeInitial.value = {
     // FlightForm expects nested objects for airline/airports in initialValues
     airline: { name: f.airline ?? "", symbol: f.flightNumber ?? "" },
     fromAirport: { name: "", symbol: f.fromAirport ?? "" },
     toAirport: { name: "", symbol: f.toAirport ?? "" },
 
-    // Align to FlightForm’s date inputs (type="date")
-    departureDate: toDateInput(f.departureDate),
-    arrivalDate: toDateInput(f.arrivalDate),
+    // Provide full ISO strings so FlightForm can derive both date and time
+    departureDate: f.departureDate,
+    arrivalDate: f.arrivalDate,
 
     travelClass: f.travelClass || "economy",
     stops: f.stops ?? 0,
@@ -152,6 +148,10 @@ const edit = (f: any) => {
     // Optional helpers the form can show but won’t strictly need to edit
     totalCostEUR: Number(f.totalCostEUR) || 0,
     durationMin: f.durationMin ?? undefined,
+
+    // Pass through stopover info if present so the form can show it
+    stopOverDurationMinutes: (f as any).stopOverDurationMinutes ?? undefined,
+    stopOverAirports: (f as any).stopOverAirports ?? undefined,
 
     // Keep id so save() knows whether it’s an edit
     id: f.id,

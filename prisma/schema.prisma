@@ -8,6 +8,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Airline {
+  code String @id
+  name String
+}
+
 model Currency {
   id             String          @id @default(cuid())
   name           String          @unique
@@ -43,28 +48,30 @@ model Trip {
 }
 
 model Flight {
-  id             String    @id @default(cuid())
-  airline        String
-  fromAirport    String
-  toAirport      String
-  departureDate  DateTime?
-  arrivalDate    DateTime?
-  travelClass    String
-  baseFare       Decimal
-  extras         String?
-  currencyId     String
-  totalCostEUR   Decimal
-  tripId         String
-  flightNumber   String?
-  stops          Int?      @default(0)
-  bookingUrl     String?
-  notes          String?
-  durationMin    Int?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  trip           Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
-  currency       Currency  @relation(fields: [currencyId], references: [id])
-  selectedOnTrip Trip?     @relation("SelectedFlightOnTrip")
+  id                      String    @id @default(cuid())
+  airline                 String
+  fromAirport             String
+  toAirport               String
+  departureDate           DateTime?
+  arrivalDate             DateTime?
+  travelClass             String
+  baseFare                Decimal
+  extras                  String?
+  currencyId              String
+  totalCostEUR            Decimal
+  tripId                  String
+  flightNumber            String?
+  stops                   Int?      @default(0)
+  bookingUrl              String?
+  notes                   String?
+  durationMin             Int?
+  stopOverDurationMinutes Int?
+  stopOverAirports        String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  trip                    Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
+  currency                Currency  @relation(fields: [currencyId], references: [id])
+  selectedOnTrip          Trip?     @relation("SelectedFlightOnTrip")
 
   @@index([tripId])
   @@index([tripId, departureDate])

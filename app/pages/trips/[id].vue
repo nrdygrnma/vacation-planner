@@ -31,6 +31,7 @@ import TripDetailsHeader from "~/components/trips/TripDetailsHeader.vue";
 import TripCarRentalsAccordion from "~/components/carRentals/TripCarRentalsAccordion.vue";
 import TripFlightsAccordion from "~/components/flights/TripFlightsAccordion.vue";
 import { useTrip } from "@/composables/useTrip";
+import { nextTick, watch } from "vue";
 
 const route = useRoute();
 const tripId = computed(() => String(route.params.id || ""));
@@ -38,7 +39,24 @@ const { trip, refresh, pending } = useTrip(tripId.value);
 
 const onDeleted = () => navigateTo("/");
 
-onMounted(() => {
+// Ensure Flyon/HSOverlay overlays are initialized after content is rendered.
+const initOverlays = async () => {
+  await nextTick();
+  // Double-tick in case children (modals/triggers) render after trip data is set.
+  await nextTick();
   (window as any).HSOverlay?.autoInit?.();
+  // Some versions require a slight delay after DOM paint.
+  setTimeout(() => (window as any).HSOverlay?.autoInit?.(), 0);
+};
+
+onMounted(() => {
+  initOverlays();
 });
+
+// Re-init when trip data arrives or changes so the Edit/Delete buttons work immediately.
+watch(
+  () => trip?.value?.id,
+  () => initOverlays(),
+  { immediate: false }
+);
 </script>

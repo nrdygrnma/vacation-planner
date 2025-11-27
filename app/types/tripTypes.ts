@@ -8,6 +8,14 @@ export interface Currency {
 }
 
 // ------------------
+// Airline
+// ------------------
+export interface Airline {
+  code: string; // IATA or internal code
+  name: string;
+}
+
+// ------------------
 // CarType
 // ------------------
 export interface CarType {
@@ -42,6 +50,9 @@ export interface FlightOption {
   bookingUrl?: string;
   notes?: string;
   durationMin?: number;
+  // New fields for calculating stopovers and refined timing
+  stopOverDurationMinutes?: number; // total stopover time in minutes
+  stopOverAirports?: string[]; // list of IATA codes or airport names
   currencyId: string;
   currency?: Currency;
   totalCostEUR: number;

@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   if (!body.flightNumber) missing.push("flightNumber");
   if (!body.departureDate) missing.push("departureDate");
   if (!body.arrivalDate) missing.push("arrivalDate");
-  if (!body.stops) missing.push("stops");
+  if (body.stops == null) missing.push("stops");
   if (body.baseFare == null || body.baseFare === "") missing.push("baseFare");
   if (!body.currencyId) missing.push("currencyId");
   if (!body.travelClass) missing.push("travelClass");
@@ -58,6 +58,10 @@ export default defineEventHandler(async (event) => {
       notes: body.notes ?? null,
       stops: body.stops ?? 0,
       durationMin,
+      stopOverDurationMinutes: body.stopOverDurationMinutes ?? null,
+      stopOverAirports: Array.isArray(body.stopOverAirports)
+        ? JSON.stringify(body.stopOverAirports)
+        : body.stopOverAirports || null,
     },
   });
 

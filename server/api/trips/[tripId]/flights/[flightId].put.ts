@@ -34,6 +34,8 @@ export default defineEventHandler(async (event) => {
       totalCostEUR: number;
       bookingUrl?: string | null;
       notes?: string | null;
+      stopOverDurationMinutes?: number | null;
+      stopOverAirports?: any[] | null;
     }>
   >(event);
 
@@ -65,6 +67,13 @@ export default defineEventHandler(async (event) => {
   if (body.totalCostEUR !== undefined) data.totalCostEUR = body.totalCostEUR;
   if (body.bookingUrl !== undefined) data.bookingUrl = body.bookingUrl;
   if (body.notes !== undefined) data.notes = body.notes;
+  if (body.stopOverDurationMinutes !== undefined)
+    data.stopOverDurationMinutes = body.stopOverDurationMinutes;
+  if (body.stopOverAirports !== undefined) {
+    data.stopOverAirports = Array.isArray(body.stopOverAirports)
+      ? JSON.stringify(body.stopOverAirports)
+      : (body.stopOverAirports as any);
+  }
 
   let nextDeparture: Date | null | undefined = undefined;
   let nextArrival: Date | null | undefined = undefined;
