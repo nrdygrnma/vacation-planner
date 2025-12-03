@@ -8,9 +8,9 @@
       <header class="flex items-center justify-between gap-4">
         <div>
           <h2 class="text-sm font-semibold text-slate-800">
-            Add flight for {{ option.name }}
+            {{ isEdit ? "Edit flight" : "Add flight" }}
           </h2>
-          <p class="text-xs text-slate-500">Trip: {{ trip.title }}</p>
+          <p class="text-xs text-slate-500">Option: {{ option.name }}</p>
         </div>
         <button
           class="text-xs text-slate-500 hover:text-slate-800"
@@ -21,13 +21,13 @@
         </button>
       </header>
 
-      <!-- Form -->
       <form class="space-y-3" @submit.prevent="onSubmit">
+        <!-- Airline + Flight number -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">
-              Airline
-            </label>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1"
+              >Airline</label
+            >
             <input
               v-model="form.airline"
               class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs"
@@ -37,9 +37,9 @@
           </div>
 
           <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">
-              Flight number
-            </label>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1"
+              >Flight number</label
+            >
             <input
               v-model="form.flightNumber"
               class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs"
@@ -49,39 +49,39 @@
           </div>
         </div>
 
+        <!-- From / To -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">
-              From (airport code)
-            </label>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1"
+              >From airport</label
+            >
             <input
               v-model="form.fromAirport"
               class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs"
-              placeholder="VIE"
               required
               type="text"
             />
           </div>
 
           <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">
-              To (airport code)
-            </label>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1"
+              >To airport</label
+            >
             <input
               v-model="form.toAirport"
               class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs"
-              placeholder="SJO"
               required
               type="text"
             />
           </div>
         </div>
 
+        <!-- Dates -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">
-              Departure
-            </label>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1"
+              >Departure</label
+            >
             <input
               v-model="form.departureDate"
               class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs"
@@ -91,9 +91,9 @@
           </div>
 
           <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">
-              Arrival
-            </label>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1"
+              >Arrival</label
+            >
             <input
               v-model="form.arrivalDate"
               class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs"
@@ -103,11 +103,12 @@
           </div>
         </div>
 
+        <!-- Class / Stops / Fare -->
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">
-              Class
-            </label>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1"
+              >Class</label
+            >
             <select
               v-model="form.travelClass"
               class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs"
@@ -120,9 +121,9 @@
           </div>
 
           <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">
-              Stops
-            </label>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1"
+              >Stops</label
+            >
             <input
               v-model.number="form.stops"
               class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs"
@@ -133,9 +134,9 @@
           </div>
 
           <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">
-              Base fare (EUR)
-            </label>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1"
+              >Base fare (EUR)</label
+            >
             <input
               v-model.number="form.baseFare"
               class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs"
@@ -147,14 +148,14 @@
           </div>
         </div>
 
+        <!-- Notes -->
         <div>
-          <label class="block text-[11px] font-medium text-slate-600 mb-1">
-            Notes (optional)
-          </label>
+          <label class="block text-[11px] font-medium text-slate-600 mb-1"
+            >Notes</label
+          >
           <textarea
             v-model="form.notes"
             class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs"
-            placeholder="Why this flight is interesting (airline, layovers, etc.)"
             rows="2"
           ></textarea>
         </div>
@@ -168,12 +169,13 @@
           >
             Cancel
           </button>
+
           <button
             :disabled="isSaving"
             class="rounded-md bg-sky-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-700 disabled:opacity-60"
             type="submit"
           >
-            {{ isSaving ? "Saving…" : "Save flight" }}
+            {{ isSaving ? "Saving…" : isEdit ? "Save changes" : "Add flight" }}
           </button>
         </div>
       </form>
@@ -182,18 +184,21 @@
 </template>
 
 <script lang="ts" setup>
-import type { Trip, TripOption } from "@/types/tripTypes";
+import type { Trip, TripOption, FlightOption } from "@/types/tripTypes";
 
 const props = defineProps<{
   trip: Trip;
   option: TripOption;
   open: boolean;
+  flight?: FlightOption | null;
 }>();
 
 const emit = defineEmits<{
   (e: "close"): void;
   (e: "saved"): void;
 }>();
+
+const isEdit = computed(() => !!props.flight);
 
 const isSaving = ref(false);
 
@@ -210,40 +215,89 @@ const form = reactive({
   notes: "",
 });
 
+// Prefill when editing
+watch(
+  () => props.flight,
+  (f) => {
+    if (!f) {
+      // reset
+      form.airline = "";
+      form.flightNumber = "";
+      form.fromAirport = "";
+      form.toAirport = "";
+      form.departureDate = "";
+      form.arrivalDate = "";
+      form.travelClass = "economy";
+      form.stops = 0;
+      form.baseFare = 0;
+      form.notes = "";
+      return;
+    }
+
+    form.airline = f.airline as any;
+    form.flightNumber = f.flightNumber ?? "";
+    form.fromAirport = f.fromAirport as any;
+    form.toAirport = f.toAirport as any;
+    form.departureDate = f.departureDate?.slice(0, 16) ?? "";
+    form.arrivalDate = f.arrivalDate?.slice(0, 16) ?? "";
+    form.travelClass = f.travelClass;
+    form.stops = f.stops ?? 0;
+    form.baseFare = Number(f.baseFare) ?? 0;
+    form.notes = f.notes ?? "";
+  },
+  { immediate: true },
+);
+
+// create or update
 const onSubmit = async () => {
   if (isSaving.value) return;
+
   isSaving.value = true;
 
   try {
-    await $fetch(`/api/trips/${props.trip.id}/flights`, {
-      method: "POST",
-      body: {
-        airline: form.airline,
-        flightNumber: form.flightNumber,
-        fromAirport: form.fromAirport,
-        toAirport: form.toAirport,
-        departureDate: form.departureDate,
-        arrivalDate: form.arrivalDate,
-        travelClass: form.travelClass,
-        stops: form.stops,
-        baseFare: form.baseFare,
-        currencyId: props.trip.currencyId,
-        // For now, assume baseFare is already EUR
-        totalCostEUR: form.baseFare,
-        notes: form.notes || null,
-        // No segments yet from this simple form
-        stopOverAirports: null,
-        stopOverDurationMinutes: null,
-        segments: null,
-        tripOptionId: props.option.id,
-      },
-    });
+    if (isEdit.value && props.flight) {
+      await $fetch(`/api/trips/${props.trip.id}/flights/${props.flight.id}`, {
+        method: "PATCH",
+        body: {
+          airline: form.airline,
+          flightNumber: form.flightNumber,
+          fromAirport: form.fromAirport,
+          toAirport: form.toAirport,
+          departureDate: form.departureDate,
+          arrivalDate: form.arrivalDate,
+          travelClass: form.travelClass,
+          stops: form.stops,
+          baseFare: form.baseFare,
+          notes: form.notes,
+          totalCostEUR: form.baseFare,
+          tripOptionId: props.option.id,
+        },
+      });
+    } else {
+      await $fetch(`/api/trips/${props.trip.id}/flights`, {
+        method: "POST",
+        body: {
+          airline: form.airline,
+          flightNumber: form.flightNumber,
+          fromAirport: form.fromAirport,
+          toAirport: form.toAirport,
+          departureDate: form.departureDate,
+          arrivalDate: form.arrivalDate,
+          travelClass: form.travelClass,
+          stops: form.stops,
+          baseFare: form.baseFare,
+          notes: form.notes,
+          currencyId: props.trip.currencyId,
+          totalCostEUR: form.baseFare,
+          tripOptionId: props.option.id,
+        },
+      });
+    }
 
     emit("saved");
     emit("close");
   } catch (err) {
     console.error("Failed to save flight", err);
-    // you can add a toast later if you like
   } finally {
     isSaving.value = false;
   }

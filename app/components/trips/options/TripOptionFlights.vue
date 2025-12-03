@@ -9,7 +9,7 @@
       <button
         class="inline-flex items-center gap-1.5 rounded-md border border-sky-500 px-3 py-1.5 text-xs font-medium text-sky-700 hover:bg-sky-50"
         type="button"
-        @click="showCreate = true"
+        @click="showEditor = true"
       >
         <span class="text-base leading-none">＋</span>
         <span>Add flight</span>
@@ -36,16 +36,22 @@
         >
           <div>
             Airline:
-            <span v-if="flight.airline?.name">
-              {{ flight.airline.name }}
-            </span>
-            <span v-else>
-              {{ flight.airline }}
-            </span>
+            <span v-if="flight.airline?.name">{{ flight.airline.name }}</span>
+            <span v-else>{{ flight.airline }}</span>
             <span v-if="flight.flightNumber"> · {{ flight.flightNumber }}</span>
           </div>
+
           <div>Class: {{ flight.travelClass }}</div>
+
           <div>{{ formatMoney(flight.totalCostEUR) }} €</div>
+
+          <button
+            class="rounded-md border border-slate-300 px-2 py-1 text-[11px] hover:bg-slate-50"
+            type="button"
+            @click="onEditFlight(flight)"
+          >
+            Edit
+          </button>
         </div>
       </article>
     </div>
@@ -105,20 +111,25 @@
       </article>
     </div>
 
-    <!-- Create sheet -->
-    <TripOptionFlightCreateSheet
-      :open="showCreate"
+    <TripOptionFlightEditor
+      :flight="selectedFlight"
+      :open="showEditor"
       :option="option"
       :trip="trip"
-      @close="showCreate = false"
+      @close="
+        () => {
+          showEditor = false;
+          selectedFlight = null;
+        }
+      "
       @saved="onFlightSaved"
     />
   </section>
 </template>
 
 <script lang="ts" setup>
-import type { Trip, TripOption } from "@/types/tripTypes";
-import TripOptionFlightCreateSheet from "@/components/trips/options/TripOptionFlightCreateSheet.vue";
+import type { FlightOption, Trip, TripOption } from "@/types/tripTypes";
+import TripOptionFlightEditor from "~/components/trips/options/TripOptionFlightEditor.vue";
 
 const props = defineProps<{
   trip: Trip;
@@ -129,7 +140,8 @@ const emit = defineEmits<{
   (e: "changed"): void;
 }>();
 
-const showCreate = ref(false);
+const showEditor = ref(false);
+const selectedFlight = ref(null as FlightOption | null);
 
 const optionFlights = computed(() =>
   props.trip.flights.filter((f) => f.tripOptionId === props.option.id),
@@ -141,16 +153,19 @@ const unassignedFlights = computed(() =>
 
 const assignFlightToOption = async (flightId: string) => {
   try {
-    await $fetch(`/api/flights/${flightId}/option`, {
+    await $fetch(`/api/trips/${props.trip.id}/flights/${flightId}/option`, {
       method: "PATCH",
-      body: {
-        tripOptionId: props.option.id,
-      },
+      body: { tripOptionId: props.option.id },
     });
     emit("changed");
   } catch (err) {
     console.error("Failed to assign flight to option", err);
   }
+};
+
+const onEditFlight = (flight: FlightOption) => {
+  selectedFlight.value = flight;
+  showEditor.value = true;
 };
 
 const formatDate = (value?: string | null) => {
