@@ -134,6 +134,8 @@ model CarRental {
   baseRate        Decimal
   fees            Decimal?
   insurancePerDay Decimal?
+  bookingUrl      String?
+  notes           String?
   currencyId      String
   totalCostEUR    Decimal?
   tripId          String

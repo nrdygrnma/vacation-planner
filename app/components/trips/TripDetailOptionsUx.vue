@@ -96,10 +96,11 @@
         />
 
         <!-- Car rentals -->
-        <TripOptionCars
+        <TripOptionCarRentals
           v-else-if="activeTab === 'cars'"
           :option="currentOption"
           :trip="trip"
+          @changed="onChanged"
         />
 
         <!-- Stays / stops -->
@@ -121,8 +122,8 @@
 import type { Trip, TripOption } from "@/types/tripTypes";
 import TripOptionOverview from "@/components/trips/options/TripOptionOverview.vue";
 import TripOptionFlights from "@/components/trips/options/TripOptionFlights.vue";
-import TripOptionCars from "@/components/trips/options/TripOptionCars.vue";
 import TripOptionStays from "@/components/trips/options/TripOptionStays.vue";
+import TripOptionCarRentals from "~/components/trips/options/TripOptionCarRentals.vue";
 
 type TabId = (typeof tabs)[number]["id"];
 

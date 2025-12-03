@@ -113,26 +113,36 @@ export interface FlightOption {
 // ------------------
 export interface CarRentalOption {
   id: string;
-  company: string;
-  carTypeId: string;
+  provider: string;
+
+  carTypeId?: string | null;
   carType?: CarType;
 
-  pickupDate: string;
-  dropOffDate: string;
+  pickupDate?: string | null;
+  dropoffDate?: string | null;
 
   pickupLocation: string;
-  dropOffLocation: string;
+  dropoffLocation: string;
 
   baseRate: number;
-  fees?: number;
-  insurancePerDay?: number;
+  fees?: number | null;
+  insurancePerDay?: number | null;
 
   currencyId: string;
   currency?: Currency;
-  totalCostEUR?: number;
 
+  totalCostEUR?: number | null;
+
+  // Trip linking
   tripId: string;
-  trip?: Trip;
+  tripOptionId?: string | null;
+
+  // Extra fields
+  bookingUrl?: string | null;
+  notes?: string | null;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ------------------
