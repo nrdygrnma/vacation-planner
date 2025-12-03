@@ -144,7 +144,6 @@
   </div>
 </template>
 
-
 <script lang="ts" setup>
 import type { Trip, TripOption, CarRentalOption } from "@/types/tripTypes";
 
@@ -155,22 +154,70 @@ const props = defineProps<{
   rental?: CarRentalOption | null;
 }>();
 
-const emit = defineEmits(["close", "saved"]);
+const emit = defineEmits<{
+  (e: "close"): void;
+  (e: "saved"): void;
+}>();
 
 const isEditing = computed(() => !!props.rental);
 
-const form = reactive({
-  provider: props.rental?.provider ?? "",
-  pickupDate: props.rental?.pickupDate?.slice(0, 10) ?? "",
-  dropoffDate: props.rental?.dropoffDate?.slice(0, 10) ?? "",
-  pickupLocation: props.rental?.pickupLocation ?? "",
-  dropoffLocation: props.rental?.dropoffLocation ?? "",
-  baseRate: props.rental?.baseRate ?? 0,
-  fees: props.rental?.fees ?? null,
-  insurancePerDay: props.rental?.insurancePerDay ?? 0,
-  bookingUrl: props.rental?.bookingUrl ?? "",
-  notes: props.rental?.notes ?? "",
+type RentalForm = {
+  provider: string;
+  pickupDate: string;
+  dropoffDate: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  baseRate: number;
+  fees: number | null;
+  insurancePerDay: number;
+  bookingUrl: string;
+  notes: string;
+};
+
+const form = reactive<RentalForm>({
+  provider: "",
+  pickupDate: "",
+  dropoffDate: "",
+  pickupLocation: "",
+  dropoffLocation: "",
+  baseRate: 0,
+  fees: null,
+  insurancePerDay: 0,
+  bookingUrl: "",
+  notes: "",
 });
+
+function applyRentalToForm(rental?: CarRentalOption | null) {
+  form.provider = rental?.provider ?? "";
+  form.pickupDate = rental?.pickupDate?.slice(0, 10) ?? "";
+  form.dropoffDate = rental?.dropoffDate?.slice(0, 10) ?? "";
+  form.pickupLocation = rental?.pickupLocation ?? "";
+  form.dropoffLocation = rental?.dropoffLocation ?? "";
+  form.baseRate = rental?.baseRate ?? 0;
+  form.fees = rental?.fees ?? null;
+  form.insurancePerDay = rental?.insurancePerDay ?? 0;
+  form.bookingUrl = rental?.bookingUrl ?? "";
+  form.notes = rental?.notes ?? "";
+}
+
+// When the rental prop changes (e.g. clicking Edit), update the form
+watch(
+  () => props.rental,
+  (rental) => {
+    applyRentalToForm(rental);
+  },
+  { immediate: true },
+);
+
+// When opening for creation (no rental), reset the form
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (isOpen && !props.rental) {
+      applyRentalToForm(null);
+    }
+  },
+);
 
 function closeEditor() {
   emit("close");
@@ -179,6 +226,7 @@ function closeEditor() {
 async function onSubmit() {
   try {
     if (isEditing.value && props.rental) {
+      // UPDATE
       await $fetch(`/api/trips/${props.trip.id}/rentals/${props.rental.id}`, {
         method: "PATCH",
         body: {
@@ -188,6 +236,7 @@ async function onSubmit() {
         },
       });
     } else {
+      // CREATE
       await $fetch(`/api/trips/${props.trip.id}/rentals`, {
         method: "POST",
         body: {
@@ -200,8 +249,8 @@ async function onSubmit() {
 
     emit("saved");
     closeEditor();
-  } catch (e) {
-    console.error("Failed to save car rental", e);
+  } catch (err) {
+    console.error("Failed to save car rental", err);
   }
 }
 </script>

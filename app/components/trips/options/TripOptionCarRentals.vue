@@ -7,16 +7,6 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <select
-          v-model="sortMode"
-          class="rounded border border-slate-300 px-2 py-1 text-xs text-slate-700"
-        >
-          <option value="price">Price</option>
-          <option value="provider">Provider</option>
-          <option value="pickup">Pickup date</option>
-          <option value="duration">Duration</option>
-        </select>
-
         <button
           class="inline-flex items-center gap-1.5 rounded-md border border-sky-500 px-3 py-1.5 text-xs font-medium text-sky-700 hover:bg-sky-50"
           type="button"
@@ -27,6 +17,22 @@
         </button>
       </div>
     </header>
+
+    <!-- Sorting -->
+    <div class="flex items-center gap-2 mb-3 text-[11px] text-slate-600">
+      <span>Sort by:</span>
+
+      <select
+        v-model="sortMode"
+        class="rounded border border-slate-300 px-2 py-1 text-[11px]"
+      >
+        <option value="price">Price</option>
+        <option value="days">Duration</option>
+        <option value="provider">Provider</option>
+        <option value="pickup">Pickup date</option>
+      </select>
+      <div class="text-[10px] text-slate-400">Sorted by: {{ sortMode }}</div>
+    </div>
 
     <!-- Assigned rentals -->
     <div v-if="optionRentals.length" class="space-y-2">
@@ -57,21 +63,6 @@
         :key="rental.id"
         :rental="rental"
       >
-        <template #actions>
-          <button
-            class="rounded-md border border-sky-500 px-2 py-1 text-[11px] text-sky-700 hover:bg-sky-50"
-            @click="assignRental(rental.id)"
-          >
-            Assign
-          </button>
-
-          <button
-            class="rounded-md border border-red-500 px-2 py-1 text-[11px] text-red-600 hover:bg-red-50"
-            @click="deleteRental(rental.id)"
-          >
-            Delete
-          </button>
-        </template>
       </CarRentalCard>
     </div>
 
@@ -92,6 +83,7 @@ import type { Trip, TripOption, CarRentalOption } from "@/types/tripTypes";
 
 import CarRentalCard from "@/components/trips/options/_atoms/CarRentalCard.vue";
 import TripOptionCarRentalEditor from "@/components/trips/options/TripOptionCarRentalEditor.vue";
+import { rentalDaysFromOption } from "@/utils/rentals";
 
 const props = defineProps<{
   trip: Trip;
@@ -102,39 +94,24 @@ const emit = defineEmits<{
   (e: "changed"): void;
 }>();
 
-const sortMode = ref<"price" | "provider" | "pickup" | "duration">("price");
-
-/* STATE */
+/* ---- UI STATE ---- */
+const sortMode = ref<"price" | "days" | "provider" | "pickup">("price");
 const editorOpen = ref(false);
 const selectedRental = ref<CarRentalOption | null>(null);
 
-/* COMPUTED LISTS */
-const optionRentals = computed(() =>
-  sortRentals(
-    props.trip.carRentals.filter((r) => r.tripOptionId === props.option.id),
-  ),
-);
+/* ---- SAFE DATE HELPER ---- */
+const toDateSafe = (v: string | null | undefined): Date =>
+  v ? new Date(v) : new Date("1970-01-01T00:00:00Z");
 
-const unassignedRentals = computed(() =>
-  sortRentals(props.trip.carRentals.filter((r) => !r.tripOptionId)),
-);
-
-/* ACTIONS */
-function openCreate() {
-  selectedRental.value = null;
-  editorOpen.value = true;
-}
-
-function onEditRental(rental: CarRentalOption) {
-  selectedRental.value = rental;
-  editorOpen.value = true;
-}
-
+/* ---- SORTING ---- */
 function sortRentals(list: CarRentalOption[]) {
   return [...list].sort((a, b) => {
     switch (sortMode.value) {
       case "price":
         return (a.totalCostEUR ?? 0) - (b.totalCostEUR ?? 0);
+
+      case "days":
+        return rentalDaysFromOption(a) - rentalDaysFromOption(b);
 
       case "provider":
         return a.provider.localeCompare(b.provider);
@@ -145,18 +122,32 @@ function sortRentals(list: CarRentalOption[]) {
           toDateSafe(b.pickupDate).getTime()
         );
 
-      case "duration": {
-        const startA = toDateSafe(a.pickupDate).getTime();
-        const endA = toDateSafe(a.dropoffDate).getTime();
-        const startB = toDateSafe(b.pickupDate).getTime();
-        const endB = toDateSafe(b.dropoffDate).getTime();
-        return endA - startA - (endB - startB);
-      }
-
       default:
         return 0;
     }
   });
+}
+
+/* ---- COMPUTED LISTS ---- */
+const optionRentals = computed(() =>
+  sortRentals(
+    props.trip.carRentals.filter((r) => r.tripOptionId === props.option.id),
+  ),
+);
+
+const unassignedRentals = computed(() =>
+  sortRentals(props.trip.carRentals.filter((r) => !r.tripOptionId)),
+);
+
+/* ---- ACTIONS ---- */
+function openCreate() {
+  selectedRental.value = null;
+  editorOpen.value = true;
+}
+
+function onEditRental(rental: CarRentalOption) {
+  selectedRental.value = rental;
+  editorOpen.value = true;
 }
 
 function closeEditor() {
@@ -191,9 +182,5 @@ async function deleteRental(rentalId: string) {
 
 function onSaved() {
   emit("changed");
-}
-
-function toDateSafe(v: string | null | undefined): Date {
-  return v ? new Date(v) : new Date("1970-01-01T00:00:00Z");
 }
 </script>
