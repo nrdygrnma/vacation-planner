@@ -45,13 +45,23 @@
 
           <div>{{ formatMoney(flight.totalCostEUR) }} €</div>
 
-          <button
-            class="rounded-md border border-slate-300 px-2 py-1 text-[11px] hover:bg-slate-50"
-            type="button"
-            @click="onEditFlight(flight)"
-          >
-            Edit
-          </button>
+          <div class="gap-2 flex items-center">
+            <button
+              class="rounded-md border border-slate-300 px-2 py-1 text-[11px] hover:bg-slate-50"
+              type="button"
+              @click="onEditFlight(flight)"
+            >
+              Edit
+            </button>
+
+            <button
+              class="rounded-md border border-red-500 px-2 py-1 text-[11px] text-red-600 hover:bg-red-50"
+              type="button"
+              @click="deleteFlight(flight.id)"
+            >
+              Delete
+            </button>
+          </div>
         </div>
       </article>
     </div>
@@ -105,6 +115,14 @@
               @click="assignFlightToOption(flight.id)"
             >
               Assign to this option
+            </button>
+
+            <button
+              class="rounded-md border border-red-500 px-2 py-1 text-[11px] text-red-600 hover:bg-red-50"
+              type="button"
+              @click="deleteFlight(flight.id)"
+            >
+              Delete
             </button>
           </div>
         </div>
@@ -160,6 +178,20 @@ const assignFlightToOption = async (flightId: string) => {
     emit("changed");
   } catch (err) {
     console.error("Failed to assign flight to option", err);
+  }
+};
+
+const deleteFlight = async (flightId: string) => {
+  if (!confirm("Delete this flight?")) return;
+
+  try {
+    await $fetch(`/api/trips/${props.trip.id}/flights/${flightId}`, {
+      method: "DELETE",
+    });
+
+    emit("changed");
+  } catch (err) {
+    console.error("Failed to delete flight", err);
   }
 };
 
