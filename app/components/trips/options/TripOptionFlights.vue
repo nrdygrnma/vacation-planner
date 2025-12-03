@@ -31,6 +31,7 @@
         <option value="airline">Airline</option>
         <option value="date">Departure</option>
       </select>
+      <div class="text-[10px] text-slate-400">Sorted by: {{ sortMode }}</div>
     </div>
 
     <div v-if="optionFlights.length" class="space-y-2">

@@ -20,7 +20,9 @@
 
     <!-- Sorting -->
     <div class="flex items-center gap-2 mb-3 text-[11px] text-slate-600">
-      <span>Sort by:</span>
+      <span class="uppercase tracking-wide text-[10px] text-slate-400"
+        >Sort by:</span
+      >
 
       <select
         v-model="sortMode"
