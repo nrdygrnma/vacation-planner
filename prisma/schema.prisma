@@ -38,9 +38,9 @@ model Trip {
   imageUrl            String?
   carRentals          CarRental[] @relation("TripCarRentals")
   flights             Flight[]    @relation("TripFlights")
+  selectedCarRental   CarRental?  @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
+  selectedFlight      Flight?     @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
   currency            Currency    @relation(fields: [currencyId], references: [id])
-  selectedFlight      Flight?     @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id], onDelete: SetNull)
-  selectedCarRental   CarRental?  @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id], onDelete: SetNull)
   tripStops           TripStop[]
 
   @@index([startDate])
@@ -65,13 +65,12 @@ model Flight {
   bookingUrl              String?
   notes                   String?
   durationMin             Int?
-  stopOverDurationMinutes Int?
-  stopOverAirports        String?
-  segments                Json?
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
-  trip                    Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
+  stopOverAirports        String?
+  stopOverDurationMinutes Int?
   currency                Currency  @relation(fields: [currencyId], references: [id])
+  trip                    Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
   selectedOnTrip          Trip?     @relation("SelectedFlightOnTrip")
 
   @@index([tripId])
@@ -101,9 +100,9 @@ model CarRental {
   tripId          String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  trip            Trip      @relation("TripCarRentals", fields: [tripId], references: [id], onDelete: Cascade)
-  currency        Currency  @relation(fields: [currencyId], references: [id])
   carType         CarType?  @relation(fields: [carTypeId], references: [id])
+  currency        Currency  @relation(fields: [currencyId], references: [id])
+  trip            Trip      @relation("TripCarRentals", fields: [tripId], references: [id], onDelete: Cascade)
   selectedOnTrip  Trip?     @relation("SelectedCarOnTrip")
 }
 
@@ -119,8 +118,8 @@ model TripStop {
   createdAt               DateTime        @default(now())
   updatedAt               DateTime        @updatedAt
   accommodations          Accommodation[] @relation("TripStopAccommodation")
-  trip                    Trip            @relation(fields: [tripId], references: [id])
   selectedAccommodation   Accommodation?  @relation("SelectedAccommodationOnStop", fields: [selectedAccommodationId], references: [id])
+  trip                    Trip            @relation(fields: [tripId], references: [id])
 }
 
 model Accommodation {
@@ -134,7 +133,7 @@ model Accommodation {
   tripStopId     String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  tripStop       TripStop? @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
   currency       Currency  @relation(fields: [currencyId], references: [id])
+  tripStop       TripStop? @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
   selectedOnStop TripStop? @relation("SelectedAccommodationOnStop")
 }
