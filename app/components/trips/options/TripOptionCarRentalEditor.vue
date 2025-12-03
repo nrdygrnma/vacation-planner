@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="open"
-    class="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
+    class="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 z-50"
   >
     <div
       class="w-full max-w-lg bg-white rounded-lg shadow-xl flex flex-col max-h-[90vh]"
@@ -23,7 +23,7 @@
       </header>
 
       <!-- Body -->
-      <div class="p-4 space-y-4 overflow-y-auto text-xs">
+      <div class="p-4 space-y-4 overflow-y-auto text-xs flex-1">
         <!-- Provider -->
         <div>
           <label class="block text-slate-700 mb-1">Provider</label>
@@ -63,6 +63,7 @@
             <input
               v-model="form.pickupLocation"
               class="w-full rounded border border-slate-300 px-2 py-1 uppercase"
+              placeholder="Airport, city…"
               type="text"
             />
           </div>
@@ -72,6 +73,7 @@
             <input
               v-model="form.dropoffLocation"
               class="w-full rounded border border-slate-300 px-2 py-1 uppercase"
+              placeholder="Airport, city…"
               type="text"
             />
           </div>
@@ -80,7 +82,7 @@
         <!-- Costs -->
         <div class="flex gap-2">
           <div class="flex-1">
-            <label class="block text-slate-700 mb-1">Base rate</label>
+            <label class="block text-slate-700 mb-1">Base rate (€)</label>
             <input
               v-model.number="form.baseRate"
               class="w-full rounded border border-slate-300 px-2 py-1"
@@ -93,7 +95,6 @@
             <input
               v-model.number="form.fees"
               class="w-full rounded border border-slate-300 px-2 py-1"
-              placeholder="optional"
               type="number"
             />
           </div>
@@ -108,13 +109,13 @@
           </div>
         </div>
 
-        <!-- Extra fields -->
+        <!-- Booking + Notes -->
         <div>
           <label class="block text-slate-700 mb-1">Booking URL</label>
           <input
             v-model="form.bookingUrl"
             class="w-full rounded border border-slate-300 px-2 py-1"
-            placeholder="https://example.com/reservation"
+            placeholder="https://provider.com/booking"
             type="url"
           />
         </div>
@@ -124,12 +125,13 @@
           <textarea
             v-model="form.notes"
             class="w-full rounded border border-slate-300 px-2 py-1"
+            placeholder="Extra insurance, deposit, etc."
             rows="2"
           ></textarea>
         </div>
       </div>
 
-      <!-- Footer INSIDE the container -->
+      <!-- Footer -->
       <footer class="p-4 border-t border-slate-200">
         <button
           class="w-full rounded-md bg-sky-600 text-white px-3 py-2 text-xs font-medium hover:bg-sky-700"
@@ -141,6 +143,7 @@
     </div>
   </div>
 </template>
+
 
 <script lang="ts" setup>
 import type { Trip, TripOption, CarRentalOption } from "@/types/tripTypes";

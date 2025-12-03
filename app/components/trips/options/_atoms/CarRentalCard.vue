@@ -6,7 +6,8 @@
     <div class="flex items-center justify-between gap-3">
       <div class="font-medium text-slate-800">
         {{ rental.provider }}
-        <span class="text-slate-500">
+
+        <span class="text-slate-500 uppercase">
           · {{ rental.pickupLocation }} → {{ rental.dropoffLocation }}
         </span>
       </div>
@@ -15,13 +16,20 @@
         {{ formatDate(rental.pickupDate) }} →
         {{ formatDate(rental.dropoffDate) }}
       </div>
+      <div class="text-[11px] text-slate-500">
+        {{ rentalDaysFromOption(rental) }} days
+      </div>
     </div>
 
     <!-- Info row -->
-    <div class="flex items-center justify-between gap-3 text-[11px] text-slate-600">
+    <div
+      class="flex items-center justify-between gap-3 text-[11px] text-slate-600"
+    >
       <div>
         Base: {{ formatMoney(rental.baseRate) }} €
-        <span v-if="rental.fees"> · Fees: {{ formatMoney(rental.fees) }} €</span>
+        <span v-if="rental.fees">
+          · Fees: {{ formatMoney(rental.fees) }} €</span
+        >
         <span v-if="rental.insurancePerDay">
           · Insurance: {{ formatMoney(rental.insurancePerDay) }} €/day
         </span>
@@ -32,14 +40,14 @@
       <div class="flex items-center gap-2">
         <button
           class="rounded-md border border-slate-300 px-2 py-1 text-[11px] hover:bg-slate-50"
-          @click="$emit('edit', rental)"
+          @click="emit('edit', rental)"
         >
           Edit
         </button>
 
         <button
           class="rounded-md border border-red-500 px-2 py-1 text-[11px] text-red-600 hover:bg-red-50"
-          @click="$emit('delete', rental.id)"
+          @click="emit('delete', rental.id)"
         >
           Delete
         </button>
@@ -50,8 +58,16 @@
 
 <script lang="ts" setup>
 import type { CarRentalOption } from "@/types/tripTypes";
+import { rentalDaysFromOption } from "~/utils/rentals";
 
-const props = defineProps<{ rental: CarRentalOption }>();
+const props = defineProps<{
+  rental: CarRentalOption;
+}>();
+
+const emit = defineEmits<{
+  (e: "edit", rental: CarRentalOption): void;
+  (e: "delete", id: string): void;
+}>();
 
 const formatDate = (value?: string | null) =>
   value ? new Date(value).toLocaleDateString() : "Date unknown";

@@ -1,5 +1,6 @@
 import { prisma } from "~~/server/utils/prisma";
 import { createError, getRouterParam } from "h3";
+import { calculateRentalTotal } from "~~/server/utils/rental";
 
 export default defineEventHandler(async (event) => {
   const tripId = getRouterParam(event, "tripId");
@@ -13,6 +14,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
+  const totalCostEUR = calculateRentalTotal(body);
 
   // Basic required fields — same rules as creation
   const missing: string[] = [];
@@ -50,14 +52,13 @@ export default defineEventHandler(async (event) => {
       carTypeId: body.carTypeId ?? null,
 
       currencyId: body.currencyId,
-      totalCostEUR:
-        body.totalCostEUR != null ? Number(body.totalCostEUR) : null,
+      totalCostEUR,
 
       notes: body.notes ?? null,
       bookingUrl: body.bookingUrl ?? null,
 
       tripOptionId: body.tripOptionId ?? null,
-      tripId, // ensure rental belongs to correct trip
+      tripId,
     },
   });
 
