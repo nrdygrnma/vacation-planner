@@ -24,27 +24,57 @@ model Currency {
 }
 
 model Trip {
-  id                  String      @id @default(cuid())
+  id                  String       @id @default(cuid())
   title               String
   startDate           DateTime?
   endDate             DateTime?
-  people              Int         @default(1)
+  people              Int          @default(1)
   totalCostEUR        Decimal
   currencyId          String
-  selectedFlightId    String?     @unique
-  selectedCarRentalId String?     @unique
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
+  selectedFlightId    String?      @unique
+  selectedCarRentalId String?      @unique
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
   imageUrl            String?
-  carRentals          CarRental[] @relation("TripCarRentals")
-  flights             Flight[]    @relation("TripFlights")
-  selectedCarRental   CarRental?  @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
-  selectedFlight      Flight?     @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
-  currency            Currency    @relation(fields: [currencyId], references: [id])
+  carRentals          CarRental[]  @relation("TripCarRentals")
+  flights             Flight[]     @relation("TripFlights")
+  selectedCarRental   CarRental?   @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
+  selectedFlight      Flight?      @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
+  currency            Currency     @relation(fields: [currencyId], references: [id])
   tripStops           TripStop[]
+  tripOptions         TripOption[]
 
   @@index([startDate])
   @@index([endDate])
+}
+
+model TripOption {
+  id           String    @id @default(cuid())
+  tripId       String
+  name         String
+  startDate    DateTime?
+  endDate      DateTime?
+  people       Int?
+  totalCostEUR Decimal?
+  isPreferred  Boolean   @default(false)
+
+  // chosen items for this option
+  selectedFlightId    String? @unique
+  selectedCarRentalId String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  trip       Trip        @relation(fields: [tripId], references: [id])
+  flights    Flight[]    @relation("OptionFlights")
+  carRentals CarRental[] @relation("OptionCarRentals")
+
+  selectedFlight    Flight?    @relation("SelectedFlightOnOption", fields: [selectedFlightId], references: [id])
+  selectedCarRental CarRental? @relation("SelectedCarOnOption", fields: [selectedCarRentalId], references: [id])
+
+  @@index([tripId])
+  @@index([isPreferred])
 }
 
 model Flight {
@@ -60,6 +90,7 @@ model Flight {
   currencyId              String
   totalCostEUR            Decimal
   tripId                  String
+  tripOptionId            String?
   flightNumber            String?
   stops                   Int?      @default(0)
   bookingUrl              String?
@@ -69,13 +100,20 @@ model Flight {
   updatedAt               DateTime  @updatedAt
   stopOverAirports        String?
   stopOverDurationMinutes Int?
-  currency                Currency  @relation(fields: [currencyId], references: [id])
-  trip                    Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
-  selectedOnTrip          Trip?     @relation("SelectedFlightOnTrip")
+
+  currency       Currency @relation(fields: [currencyId], references: [id])
+  trip           Trip     @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
+  selectedOnTrip Trip?    @relation("SelectedFlightOnTrip")
+
+  // 🔹 Main option relation (1 option → many flights)
+  tripOption       TripOption? @relation("OptionFlights", fields: [tripOptionId], references: [id])
+  // 🔹 Option’s chosen flight (1 option → 1 selected flight)
+  selectedOnOption TripOption? @relation("SelectedFlightOnOption")
 
   @@index([tripId])
   @@index([tripId, departureDate])
   @@index([tripId, totalCostEUR])
+  @@index([tripOptionId])
 }
 
 model CarType {
@@ -98,12 +136,23 @@ model CarRental {
   currencyId      String
   totalCostEUR    Decimal?
   tripId          String
+  tripOptionId    String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  carType         CarType?  @relation(fields: [carTypeId], references: [id])
-  currency        Currency  @relation(fields: [currencyId], references: [id])
-  trip            Trip      @relation("TripCarRentals", fields: [tripId], references: [id], onDelete: Cascade)
-  selectedOnTrip  Trip?     @relation("SelectedCarOnTrip")
+
+  carType  CarType? @relation(fields: [carTypeId], references: [id])
+  currency Currency @relation(fields: [currencyId], references: [id])
+  trip     Trip     @relation("TripCarRentals", fields: [tripId], references: [id], onDelete: Cascade)
+
+  selectedOnTrip Trip? @relation("SelectedCarOnTrip")
+
+  // 🔹 Main option relation (1 option → many rentals)
+  tripOption       TripOption? @relation("OptionCarRentals", fields: [tripOptionId], references: [id])
+  // 🔹 Option’s chosen car (1 option → 1 selected rental)
+  selectedOnOption TripOption? @relation("SelectedCarOnOption")
+
+  @@index([tripId])
+  @@index([tripOptionId])
 }
 
 model TripStop {

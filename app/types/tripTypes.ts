@@ -144,4 +144,26 @@ export interface Trip {
   flights: FlightOption[];
   carRentals: CarRentalOption[];
   tripStops: TripStop[];
+  tripOptions?: TripOption[];
+}
+
+export interface TripOption {
+    id: string;
+    tripId: string;
+    name: string;
+    startDate?: string | null;
+    endDate?: string | null;
+    people?: number | null;
+    totalCostEUR?: number | null;
+    isPreferred: boolean;
+
+    selectedFlightId?: string | null;
+    selectedCarRentalId?: string | null;
+
+    // We’ll wire these later when we care about full relation loading
+    selectedFlight?: FlightOption | null;
+    selectedCarRental?: CarRentalOption | null;
+
+    createdAt: string;
+    updatedAt: string;
 }

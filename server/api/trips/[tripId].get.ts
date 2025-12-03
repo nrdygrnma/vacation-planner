@@ -14,16 +14,15 @@ export default defineEventHandler(async (event) => {
     where: { id: tripId },
     include: {
       currency: true,
-      selectedFlight: true,
-      selectedCarRental: true,
-      flights: {
-        orderBy: [{ departureDate: "asc" }, { totalCostEUR: "asc" }],
-      },
+      flights: true,
       carRentals: true,
       tripStops: {
         orderBy: { startDate: "asc" },
         include: { accommodations: true },
       },
+        tripOptions: {
+          orderBy: { createdAt: "asc" },
+        }
     },
   });
 
