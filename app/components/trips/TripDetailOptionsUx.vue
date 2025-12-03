@@ -92,7 +92,7 @@
           v-else-if="activeTab === 'flights'"
           :option="currentOption"
           :trip="trip"
-          @changed="refresh()"
+          @changed="onChanged"
         />
 
         <!-- Car rentals -->
@@ -194,6 +194,10 @@ const onCreateOption = async () => {
     method: "POST",
   });
 
+  await refresh();
+};
+
+const onChanged = async () => {
   await refresh();
 };
 </script>
