@@ -6,18 +6,14 @@
         <h1 class="text-xl font-semibold text-slate-800">
           {{ trip.title }}
         </h1>
-        <p class="text-xs text-slate-500">
-          Trip ID: {{ trip.id }}
-        </p>
+        <p class="text-xs text-slate-500">Trip ID: {{ trip.id }}</p>
       </div>
 
       <div class="text-right text-xs text-slate-500">
         <div v-if="trip.startDate && trip.endDate">
           {{ formattedTripRange }}
         </div>
-        <div v-else>
-          Dates not set yet
-        </div>
+        <div v-else>Dates not set yet</div>
       </div>
     </header>
 
@@ -25,18 +21,22 @@
     <div class="flex items-center justify-between gap-4">
       <div class="flex flex-wrap gap-2">
         <button
-            v-for="option in tripOptions"
-            :key="option.id"
-            type="button"
-            class="px-3 py-1.5 rounded-full border text-xs font-medium transition
-                 whitespace-nowrap flex items-center gap-2"
-            :class="option.id === selectedOptionId
-            ? 'border-sky-500 bg-sky-50 text-sky-800'
-            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'"
-            @click="selectedOptionId = option.id"
+          v-for="option in tripOptions"
+          :key="option.id"
+          :class="
+            option.id === selectedOptionId
+              ? 'border-sky-500 bg-sky-50 text-sky-800'
+              : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+          "
+          class="px-3 py-1.5 rounded-full border text-xs font-medium transition whitespace-nowrap flex items-center gap-2"
+          type="button"
+          @click="selectedOptionId = option.id"
         >
           <span>{{ option.name }}</span>
-          <span v-if="option.isPreferred" class="text-[10px] uppercase tracking-wide">
+          <span
+            v-if="option.isPreferred"
+            class="text-[10px] uppercase tracking-wide"
+          >
             ★ Preferred
           </span>
         </button>
@@ -47,10 +47,9 @@
       </div>
 
       <button
-          type="button"
-          class="inline-flex items-center gap-1.5 rounded-md border border-sky-500 px-3 py-1.5
-               text-xs font-medium text-sky-700 hover:bg-sky-50"
-          @click="onCreateOption"
+        class="inline-flex items-center gap-1.5 rounded-md border border-sky-500 px-3 py-1.5 text-xs font-medium text-sky-700 hover:bg-sky-50"
+        type="button"
+        @click="onCreateOption"
       >
         <span class="text-base leading-none">＋</span>
         <span>New option</span>
@@ -61,17 +60,16 @@
     <!-- Tabs -->
     <nav class="border-b border-slate-200 mt-4">
       <ul class="flex flex-wrap gap-2">
-        <li
-            v-for="tab in tabs"
-            :key="tab.id"
-        >
+        <li v-for="tab in tabs" :key="tab.id">
           <button
-              type="button"
-              class="px-3 py-2 text-xs font-medium border-b-2 -mb-px transition"
-              :class="tab.id === activeTab
-              ? 'border-sky-500 text-sky-700'
-              : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-200'"
-              @click="activeTab = tab.id"
+            :class="
+              tab.id === activeTab
+                ? 'border-sky-500 text-sky-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-200'
+            "
+            class="px-3 py-2 text-xs font-medium border-b-2 -mb-px transition"
+            type="button"
+            @click="activeTab = tab.id"
           >
             {{ tab.label }}
           </button>
@@ -81,36 +79,34 @@
 
     <!-- Tab content -->
     <div class="pt-4">
-      <div
-          v-if="currentOption"
-          class="space-y-4"
-      >
+      <div v-if="currentOption" class="space-y-4">
         <!-- Overview -->
         <TripOptionOverview
-            v-if="activeTab === 'overview'"
-            :trip="trip"
-            :option="currentOption"
+          v-if="activeTab === 'overview'"
+          :option="currentOption"
+          :trip="trip"
         />
 
         <!-- Flights -->
         <TripOptionFlights
-            v-else-if="activeTab === 'flights'"
-            :trip="trip"
-            :option="currentOption"
+          v-else-if="activeTab === 'flights'"
+          :option="currentOption"
+          :trip="trip"
+          @changed="refresh()"
         />
 
         <!-- Car rentals -->
         <TripOptionCars
-            v-else-if="activeTab === 'cars'"
-            :trip="trip"
-            :option="currentOption"
+          v-else-if="activeTab === 'cars'"
+          :option="currentOption"
+          :trip="trip"
         />
 
         <!-- Stays / stops -->
         <TripOptionStays
-            v-else-if="activeTab === 'stays'"
-            :trip="trip"
-            :option="currentOption"
+          v-else-if="activeTab === 'stays'"
+          :option="currentOption"
+          :trip="trip"
         />
       </div>
 
@@ -118,12 +114,10 @@
         Select an option or create a new one to start planning.
       </div>
     </div>
-
   </section>
-
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { Trip, TripOption } from "@/types/tripTypes";
 import TripOptionOverview from "@/components/trips/options/TripOptionOverview.vue";
 import TripOptionFlights from "@/components/trips/options/TripOptionFlights.vue";
@@ -155,23 +149,19 @@ const tripOptions = computed<TripOption[]>(() => {
 const currentOption = computed((): TripOption | null => {
   const options = tripOptions.value;
 
-  // No options at all
   if (!options.length) {
     return null;
   }
 
-  // 1) If we already have a selected id and it still exists, keep it
   const existing = options.find((o) => o.id === selectedOptionId.value);
   if (existing) return existing;
 
-  // 2) Else try preferred option
   const preferred = options.find((o) => o.isPreferred);
   if (preferred) {
     selectedOptionId.value = preferred.id;
     return preferred;
   }
 
-  // 3) Fallback: first option in array
   const first = options[0];
   if (!first) {
     return null;
@@ -180,8 +170,6 @@ const currentOption = computed((): TripOption | null => {
   selectedOptionId.value = first.id;
   return first;
 });
-
-
 
 const formattedTripRange = computed(() => {
   if (!trip.value?.startDate || !trip.value?.endDate) return "";
@@ -195,7 +183,7 @@ const optionDateSummary = (option: TripOption) => {
   const start = new Date(option.startDate);
   const end = new Date(option.endDate);
   const nights =
-      Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) || 0;
+    Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) || 0;
   return `${start.toLocaleDateString()} – ${end.toLocaleDateString()} • ${nights} nights`;
 };
 

@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
   if (body.baseFare == null || body.baseFare === "") missing.push("baseFare");
   if (!body.currencyId) missing.push("currencyId");
   if (!body.travelClass) missing.push("travelClass");
+  // ⚠️ note: tripOptionId is optional, so no validation needed
   if (missing.length) {
     throw createError({
       statusCode: 400,
@@ -44,23 +45,39 @@ export default defineEventHandler(async (event) => {
   if (hasSegments) {
     try {
       const segs = [...body.segments];
-      segs.sort((a: any, b: any) => +new Date(a.departureDate) - +new Date(b.departureDate));
+      segs.sort(
+        (a: any, b: any) =>
+          +new Date(a.departureDate) - +new Date(b.departureDate),
+      );
       const flightMinutes = segs.reduce((sum: number, s: any) => {
         const d = +new Date(s.departureDate);
         const a = +new Date(s.arrivalDate);
         return sum + Math.max(0, Math.round((a - d) / 60000));
       }, 0);
-      const stopMinutes = segs.length > 1
-        ? segs.slice(0, -1).reduce((sum: number, s: any, i: number) => {
-            const arrive = +new Date(segs[i].arrivalDate);
-            const nextDepart = +new Date(segs[i + 1].departureDate);
-            return sum + Math.max(0, Math.round((nextDepart - arrive) / 60000));
-          }, 0)
-        : 0;
-      const stopAirports = segs.length > 1 ? segs.slice(0, -1).map((s: any) => s.toAirport).filter(Boolean) : [];
+      const stopMinutes =
+        segs.length > 1
+          ? segs.slice(0, -1).reduce((sum: number, s: any, i: number) => {
+              const arrive = +new Date(segs[i].arrivalDate);
+              const nextDepart = +new Date(segs[i + 1].departureDate);
+              return (
+                sum + Math.max(0, Math.round((nextDepart - arrive) / 60000))
+              );
+            }, 0)
+          : 0;
+      const stopAirports =
+        segs.length > 1
+          ? segs
+              .slice(0, -1)
+              .map((s: any) => s.toAirport)
+              .filter(Boolean)
+          : [];
       derived = {
-        departureDate: segs[0]?.departureDate ? new Date(segs[0].departureDate) : null,
-        arrivalDate: segs[segs.length - 1]?.arrivalDate ? new Date(segs[segs.length - 1].arrivalDate) : null,
+        departureDate: segs[0]?.departureDate
+          ? new Date(segs[0].departureDate)
+          : null,
+        arrivalDate: segs[segs.length - 1]?.arrivalDate
+          ? new Date(segs[segs.length - 1].arrivalDate)
+          : null,
         durationMin: flightMinutes,
         stops: Math.max(0, segs.length - 1),
         stopOverDurationMinutes: stopMinutes,
@@ -89,8 +106,16 @@ export default defineEventHandler(async (event) => {
       airline: body.airline,
       fromAirport: body.fromAirport,
       toAirport: body.toAirport,
-      departureDate: derived ? derived.departureDate : (body.departureDate ? new Date(body.departureDate) : null),
-      arrivalDate: derived ? derived.arrivalDate : (body.arrivalDate ? new Date(body.arrivalDate) : null),
+      departureDate: derived
+        ? derived.departureDate
+        : body.departureDate
+          ? new Date(body.departureDate)
+          : null,
+      arrivalDate: derived
+        ? derived.arrivalDate
+        : body.arrivalDate
+          ? new Date(body.arrivalDate)
+          : null,
       flightNumber: body.flightNumber ?? null,
       travelClass: body.travelClass,
       baseFare: body.baseFare,
@@ -101,11 +126,20 @@ export default defineEventHandler(async (event) => {
       notes: body.notes ?? null,
       stops: derived ? derived.stops : (body.stops ?? 0),
       durationMin,
-      stopOverDurationMinutes: derived ? derived.stopOverDurationMinutes : (body.stopOverDurationMinutes ?? null),
-      stopOverAirports: Array.isArray(derived?.stopOverAirports ?? body.stopOverAirports)
-        ? JSON.stringify((derived?.stopOverAirports ?? body.stopOverAirports) as any)
+      stopOverDurationMinutes: derived
+        ? derived.stopOverDurationMinutes
+        : (body.stopOverDurationMinutes ?? null),
+      stopOverAirports: Array.isArray(
+        derived?.stopOverAirports ?? body.stopOverAirports,
+      )
+        ? JSON.stringify(
+            (derived?.stopOverAirports ?? body.stopOverAirports) as any,
+          )
         : (derived?.stopOverAirports ?? body.stopOverAirports) || null,
-      segments: hasSegments ? (body.segments as any) : null,
+      segments: hasSegments ? JSON.stringify(body.segments) : null,
+
+      // 🆕 NEW: bind flight to a trip option if provided
+      tripOptionId: body.tripOptionId ?? null,
     },
   });
 
@@ -116,6 +150,15 @@ export default defineEventHandler(async (event) => {
       try {
         return (flight as any).stopOverAirports
           ? JSON.parse((flight as any).stopOverAirports as any)
+          : null;
+      } catch {
+        return null;
+      }
+    })(),
+    segments: (() => {
+      try {
+        return (flight as any).segments
+          ? JSON.parse((flight as any).segments as any)
           : null;
       } catch {
         return null;

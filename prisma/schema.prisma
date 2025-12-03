@@ -100,6 +100,7 @@ model Flight {
   updatedAt               DateTime  @updatedAt
   stopOverAirports        String?
   stopOverDurationMinutes Int?
+  segments                String?
 
   currency       Currency @relation(fields: [currencyId], references: [id])
   trip           Trip     @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)

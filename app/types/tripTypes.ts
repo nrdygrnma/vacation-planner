@@ -11,7 +11,7 @@ export interface Currency {
 // Airline
 // ------------------
 export interface Airline {
-  code: string; // IATA or internal code
+  code: string;
   name: string;
 }
 
@@ -33,38 +33,78 @@ export interface FlightExtras {
 }
 
 // ------------------
-// FlightOption
+// Flight segments (for multi-leg flights)
 // ------------------
 export interface FlightSegment {
   fromAirport: string;
   toAirport: string;
-  departureDate: string; // ISO string
-  arrivalDate: string; // ISO string
+  departureDate: string;
+  arrivalDate: string;
 }
 
+// ------------------
+// TripOption (scenario for a trip)
+// ------------------
+export interface TripOption {
+  id: string;
+  tripId: string;
+  name: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  people?: number | null;
+  totalCostEUR?: number | null;
+  isPreferred: boolean;
+
+  selectedFlightId?: string | null;
+  selectedCarRentalId?: string | null;
+
+  selectedFlight?: FlightOption | null;
+  selectedCarRental?: CarRentalOption | null;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ------------------
+// FlightOption (canonical frontend flight type)
+// ------------------
+// This represents a flight as used in the UI.
 export interface FlightOption {
   id: string;
+
   airline: { name: string; symbol: string };
   fromAirport: { name: string; symbol: string };
   toAirport: { name: string; symbol: string };
+
   flightNumber: string;
-  departureDate: string;
-  arrivalDate: string;
+
+  departureDate: string | null;
+  arrivalDate: string | null;
+
   stops: number;
   travelClass: "economy" | "premium_economy" | "business";
+
   baseFare: number;
   extras?: FlightExtras;
+
   bookingUrl?: string;
   notes?: string;
+
   durationMin?: number;
-  // New fields for calculating stopovers and refined timing
-  stopOverDurationMinutes?: number; // total stopover time in minutes
-  stopOverAirports?: string[]; // list of IATA codes or airport names
-  segments?: FlightSegment[]; // optional detailed legs
+  stopOverDurationMinutes?: number;
+  stopOverAirports?: string[];
+
+  // For multi-leg flights
+  segments?: FlightSegment[] | null;
+
   currencyId: string;
   currency?: Currency;
   totalCostEUR: number;
+
   tripId: string;
+  tripOptionId?: string | null;
+
+  // Optional: relation back to trip, used only when you need it
   trip?: Trip;
 }
 
@@ -76,16 +116,21 @@ export interface CarRentalOption {
   company: string;
   carTypeId: string;
   carType?: CarType;
+
   pickupDate: string;
   dropOffDate: string;
+
   pickupLocation: string;
   dropOffLocation: string;
+
   baseRate: number;
   fees?: number;
   insurancePerDay?: number;
+
   currencyId: string;
   currency?: Currency;
   totalCostEUR?: number;
+
   tripId: string;
   trip?: Trip;
 }
@@ -98,13 +143,16 @@ export interface AccommodationOption {
   title: string;
   provider?: string;
   roomType?: string;
+
   nightlyRate: number;
   currencyId: string;
-  currency?: Currency; // loaded relation
+  currency?: Currency;
   totalCostEUR?: number;
+
   url?: string;
+
   tripStopId?: string;
-  tripStop?: TripStop; // optional loaded relation
+  tripStop?: TripStop;
 }
 
 // ------------------
@@ -117,10 +165,13 @@ export interface TripStop {
   endDate: string;
   lat?: number;
   lng?: number;
+
   selectedAccommodationId?: string;
-  selectedAccommodation?: AccommodationOption; // optional loaded relation
+  selectedAccommodation?: AccommodationOption;
+
   tripId: string;
-  trip?: Trip; // optional loaded relation
+  trip?: Trip;
+
   accommodations: AccommodationOption[];
 }
 
@@ -132,38 +183,23 @@ export interface Trip {
   title: string;
   startDate?: string | null;
   endDate?: string | null;
+
   currencyId: string;
-  currency?: Currency; // optional loaded relation
+  currency?: Currency;
+
   people: number;
   totalCostEUR: number;
   imageUrl?: string | null;
+
   selectedFlightId?: string;
-  selectedFlight?: FlightOption; // optional loaded relation
+  selectedFlight?: FlightOption;
+
   selectedCarRentalId?: string;
-  selectedCarRental?: CarRentalOption; // optional loaded relation
+  selectedCarRental?: CarRentalOption;
+
   flights: FlightOption[];
   carRentals: CarRentalOption[];
   tripStops: TripStop[];
+
   tripOptions?: TripOption[];
-}
-
-export interface TripOption {
-    id: string;
-    tripId: string;
-    name: string;
-    startDate?: string | null;
-    endDate?: string | null;
-    people?: number | null;
-    totalCostEUR?: number | null;
-    isPreferred: boolean;
-
-    selectedFlightId?: string | null;
-    selectedCarRentalId?: string | null;
-
-    // We’ll wire these later when we care about full relation loading
-    selectedFlight?: FlightOption | null;
-    selectedCarRental?: CarRentalOption | null;
-
-    createdAt: string;
-    updatedAt: string;
 }

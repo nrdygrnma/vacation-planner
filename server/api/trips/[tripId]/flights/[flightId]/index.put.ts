@@ -89,23 +89,38 @@ export default defineEventHandler(async (event) => {
   if (hasSegments) {
     try {
       const segs = [...(body.segments as any[])];
-      segs.sort((a, b) => +new Date(a.departureDate) - +new Date(b.departureDate));
+      segs.sort(
+        (a, b) => +new Date(a.departureDate) - +new Date(b.departureDate),
+      );
       const flightMinutes = segs.reduce((sum, s) => {
         const d = +new Date(s.departureDate);
         const a = +new Date(s.arrivalDate);
         return sum + Math.max(0, Math.round((a - d) / 60000));
       }, 0);
-      const stopMinutes = segs.length > 1
-        ? segs.slice(0, -1).reduce((sum, _s, i) => {
-            const arrive = +new Date(segs[i].arrivalDate);
-            const nextDepart = +new Date(segs[i + 1].departureDate);
-            return sum + Math.max(0, Math.round((nextDepart - arrive) / 60000));
-          }, 0)
-        : 0;
-      const stopAirports = segs.length > 1 ? segs.slice(0, -1).map((s: any) => s.toAirport).filter(Boolean) : [];
+      const stopMinutes =
+        segs.length > 1
+          ? segs.slice(0, -1).reduce((sum, _s, i) => {
+              const arrive = +new Date(segs[i].arrivalDate);
+              const nextDepart = +new Date(segs[i + 1].departureDate);
+              return (
+                sum + Math.max(0, Math.round((nextDepart - arrive) / 60000))
+              );
+            }, 0)
+          : 0;
+      const stopAirports =
+        segs.length > 1
+          ? segs
+              .slice(0, -1)
+              .map((s: any) => s.toAirport)
+              .filter(Boolean)
+          : [];
       derived = {
-        departureDate: segs[0]?.departureDate ? new Date(segs[0].departureDate) : null,
-        arrivalDate: segs[segs.length - 1]?.arrivalDate ? new Date(segs[segs.length - 1].arrivalDate) : null,
+        departureDate: segs[0]?.departureDate
+          ? new Date(segs[0].departureDate)
+          : null,
+        arrivalDate: segs[segs.length - 1]?.arrivalDate
+          ? new Date(segs[segs.length - 1].arrivalDate)
+          : null,
         durationMin: flightMinutes,
         stops: Math.max(0, segs.length - 1),
         stopOverDurationMinutes: stopMinutes,
