@@ -194,8 +194,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { FlightOption, Trip, TripOption } from "@/types/tripTypes";
-import TripOptionFlightEditor from "~/components/trips/options/TripOptionFlightEditor.vue";
+import type { FlightOption, Trip, TripOption } from "~/types/tripTypes";
+import TripOptionFlightEditor from "~/components/trips/options/flights/TripOptionFlightEditor.vue";
 
 const props = defineProps<{
   trip: Trip;

@@ -19,8 +19,8 @@
 </template>
 
 <script lang="ts" setup>
-import FlyonModal from "~/components/base/modals/FlyonModal.vue";
-import FlyonModalTrigger from "~/components/base/modals/FlyonModalTrigger.vue";
+import FlyonModal from "~/components/common/flyon/FlyonModal.vue";
+import FlyonModalTrigger from "~/components/common/flyon/FlyonModalTrigger.vue";
 import { useTripsStore } from "~/stores/trips";
 import { toast } from "vue-sonner";
 

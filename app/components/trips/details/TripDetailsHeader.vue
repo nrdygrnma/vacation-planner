@@ -13,8 +13,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { Trip } from "@/types/tripTypes";
-import { useDateUtils } from "@/composables/useDateUtils";
+import type { Trip } from "~/types/tripTypes";
+import { useDateUtils } from "~/composables/useDateUtils";
 
 const props = defineProps<{ trip: Trip }>();
 const emit = defineEmits<{ (e: "back"): void }>();

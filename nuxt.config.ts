@@ -16,7 +16,13 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
-  modules: ["@nuxt/icon", "vue-sonner/nuxt", "@nuxt/fonts", "@pinia/nuxt"],
+  modules: [
+    "@nuxt/icon",
+    "vue-sonner/nuxt",
+    "@nuxt/fonts",
+    "@pinia/nuxt",
+    "@nuxt/ui",
+  ],
   icon: {
     serverBundle: {
       collections: ["lucide"],

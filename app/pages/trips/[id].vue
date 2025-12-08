@@ -1,12 +1,14 @@
 <template>
   <div>
-    <TripsTripDetailOptionsUx v-if="isTripOptionsUxEnabled" />
-    <TripsTripDetailLegacy v-else />
+    <TripDetailOptionsUx v-if="isTripOptionsUxEnabled" />
+    <TripDetailLegacy v-else />
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import {useFeatureFlags} from "~/composables/useFeatureFlags";
+import TripDetailOptionsUx from "~/components/trips/details/TripDetailOptionsUx.vue";
+import TripDetailLegacy from "~/components/trips/details/TripDetailLegacy.vue";
 
 const { isTripOptionsUxEnabled } = useFeatureFlags()
 </script>

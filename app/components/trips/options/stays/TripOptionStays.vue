@@ -37,8 +37,8 @@
   </section>
 </template>
 
-<script setup lang="ts">
-import type { Trip, TripOption } from "@/types/tripTypes";
+<script lang="ts" setup>
+import type { Trip, TripOption } from "~/types/tripTypes";
 
 const props = defineProps<{
   trip: Trip;

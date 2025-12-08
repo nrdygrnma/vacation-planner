@@ -80,9 +80,9 @@
 </template>
 
 <script lang="ts" setup>
-import FlyonModal from "~/components/base/modals/FlyonModal.vue";
-import FlyonModalTrigger from "~/components/base/modals/FlyonModalTrigger.vue";
-import FlightForm from "~/components/flights/FlightForm.vue";
+import FlyonModal from "~/components/common/flyon/FlyonModal.vue";
+import FlyonModalTrigger from "~/components/common/flyon/FlyonModalTrigger.vue";
+import FlightForm from "~/components/trips/options/flights/FlightForm.vue";
 import { useFlightsStore } from "~/stores/flights";
 import type { Currency, FlightOption, Trip } from "~/types/tripTypes";
 

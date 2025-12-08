@@ -1,17 +1,16 @@
 <template>
-  <div class="container mx-auto pt-4 pb-16">
+  <div class="container mx-auto pb-16">
     <NavBar />
 
     <div class="mt-8">
       <slot />
     </div>
 
-    <!-- Global toast container -->
     <Toaster position="bottom-right" rich-colors />
   </div>
 </template>
 
 <script lang="ts" setup>
-import NavBar from "~/components/base/navigation/NavBar.vue";
+import NavBar from "~/components/common/navigation/NavBar.vue";
 import { Toaster } from "vue-sonner";
 </script>

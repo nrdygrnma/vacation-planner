@@ -119,11 +119,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { Trip, TripOption } from "@/types/tripTypes";
-import TripOptionOverview from "@/components/trips/options/TripOptionOverview.vue";
-import TripOptionFlights from "@/components/trips/options/TripOptionFlights.vue";
-import TripOptionStays from "@/components/trips/options/TripOptionStays.vue";
-import TripOptionCarRentals from "~/components/trips/options/TripOptionCarRentals.vue";
+import type { Trip, TripOption } from "~/types/tripTypes";
+import TripOptionOverview from "~/components/trips/options/TripOptionOverview.vue";
+import TripOptionFlights from "~/components/trips/options/flights/TripOptionFlights.vue";
+import TripOptionStays from "~/components/trips/options/stays/TripOptionStays.vue";
+import TripOptionCarRentals from "~/components/trips/options/rentals/TripOptionCarRentals.vue";
 
 type TabId = (typeof tabs)[number]["id"];
 
@@ -200,5 +200,10 @@ const onCreateOption = async () => {
 
 const onChanged = async () => {
   await refresh();
+};
+
+const closeEditor = () => {
+  rentalModalRef.value?.close?.();
+  selectedRental.value = null;
 };
 </script>

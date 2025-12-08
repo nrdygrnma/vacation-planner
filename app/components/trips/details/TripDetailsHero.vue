@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Trip } from "@/types/tripTypes";
+import type { Trip } from "~/types/tripTypes";
 
 defineProps<{ trip: Trip; coverPosition: string }>();
 </script>

@@ -270,7 +270,7 @@
         </div>
         <div>
           <label class="label-text">Leg 1 Departure Time</label>
-          <input v-model="form.seg1DepartureTime" class="input w-full" type="time" step="60" />
+          <input v-model="form.seg1DepartureTime" class="input w-full" step="60" type="time" />
         </div>
         <div>
           <label class="label-text">Leg 1 Arrival Date</label>
@@ -278,7 +278,7 @@
         </div>
         <div>
           <label class="label-text">Leg 1 Arrival Time</label>
-          <input v-model="form.seg1ArrivalTime" class="input w-full" type="time" step="60" />
+          <input v-model="form.seg1ArrivalTime" class="input w-full" step="60" type="time" />
         </div>
       </div>
 
@@ -289,7 +289,7 @@
         </div>
         <div>
           <label class="label-text">Leg 2 Departure Time</label>
-          <input v-model="form.seg2DepartureTime" class="input w-full" type="time" step="60" />
+          <input v-model="form.seg2DepartureTime" class="input w-full" step="60" type="time" />
         </div>
         <div>
           <label class="label-text">Leg 2 Arrival Date</label>
@@ -297,7 +297,7 @@
         </div>
         <div>
           <label class="label-text">Leg 2 Arrival Time</label>
-          <input v-model="form.seg2ArrivalTime" class="input w-full" type="time" step="60" />
+          <input v-model="form.seg2ArrivalTime" class="input w-full" step="60" type="time" />
         </div>
       </div>
     </div>
@@ -455,7 +455,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Currency } from "@/types/tripTypes";
+import type { Currency } from "~/types/tripTypes";
 
 const props = defineProps<{
   initialValues?: Partial<{

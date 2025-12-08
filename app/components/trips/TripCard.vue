@@ -54,8 +54,8 @@
 </template>
 
 <script lang="ts" setup>
-import TripEditModal from "./modals/TripEditModal.vue";
-import TripDeleteModal from "./modals/TripDeleteModal.vue";
+import TripEditModal from "./TripEditModal.vue";
+import TripDeleteModal from "./TripDeleteModal.vue";
 import { useDateUtils } from "@/composables/useDateUtils";
 import type { Trip } from "@/types/tripTypes";
 

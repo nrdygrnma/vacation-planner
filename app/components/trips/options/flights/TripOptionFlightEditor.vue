@@ -184,7 +184,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Trip, TripOption, FlightOption } from "@/types/tripTypes";
+import type { Trip, TripOption, FlightOption } from "~/types/tripTypes";
 
 const props = defineProps<{
   trip: Trip;
