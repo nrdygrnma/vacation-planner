@@ -1,18 +1,20 @@
 <template>
-  <div class="flex items-center justify-between gap-4">
-    <h1 class="text-3xl text-primary font-light">Trip Overview</h1>
-    <div class="flex items-center gap-2">
-      <input
-        :value="modelValue"
-        aria-label="Search trips"
-        class="input input-sm w-40 sm:w-64"
+  <div
+    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <h1 class="text-2xl font-semibold text-primary">Trip Overview</h1>
+
+    <div class="flex items-center gap-2 w-full sm:w-auto">
+      <UInput
+        :model-value="modelValue"
+        class="w-full sm:w-64"
+        icon="i-lucide-search"
         placeholder="Search trips"
         type="search"
-        @input="
-          $emit('update:modelValue', ($event.target as HTMLInputElement).value)
-        "
+        @update:model-value="(value) => $emit('update:modelValue', value)"
         @keydown.esc="$emit('update:modelValue', '')"
       />
+
       <TripCreateModal @saved="$emit('created')" />
     </div>
   </div>

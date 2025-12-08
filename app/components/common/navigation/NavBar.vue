@@ -77,7 +77,7 @@ const activeValue = computed<string | number>(() => route.path);
 
 const tabsUi = {
   wrapper: "w-auto",
-  list: ["flex gap-4", "w-auto p-0", "border-b border-transparent"].join(" "),
+  list: ["flex gap-4", "w-auto mt-2", "border-b border-transparent"].join(" "),
   trigger: [
     "relative pb-2 text-sm font-semibold",
     "cursor-pointer",
@@ -85,7 +85,7 @@ const tabsUi = {
     "dark:text-gray-300 dark:hover:text-white",
     "data-[selected=true]:text-primary",
   ].join(" "),
-  indicator: "absolute inset-x-0 -bottom-[1px] h-0.5 bg-primary rounded-full",
+  indicator: "absolute inset-x-0 -bottom-[4px] h-0.5 bg-primary rounded-full",
 };
 
 const onTabChange = (value: string | number) => {

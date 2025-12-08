@@ -1,11 +1,19 @@
 <template>
   <section class="space-y-6">
-    <TripsToolbar v-model="search" @created="refresh()" />
+    <TripsToolbar v-model="search" @created="refresh" />
+
+    <!-- Loading state (optional, uses Nuxt UI skeletons) -->
+    <div
+      v-if="pending"
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    >
+      <USkeleton v-for="i in 4" :key="i" class="h-40 rounded-xl" />
+    </div>
 
     <TripGrid
-      v-if="filtered.length"
+      v-else-if="filtered.length"
       :trips="filtered"
-      @changed="refresh()"
+      @changed="refresh"
       @open="onCardOpen"
     />
 
@@ -14,10 +22,11 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted } from "vue";
+import { storeToRefs } from "pinia";
 import TripsToolbar from "@/components/trips/TripsToolbar.vue";
 import TripGrid from "@/components/trips/TripGrid.vue";
 import TripsEmptyState from "@/components/trips/TripsEmptyState.vue";
-import { storeToRefs } from "pinia";
 import { useTripsStore } from "@/stores/trips";
 import type { Trip } from "@/types/tripTypes";
 
@@ -28,25 +37,11 @@ const onCardOpen = (trip: Trip) => {
   navigateTo(`/trips/${trip.id}`);
 };
 
-watch(
-  () => filtered.value.length,
-  async () => {
-    await nextTick();
-    (window as any).HSOverlay?.autoInit?.();
-
-    document.querySelectorAll(".overlay").forEach((el) => {
-      try {
-        const raw = (window as any).HSOverlay?.getInstance(el, true);
-        const inst = raw?.element || raw?.overlay || raw;
-        inst?.updateToggles?.();
-      } catch {}
-    });
-  },
-);
-
 const refresh = () => tripsStore.fetchTrips();
 
 onMounted(() => {
-  if (!items.value?.length) tripsStore.fetchTrips();
+  if (!items.value?.length) {
+    tripsStore.fetchTrips();
+  }
 });
 </script>
