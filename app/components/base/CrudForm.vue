@@ -10,7 +10,7 @@ import type { FormSubmitEvent } from "@nuxt/ui";
 
 const props = withDefaults(
   defineProps<{
-    initialState: Record<string, any>;
+    state: Record<string, any>;
     schema?: z.ZodTypeAny | null;
     submitLabel?: string;
     cancelLabel?: string;
@@ -24,15 +24,14 @@ const props = withDefaults(
 type Schema = z.output<NonNullable<typeof props.schema>>;
 
 const emit = defineEmits<{
-  (e: "submit", state: Record<string, any>): void;
+  (e: "submit", data: any): void;
   (e: "cancel"): void;
 }>();
 
-const state = reactive({ ...(props.initialState || {}) });
 const formRef = ref<any>();
 
 const onSubmit = (event: FormSubmitEvent<Schema>) => {
-  emit("submit", { ...(event?.data as any) });
+  emit("submit", event.data);
 };
 
 defineExpose({

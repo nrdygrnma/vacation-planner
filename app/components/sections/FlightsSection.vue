@@ -19,6 +19,7 @@
         v-for="f in flights"
         :key="f.id"
         :flight="f"
+        :selected="trip.selectedFlightId === f.id"
         @delete="onDelete(f)"
         @edit="onEdit(f)"
         @select="onSelect(f)"
@@ -34,6 +35,7 @@
       "
       :submit-label="submitLabel"
       :title="modalTitle"
+      :ui="{ width: 'sm:max-w-4xl' }"
       @cancel="aeOpen = false"
       @submit="onModalSubmit"
     >
@@ -71,6 +73,10 @@ import { toast } from "vue-sonner";
 
 const props = defineProps<{
   trip: Trip;
+}>();
+
+const emit = defineEmits<{
+  (e: "refresh"): void;
 }>();
 
 const flightsStore = useFlightsStore();
@@ -116,10 +122,15 @@ const onEdit = (f: FlightOption) => {
 
   aeInitial.value = {
     airline: f.airline,
+    flightNumber: f.flightNumber,
     fromAirport: f.fromAirport,
     toAirport: f.toAirport,
     departureDate: f.departureDate,
     arrivalDate: f.arrivalDate,
+    returnDepartureDate: f.returnDepartureDate,
+    returnArrivalDate: f.returnArrivalDate,
+    isRoundTrip: f.isRoundTrip,
+    segments: f.segments,
     travelClass: f.travelClass || "economy",
     stops: f.stops ?? 0,
     baseFare: Number(f.baseFare) || 0,
@@ -182,6 +193,7 @@ const onSelect = async (f: FlightOption) => {
   try {
     await flightsStore.selectFinal(props.trip.id, f.id);
     toast.success("Flight selected for trip");
+    emit("refresh");
   } catch (e) {
     console.error(e);
     toast.error("Failed to select flight");

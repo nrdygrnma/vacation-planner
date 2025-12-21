@@ -19,7 +19,11 @@
     <div class="space-y-3">
       <UTabs v-model="activeTab" :items="tabItems" />
 
-      <FlightsSection v-if="activeTab === 'flights'" :trip="trip" />
+      <FlightsSection
+        v-if="activeTab === 'flights'"
+        :trip="trip"
+        @refresh="refresh"
+      />
       <CarRentalsSection v-else-if="activeTab === 'cars'" :trip="trip" />
       <StaysSection v-else-if="activeTab === 'stays'" :trip="trip" />
     </div>

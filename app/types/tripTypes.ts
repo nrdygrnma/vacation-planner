@@ -37,9 +37,12 @@ export interface FlightExtras {
 // ------------------
 export interface FlightSegment {
   fromAirport: string;
+  fromAirportTimezone?: string;
   toAirport: string;
+  toAirportTimezone?: string;
   departureDate: string; // ISO string
   arrivalDate: string; // ISO string
+  isReturn?: boolean;
 }
 
 export interface FlightOption {
@@ -50,6 +53,9 @@ export interface FlightOption {
   flightNumber: string;
   departureDate: string;
   arrivalDate: string;
+  returnDepartureDate?: string;
+  returnArrivalDate?: string;
+  isRoundTrip: boolean;
   stops: number;
   travelClass: "economy" | "premium_economy" | "business";
   baseFare: number;
@@ -57,10 +63,16 @@ export interface FlightOption {
   bookingUrl?: string;
   notes?: string;
   durationMin?: number;
+  outboundDurationMin?: number;
+  outboundStopoverMin?: number;
+  returnDurationMin?: number;
+  returnStopoverMin?: number;
   // New fields for calculating stopovers and refined timing
-  stopOverDurationMinutes?: number; // total stopover time in minutes
+  stopOverDurationMinutes?: number; // total stopover time in minutes (both legs combined if applicable)
   stopOverAirports?: string[]; // list of IATA codes or airport names
   segments?: FlightSegment[]; // optional detailed legs
+  outboundNetDurationMin?: number;
+  returnNetDurationMin?: number;
   currencyId: string;
   currency?: Currency;
   totalCostEUR: number;

@@ -31,57 +31,83 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // If segments are provided, compute derived data (overall dates, durations, stops, stopovers)
-  let derived: {
-    departureDate: Date | null;
-    arrivalDate: Date | null;
-    durationMin: number | null;
-    stops: number;
-    stopOverDurationMinutes: number | null;
-    stopOverAirports: string[] | null;
-  } | null = null;
+  // If segments are provided, compute derived data
+  let outboundInfo: any = null;
+  let returnInfo: any = null;
 
   if (hasSegments) {
-    try {
-      const segs = [...body.segments];
-      segs.sort((a: any, b: any) => +new Date(a.departureDate) - +new Date(b.departureDate));
-      const flightMinutes = segs.reduce((sum: number, s: any) => {
-        const d = +new Date(s.departureDate);
-        const a = +new Date(s.arrivalDate);
+    const calcLeg = (segs: any[]) => {
+      if (segs.length === 0) return null;
+      segs.sort(
+        (a: any, b: any) =>
+          +new Date(a.departureDate) - +new Date(b.departureDate),
+      );
+
+      const parseInTz = (dateStr: string, tz?: string) => {
+        if (!tz || tz === "UTC") return new Date(dateStr);
+        // We want to treat the "YYYY-MM-DDTHH:mm:ssZ" from the frontend
+        // (which was constructed as `${date}T${time}Z`)
+        // as being in the local timezone `tz`.
+        const localStr = dateStr.replace("Z", "");
+        // This gives "YYYY-MM-DDTHH:mm:ss"
+        // We use Intl to find the offset or just use a trick with Date string
+        // Actually, the easiest way in Node without heavy libs is to use the date string
+        // and let the constructor handle it if we append the offset,
+        // but finding the offset for a specific date in a specific TZ is non-trivial.
+        // However, we can use Intl.DateTimeFormat to get the parts and calculate the diff.
+
+        const date = new Date(localStr + "Z"); // UTC date as if it were local
+        const utcDate = new Date(
+          date.toLocaleString("en-US", { timeZone: "UTC" }),
+        );
+        const tzDate = new Date(date.toLocaleString("en-US", { timeZone: tz }));
+        const offset = utcDate.getTime() - tzDate.getTime();
+
+        return new Date(date.getTime() + offset);
+      };
+
+      const firstDep = parseInTz(
+        segs[0].departureDate,
+        segs[0].fromAirportTimezone,
+      );
+      const lastArr = parseInTz(
+        segs[segs.length - 1].arrivalDate,
+        segs[segs.length - 1].toAirportTimezone,
+      );
+
+      const totalGross = Math.max(
+        0,
+        Math.round((lastArr.getTime() - firstDep.getTime()) / 60000),
+      );
+      const netFlight = segs.reduce((sum: number, s: any) => {
+        const d = parseInTz(s.departureDate, s.fromAirportTimezone).getTime();
+        const a = parseInTz(s.arrivalDate, s.toAirportTimezone).getTime();
         return sum + Math.max(0, Math.round((a - d) / 60000));
       }, 0);
-      const stopMinutes = segs.length > 1
-        ? segs.slice(0, -1).reduce((sum: number, s: any, i: number) => {
-            const arrive = +new Date(segs[i].arrivalDate);
-            const nextDepart = +new Date(segs[i + 1].departureDate);
-            return sum + Math.max(0, Math.round((nextDepart - arrive) / 60000));
-          }, 0)
-        : 0;
-      const stopAirports = segs.length > 1 ? segs.slice(0, -1).map((s: any) => s.toAirport).filter(Boolean) : [];
-      derived = {
-        departureDate: segs[0]?.departureDate ? new Date(segs[0].departureDate) : null,
-        arrivalDate: segs[segs.length - 1]?.arrivalDate ? new Date(segs[segs.length - 1].arrivalDate) : null,
-        durationMin: flightMinutes,
-        stops: Math.max(0, segs.length - 1),
-        stopOverDurationMinutes: stopMinutes,
-        stopOverAirports: stopAirports.length ? stopAirports : null,
+      const stopover = Math.max(0, totalGross - netFlight);
+      const stopAirports = segs
+        .slice(0, -1)
+        .map((s: any) => s.toAirport)
+        .filter(Boolean);
+
+      return {
+        firstDep,
+        lastArr,
+        totalGross,
+        netFlight,
+        stopover,
+        stopAirports,
+        stops: segs.length - 1,
       };
-    } catch {
-      // If segments parsing fails, ignore and fall back to body dates
+    };
+
+    try {
+      outboundInfo = calcLeg(body.segments.filter((s: any) => !s.isReturn));
+      returnInfo = calcLeg(body.segments.filter((s: any) => s.isReturn));
+    } catch (e) {
+      console.error("Segment calculation failed", e);
     }
   }
-
-  const durationMin = derived
-    ? derived.durationMin
-    : body.departureDate && body.arrivalDate
-      ? Math.max(
-          0,
-          Math.round(
-            (+new Date(body.arrivalDate) - +new Date(body.departureDate)) /
-              60000,
-          ),
-        )
-      : null;
 
   const flight = await prisma.flight.create({
     data: {
@@ -89,8 +115,27 @@ export default defineEventHandler(async (event) => {
       airline: body.airline,
       fromAirport: body.fromAirport,
       toAirport: body.toAirport,
-      departureDate: derived ? derived.departureDate : (body.departureDate ? new Date(body.departureDate) : null),
-      arrivalDate: derived ? derived.arrivalDate : (body.arrivalDate ? new Date(body.arrivalDate) : null),
+      departureDate: outboundInfo
+        ? outboundInfo.firstDep
+        : body.departureDate
+          ? new Date(body.departureDate)
+          : null,
+      arrivalDate: outboundInfo
+        ? outboundInfo.lastArr
+        : body.arrivalDate
+          ? new Date(body.arrivalDate)
+          : null,
+      isRoundTrip: !!body.isRoundTrip || !!returnInfo,
+      returnDepartureDate: returnInfo
+        ? returnInfo.firstDep
+        : body.returnDepartureDate
+          ? new Date(body.returnDepartureDate)
+          : null,
+      returnArrivalDate: returnInfo
+        ? returnInfo.lastArr
+        : body.returnArrivalDate
+          ? new Date(body.returnArrivalDate)
+          : null,
       flightNumber: body.flightNumber ?? null,
       travelClass: body.travelClass,
       baseFare: body.baseFare,
@@ -99,13 +144,24 @@ export default defineEventHandler(async (event) => {
       extras: body.extras ?? null,
       bookingUrl: body.bookingUrl ?? null,
       notes: body.notes ?? null,
-      stops: derived ? derived.stops : (body.stops ?? 0),
-      durationMin,
-      stopOverDurationMinutes: derived ? derived.stopOverDurationMinutes : (body.stopOverDurationMinutes ?? null),
-      stopOverAirports: Array.isArray(derived?.stopOverAirports ?? body.stopOverAirports)
-        ? JSON.stringify((derived?.stopOverAirports ?? body.stopOverAirports) as any)
-        : (derived?.stopOverAirports ?? body.stopOverAirports) || null,
-      segments: hasSegments ? (body.segments as any) : null,
+      stops: outboundInfo ? outboundInfo.stops : (body.stops ?? 0),
+      durationMin: outboundInfo ? outboundInfo.totalGross : null,
+      outboundDurationMin: outboundInfo ? outboundInfo.totalGross : null,
+      outboundNetDurationMin: outboundInfo ? outboundInfo.netFlight : null,
+      outboundStopoverMin: outboundInfo ? outboundInfo.stopover : null,
+      returnDurationMin: returnInfo ? returnInfo.totalGross : null,
+      returnNetDurationMin: returnInfo ? returnInfo.netFlight : null,
+      returnStopoverMin: returnInfo ? returnInfo.stopover : null,
+      stopOverDurationMinutes:
+        (outboundInfo?.stopover ?? 0) + (returnInfo?.stopover ?? 0) || null,
+      stopOverAirports: JSON.stringify([
+        ...(outboundInfo?.stopAirports ?? []),
+        ...(returnInfo?.stopAirports ?? []),
+      ]),
+      segments: hasSegments ? JSON.stringify(body.segments) : null,
+    },
+    include: {
+      currency: true,
     },
   });
 
@@ -116,6 +172,24 @@ export default defineEventHandler(async (event) => {
       try {
         return (flight as any).stopOverAirports
           ? JSON.parse((flight as any).stopOverAirports as any)
+          : null;
+      } catch {
+        return null;
+      }
+    })(),
+    segments: (() => {
+      try {
+        return (flight as any).segments
+          ? JSON.parse((flight as any).segments as any)
+          : null;
+      } catch {
+        return null;
+      }
+    })(),
+    extras: (() => {
+      try {
+        return (flight as any).extras
+          ? JSON.parse((flight as any).extras as any)
           : null;
       } catch {
         return null;

@@ -2,8 +2,10 @@
   <div
     :class="[
       'border rounded-md p-3 flex gap-3 items-start bg-white',
+      selected
+        ? 'border-primary ring-2 ring-primary shadow-sm bg-primary/5'
+        : 'border-gray-300',
       selectable ? 'cursor-pointer' : '',
-      selected ? 'ring-1 ring-primary/40' : '',
       disabled ? 'opacity-60 pointer-events-none' : '',
     ]"
     role="group"

@@ -2,8 +2,8 @@
   <CrudForm
     ref="crudFormRef"
     :cancel-label="cancelLabel"
-    :initial-state="state"
     :schema="schema"
+    :state="state"
     :submit-label="submitLabel"
     @cancel="$emit('cancel')"
     @submit="onSubmit"
@@ -153,11 +153,7 @@ const currencyOptions = computed(() =>
 const schema = z
   .object({
     title: z.string().trim().min(1, "Title is required."),
-    imageUrl: z
-      .string()
-      .url("Please enter a valid URL.")
-      .optional()
-      .or(z.literal("")),
+    imageUrl: z.url("Please enter a valid URL.").optional().or(z.literal("")),
     startDate: z.string().min(1, "Start date is required."),
     endDate: z.string().min(1, "End date is required."),
     people: z.coerce.number().min(1, "People must be at least 1."),

@@ -14,6 +14,9 @@ export default defineEventHandler(async (event) => {
     where: {
       tripId,
     },
+    include: {
+      currency: true,
+    },
     orderBy: [
       {
         departureDate: "asc",
@@ -31,6 +34,19 @@ export default defineEventHandler(async (event) => {
         return null;
       }
     })(),
-    // segments is stored as Json, so it’s already proper JS; nothing to parse
+    segments: (() => {
+      try {
+        return f.segments ? JSON.parse(f.segments) : null;
+      } catch {
+        return null;
+      }
+    })(),
+    extras: (() => {
+      try {
+        return f.extras ? JSON.parse(f.extras) : null;
+      } catch {
+        return null;
+      }
+    })(),
   }));
 });

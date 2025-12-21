@@ -2,175 +2,386 @@
   <CrudForm
     ref="crudFormRef"
     :cancel-label="cancelLabel"
-    :initial-state="state"
     :schema="schema"
+    :state="state"
     :submit-label="submitLabel"
     @cancel="$emit('cancel')"
     @submit="onSubmit"
   >
     <template #default="{ state }">
-      <div class="space-y-4 w-full">
-        <div class="flex gap-4 w-full">
-          <UFormField
-            class="w-full"
-            label="Airline"
-            name="airlineName"
-            required
-          >
+      <div class="space-y-6 w-full">
+        <!-- Core Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-4">
+          <UFormField label="Airline" name="airlineName" required>
             <UInput
               v-model="state.airlineName"
               class="w-full"
               placeholder="Airline name"
             />
           </UFormField>
-          <UFormField class="w-full" label="Flight number" name="flightNumber">
-            <UInput
-              v-model="state.flightNumber"
-              class="w-full"
-              placeholder="e.g. BA123"
-            />
-          </UFormField>
-        </div>
 
-        <div class="flex gap-4 w-full">
-          <UFormField
-            class="w-full"
-            label="From (IATA/code)"
-            name="fromSymbol"
-            required
-          >
-            <UInput
-              v-model="state.fromSymbol"
-              class="w-full"
-              placeholder="e.g. LHR"
-            />
-          </UFormField>
-          <UFormField
-            class="w-full"
-            label="To (IATA/code)"
-            name="toSymbol"
-            required
-          >
-            <UInput
-              v-model="state.toSymbol"
-              class="w-full"
-              placeholder="e.g. JFK"
-            />
-          </UFormField>
-        </div>
+          <div class="grid grid-cols-2 gap-4 w-full">
+            <UFormField label="Flight Number" name="flightNumber">
+              <UInput
+                v-model="state.flightNumber"
+                class="w-full"
+                maxlength="5"
+                placeholder="BA123"
+              />
+            </UFormField>
+            <div class="flex items-center pt-6">
+              <UCheckbox v-model="state.isRoundTrip" label="Round Trip" />
+            </div>
+          </div>
 
-        <div class="flex gap-4 w-full">
-          <UFormField
-            class="w-full"
-            label="Departure date"
-            name="departureDate"
-            required
-          >
-            <UInput v-model="state.departureDate" class="w-full" type="date" />
-          </UFormField>
-          <UFormField
-            class="w-full"
-            label="Departure time (UTC)"
-            name="departureTime"
-            required
-          >
-            <UInput
-              v-model="state.departureTime"
-              class="w-full"
-              placeholder="HH:mm"
-              type="time"
-            />
-          </UFormField>
-        </div>
-
-        <div class="flex gap-4 w-full">
-          <UFormField
-            class="w-full"
-            label="Arrival date"
-            name="arrivalDate"
-            required
-          >
-            <UInput v-model="state.arrivalDate" class="w-full" type="date" />
-          </UFormField>
-          <UFormField
-            class="w-full"
-            label="Arrival time (UTC)"
-            name="arrivalTime"
-            required
-          >
-            <UInput
-              v-model="state.arrivalTime"
-              class="w-full"
-              placeholder="HH:mm"
-              type="time"
-            />
-          </UFormField>
-        </div>
-
-        <div class="flex gap-4 w-full">
-          <UFormField class="w-full" label="Class" name="travelClass">
+          <UFormField label="Travel Class" name="travelClass">
             <USelectMenu
               v-model="state.travelClass"
               :items="classOptions"
               class="w-full"
+              value-key="value"
             />
           </UFormField>
-          <UFormField class="w-full" label="Stops" name="stops">
-            <UInput
-              v-model.number="state.stops"
-              class="w-full"
-              min="0"
-              type="number"
-            />
-          </UFormField>
-        </div>
 
-        <div class="flex gap-4 w-full">
-          <UFormField class="w-full" label="Base fare" name="baseFare">
-            <UInput
-              v-model.number="state.baseFare"
-              class="w-full"
-              min="0"
-              step="0.01"
-              type="number"
-            />
-          </UFormField>
           <UFormField class="w-full" label="Currency" name="currencyId">
             <USelectMenu
               v-model="state.currencyId"
               :items="currencyOptions"
               class="w-full"
               option-attribute="label"
-              placeholder="Choose currency"
               value-key="value"
             />
           </UFormField>
         </div>
 
-        <UFormField label="Booking URL" name="bookingUrl">
-          <UInput
-            v-model="state.bookingUrl"
-            class="w-full"
-            placeholder="https://..."
-            type="url"
-          />
-        </UFormField>
+        <!-- Segments -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h5 class="text-sm font-semibold uppercase tracking-wider">
+              Outbound Segments
+            </h5>
+            <UButton
+              color="neutral"
+              icon="i-lucide-plus"
+              size="xs"
+              variant="ghost"
+              @click="addSegment(false)"
+            >
+              Add leg
+            </UButton>
+          </div>
 
-        <UFormField label="Notes" name="notes">
-          <UTextarea
-            v-model="state.notes"
-            :rows="3"
-            placeholder="Optional notes"
-          />
-        </UFormField>
+          <div
+            v-for="(seg, idx) in state.outboundSegments"
+            :key="idx"
+            class="p-3 border border-gray-300 rounded-lg bg-gray-50/50 space-y-3 relative"
+          >
+            <UButton
+              class="absolute -top-2 -right-2 rounded-full"
+              color="error"
+              icon="i-lucide-x"
+              size="xs"
+              variant="solid"
+              @click="removeSegment(idx, false)"
+            />
+            <div class="grid grid-cols-1 gap-3 w-full">
+              <div class="grid grid-cols-2 gap-4">
+                <UFormField
+                  :name="`outboundSegments.${idx}.fromAirport`"
+                  label="From"
+                  required
+                >
+                  <UInput
+                    v-model="seg.fromAirport"
+                    class="w-full"
+                    placeholder="LHR"
+                  />
+                </UFormField>
+                <UFormField
+                  :name="`outboundSegments.${idx}.fromAirportTimezone`"
+                  label="Timezone"
+                  required
+                >
+                  <USelectMenu
+                    v-model="seg.fromAirportTimezone"
+                    :items="timezoneOptions"
+                    class="w-full"
+                    searchable
+                    value-key="value"
+                  />
+                </UFormField>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <UFormField
+                  :name="`outboundSegments.${idx}.toAirport`"
+                  label="To"
+                  required
+                >
+                  <UInput
+                    v-model="seg.toAirport"
+                    class="w-full"
+                    placeholder="CDG"
+                  />
+                </UFormField>
+                <UFormField
+                  :name="`outboundSegments.${idx}.toAirportTimezone`"
+                  label="Timezone"
+                  required
+                >
+                  <USelectMenu
+                    v-model="seg.toAirportTimezone"
+                    :items="timezoneOptions"
+                    class="w-full"
+                    searchable
+                    value-key="value"
+                  />
+                </UFormField>
+              </div>
+              <div class="grid grid-cols-1 gap-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <UFormField
+                    :name="`outboundSegments.${idx}.departureDate`"
+                    class="w-full"
+                    label="Departure Date"
+                    required
+                  >
+                    <UInput
+                      v-model="seg.departureDate"
+                      class="w-full"
+                      type="date"
+                    />
+                  </UFormField>
+                  <UFormField
+                    :name="`outboundSegments.${idx}.departureTime`"
+                    class="w-full"
+                    label="Time"
+                    required
+                  >
+                    <UInput
+                      v-model="seg.departureTime"
+                      class="w-full"
+                      type="time"
+                    />
+                  </UFormField>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <UFormField
+                    :name="`outboundSegments.${idx}.arrivalDate`"
+                    class="w-full"
+                    label="Arrival Date"
+                    required
+                  >
+                    <UInput
+                      v-model="seg.arrivalDate"
+                      class="w-full"
+                      type="date"
+                    />
+                  </UFormField>
+                  <UFormField
+                    :name="`outboundSegments.${idx}.arrivalTime`"
+                    class="w-full"
+                    label="Time"
+                    required
+                  >
+                    <UInput
+                      v-model="seg.arrivalTime"
+                      class="w-full"
+                      type="time"
+                    />
+                  </UFormField>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <UFormField label="Extras (JSON)" name="extras">
-          <UTextarea
-            v-model="state.extras"
-            :rows="4"
-            placeholder='{"baggage": "included"}'
-          />
-        </UFormField>
+          <template v-if="state.isRoundTrip">
+            <div
+              class="flex items-center justify-between pt-4 border-t border-gray-500"
+            >
+              <h5 class="text-sm font-semibold uppercase tracking-wider">
+                Return Segments
+              </h5>
+              <UButton
+                color="neutral"
+                icon="i-lucide-plus"
+                size="xs"
+                variant="ghost"
+                @click="addSegment(true)"
+              >
+                Add leg
+              </UButton>
+            </div>
+
+            <div
+              v-for="(seg, idx) in state.returnSegments"
+              :key="idx"
+              class="p-3 border border-gray-300 rounded-lg bg-gray-50/50 space-y-3 relative"
+            >
+              <UButton
+                class="absolute -top-2 -right-2 rounded-full"
+                color="error"
+                icon="i-lucide-x"
+                size="xs"
+                variant="solid"
+                @click="removeSegment(idx, true)"
+              />
+              <div class="grid grid-cols-1 gap-3 w-full">
+                <div class="grid grid-cols-2 gap-4">
+                  <UFormField
+                    :name="`returnSegments.${idx}.fromAirport`"
+                    label="From"
+                    required
+                  >
+                    <UInput
+                      v-model="seg.fromAirport"
+                      class="w-full"
+                      placeholder="SJO"
+                    />
+                  </UFormField>
+                  <UFormField
+                    :name="`returnSegments.${idx}.fromAirportTimezone`"
+                    label="Timezone"
+                    required
+                  >
+                    <USelectMenu
+                      v-model="seg.fromAirportTimezone"
+                      :items="timezoneOptions"
+                      class="w-full"
+                      searchable
+                      value-key="value"
+                    />
+                  </UFormField>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <UFormField
+                    :name="`returnSegments.${idx}.toAirport`"
+                    label="To"
+                    required
+                  >
+                    <UInput
+                      v-model="seg.toAirport"
+                      class="w-full"
+                      placeholder="MAD"
+                    />
+                  </UFormField>
+                  <UFormField
+                    :name="`returnSegments.${idx}.toAirportTimezone`"
+                    label="Timezone"
+                    required
+                  >
+                    <USelectMenu
+                      v-model="seg.toAirportTimezone"
+                      :items="timezoneOptions"
+                      class="w-full"
+                      searchable
+                      value-key="value"
+                    />
+                  </UFormField>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                  <div class="grid grid-cols-2 gap-4">
+                    <UFormField
+                      :name="`returnSegments.${idx}.departureDate`"
+                      class="w-full"
+                      label="Departure Date"
+                      required
+                    >
+                      <UInput
+                        v-model="seg.departureDate"
+                        class="w-full"
+                        type="date"
+                      />
+                    </UFormField>
+                    <UFormField
+                      :name="`returnSegments.${idx}.departureTime`"
+                      class="w-full"
+                      label="Time"
+                      required
+                    >
+                      <UInput
+                        v-model="seg.departureTime"
+                        class="w-full"
+                        type="time"
+                      />
+                    </UFormField>
+                  </div>
+                  <div class="grid grid-cols-2 gap-4">
+                    <UFormField
+                      :name="`returnSegments.${idx}.arrivalDate`"
+                      class="w-full"
+                      label="Arrival Date"
+                      required
+                    >
+                      <UInput
+                        v-model="seg.arrivalDate"
+                        class="w-full"
+                        type="date"
+                      />
+                    </UFormField>
+                    <UFormField
+                      :name="`returnSegments.${idx}.arrivalTime`"
+                      class="w-full"
+                      label="Time"
+                      required
+                    >
+                      <UInput
+                        v-model="seg.arrivalTime"
+                        class="w-full"
+                        type="time"
+                      />
+                    </UFormField>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Pricing & Extras -->
+        <div
+          class="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-gray-500 pt-4"
+        >
+          <UFormField label="Base Fare" name="baseFare">
+            <UInput
+              v-model.number="state.baseFare"
+              min="0"
+              step="0.01"
+              type="number"
+            />
+          </UFormField>
+          <UFormField label="Seat" name="seatReservation">
+            <UInput
+              v-model.number="state.seatReservation"
+              min="0"
+              type="number"
+            />
+          </UFormField>
+          <UFormField label="Baggage" name="checkedBaggage">
+            <UInput
+              v-model.number="state.checkedBaggage"
+              min="0"
+              type="number"
+            />
+          </UFormField>
+          <UFormField label="Other" name="otherExtras">
+            <UInput v-model.number="state.otherExtras" min="0" type="number" />
+          </UFormField>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+          <UFormField class="w-full" label="Booking URL" name="bookingUrl">
+            <UInput
+              v-model="state.bookingUrl"
+              class="w-full"
+              placeholder="https://..."
+              type="url"
+            />
+          </UFormField>
+
+          <UFormField class="w-full" label="Notes" name="notes">
+            <UTextarea v-model="state.notes" :rows="1" class="w-full" />
+          </UFormField>
+        </div>
       </div>
     </template>
   </CrudForm>
@@ -178,25 +389,12 @@
 
 <script lang="ts" setup>
 import CrudForm from "~/components/base/CrudForm.vue";
-import type { Currency } from "@/types/tripTypes";
+import type { Currency, FlightOption } from "@/types/tripTypes";
 import { z } from "zod";
 
 const props = withDefaults(
   defineProps<{
-    initialValues?: Partial<{
-      airline: { name?: string; symbol?: string } | null;
-      fromAirport: { name?: string; symbol?: string } | null;
-      toAirport: { name?: string; symbol?: string } | null;
-      departureDate: string | null;
-      arrivalDate: string | null;
-      travelClass: string | null;
-      stops: number | null;
-      baseFare: number | null;
-      currencyId: string | null;
-      bookingUrl: string | null;
-      notes: string | null;
-      extras: any;
-    }>;
+    initialValues?: Partial<FlightOption>;
     submitLabel?: string;
     cancelLabel?: string;
   }>(),
@@ -226,7 +424,7 @@ const toDateInput = (value: unknown): string => {
 const toTimeInput = (value: unknown): string => {
   if (!value || typeof value !== "string") return "";
   const m = value.match(/T(\d{2}:\d{2})/);
-  return m ? m[1] : "";
+  return m && m[1] ? m[1] : "";
 };
 
 const toIsoFromDateTimeUtc = (
@@ -239,37 +437,174 @@ const toIsoFromDateTimeUtc = (
   return new Date(`${dateStr}T${t}Z`).toISOString();
 };
 
-const safeJsonStringify = (obj: any): string => {
-  try {
-    return obj == null ? "" : JSON.stringify(obj, null, 2);
-  } catch {
-    return "";
-  }
-};
+interface FormSegment {
+  fromAirport: string;
+  fromAirportTimezone: string;
+  toAirport: string;
+  toAirportTimezone: string;
+  departureDate: string;
+  departureTime: string;
+  arrivalDate: string;
+  arrivalTime: string;
+  isReturn: boolean;
+}
+
+const initialOutbound: FormSegment[] = [];
+const initialReturn: FormSegment[] = [];
+
+if (
+  props.initialValues?.segments &&
+  Array.isArray(props.initialValues.segments)
+) {
+  props.initialValues.segments.forEach((s: any) => {
+    const seg: FormSegment = {
+      fromAirport: s.fromAirport,
+      fromAirportTimezone: s.fromAirportTimezone || "UTC",
+      toAirport: s.toAirport,
+      toAirportTimezone: s.toAirportTimezone || "UTC",
+      departureDate: toDateInput(s.departureDate),
+      departureTime: toTimeInput(s.departureDate),
+      arrivalDate: toDateInput(s.arrivalDate),
+      arrivalTime: toTimeInput(s.arrivalDate),
+      isReturn: !!s.isReturn,
+    };
+    if (seg.isReturn) initialReturn.push(seg);
+    else initialOutbound.push(seg);
+  });
+}
+
+if (initialOutbound.length === 0) {
+  initialOutbound.push({
+    fromAirport: "",
+    fromAirportTimezone: "UTC",
+    toAirport: "",
+    toAirportTimezone: "UTC",
+    departureDate: "",
+    departureTime: "",
+    arrivalDate: "",
+    arrivalTime: "",
+    isReturn: false,
+  });
+}
 
 const state = reactive({
-  airlineName: props.initialValues?.airline?.name ?? "",
-  flightNumber: props.initialValues?.airline?.symbol ?? "",
+  airlineName:
+    (props.initialValues as any)?.airlineName ??
+    (typeof props.initialValues?.airline === "string"
+      ? props.initialValues.airline
+      : props.initialValues?.airline?.name) ??
+    "",
+  flightNumber:
+    props.initialValues?.flightNumber ??
+    (typeof props.initialValues?.airline === "object"
+      ? (props.initialValues?.airline as any)?.symbol
+      : "") ??
+    "",
   fromSymbol:
-    props.initialValues?.fromAirport?.symbol ??
-    props.initialValues?.fromAirport?.name ??
+    (props.initialValues as any)?.fromSymbol ??
+    (typeof props.initialValues?.fromAirport === "string"
+      ? props.initialValues.fromAirport
+      : props.initialValues?.fromAirport?.symbol ||
+        props.initialValues?.fromAirport?.name) ??
     "",
   toSymbol:
-    props.initialValues?.toAirport?.symbol ??
-    props.initialValues?.toAirport?.name ??
+    (props.initialValues as any)?.toSymbol ??
+    (typeof props.initialValues?.toAirport === "string"
+      ? props.initialValues.toAirport
+      : props.initialValues?.toAirport?.symbol ||
+        props.initialValues?.toAirport?.name) ??
     "",
   departureDate: toDateInput(props.initialValues?.departureDate ?? ""),
   departureTime: toTimeInput(props.initialValues?.departureDate ?? ""),
   arrivalDate: toDateInput(props.initialValues?.arrivalDate ?? ""),
   arrivalTime: toTimeInput(props.initialValues?.arrivalDate ?? ""),
+  returnDepartureDate: toDateInput(
+    props.initialValues?.returnDepartureDate ?? "",
+  ),
+  returnDepartureTime: toTimeInput(
+    props.initialValues?.returnDepartureDate ?? "",
+  ),
+  returnArrivalDate: toDateInput(props.initialValues?.returnArrivalDate ?? ""),
+  returnArrivalTime: toTimeInput(props.initialValues?.returnArrivalDate ?? ""),
+  isRoundTrip: props.initialValues?.isRoundTrip ?? false,
   travelClass: props.initialValues?.travelClass ?? "economy",
   stops: props.initialValues?.stops ?? 0,
   baseFare: props.initialValues?.baseFare ?? 0,
   currencyId: props.initialValues?.currencyId ?? "",
   bookingUrl: props.initialValues?.bookingUrl ?? "",
   notes: props.initialValues?.notes ?? "",
-  extras: safeJsonStringify(props.initialValues?.extras),
+  seatReservation:
+    (props.initialValues as any)?.seatReservation ??
+    props.initialValues?.extras?.seatReservation ??
+    0,
+  checkedBaggage:
+    (props.initialValues as any)?.checkedBaggage ??
+    props.initialValues?.extras?.checkedBaggage ??
+    0,
+  otherExtras:
+    (props.initialValues as any)?.otherExtras ??
+    props.initialValues?.extras?.other ??
+    0,
+  outboundSegments: initialOutbound,
+  returnSegments: initialReturn,
 });
+
+const addSegment = (isReturn: boolean) => {
+  const list = isReturn ? state.returnSegments : state.outboundSegments;
+  list.push({
+    fromAirport: "",
+    fromAirportTimezone: "UTC",
+    toAirport: "",
+    toAirportTimezone: "UTC",
+    departureDate: "",
+    departureTime: "",
+    arrivalDate: "",
+    arrivalTime: "",
+    isReturn,
+  });
+};
+
+const removeSegment = (idx: number, isReturn: boolean) => {
+  const list = isReturn ? state.returnSegments : state.outboundSegments;
+  list.splice(idx, 1);
+};
+
+// Watch segments to auto-populate header fields
+watch(
+  [
+    () => state.outboundSegments,
+    () => state.returnSegments,
+    () => state.isRoundTrip,
+  ],
+  () => {
+    if (state.outboundSegments.length > 0) {
+      const first = state.outboundSegments[0];
+      const last = state.outboundSegments[state.outboundSegments.length - 1];
+      if (first && last) {
+        state.fromSymbol = first.fromAirport;
+        state.toSymbol = last.toAirport;
+        state.departureDate = first.departureDate;
+        state.departureTime = first.departureTime;
+        state.arrivalDate = last.arrivalDate;
+        state.arrivalTime = last.arrivalTime;
+        state.stops = state.outboundSegments.length - 1;
+      }
+    }
+    if (state.isRoundTrip && state.returnSegments.length > 0) {
+      const first = state.returnSegments[0];
+      const last = state.returnSegments[state.returnSegments.length - 1];
+      if (first && last) {
+        state.returnDepartureDate = first.departureDate;
+        state.returnDepartureTime = first.departureTime;
+        state.returnArrivalDate = last.arrivalDate;
+        state.returnArrivalTime = last.arrivalTime;
+      }
+    } else if (state.isRoundTrip && state.returnSegments.length === 0) {
+      addSegment(true);
+    }
+  },
+  { deep: true, immediate: true },
+);
 
 const { data: currencies } = useFetch<Currency[]>("/api/currencies", {
   server: false,
@@ -281,11 +616,15 @@ const currencyOptions = computed(() =>
   })),
 );
 
+const timezoneOptions = Intl.supportedValuesOf("timeZone").map((tz) => ({
+  label: tz,
+  value: tz,
+}));
+
 const classOptions = [
   { label: "Economy", value: "economy" },
   { label: "Premium Economy", value: "premium_economy" },
   { label: "Business", value: "business" },
-  { label: "First", value: "first" },
 ];
 
 const schema = z
@@ -298,13 +637,42 @@ const schema = z
     departureTime: z.string().min(1, "Departure time is required."),
     arrivalDate: z.string().min(1, "Arrival date is required."),
     arrivalTime: z.string().min(1, "Arrival time is required."),
+    returnArrivalDate: z.string().optional().or(z.literal("")),
+    returnArrivalTime: z.string().optional().or(z.literal("")),
+    isRoundTrip: z.boolean().default(false),
     travelClass: z.string().trim().min(1),
     stops: z.coerce.number().min(0),
     baseFare: z.coerce.number().min(0).optional().default(0),
     currencyId: z.string().trim().optional().or(z.literal("")),
-    bookingUrl: z.string().url().optional().or(z.literal("")),
+    bookingUrl: z.url().optional().or(z.literal("")),
     notes: z.string().optional().or(z.literal("")),
-    extras: z.string().optional().or(z.literal("")),
+    seatReservation: z.coerce.number().min(0).optional().default(0),
+    checkedBaggage: z.coerce.number().min(0).optional().default(0),
+    otherExtras: z.coerce.number().min(0).optional().default(0),
+    returnDepartureDate: z.string().optional().or(z.literal("")),
+    returnDepartureTime: z.string().optional().or(z.literal("")),
+    outboundSegments: z
+      .array(
+        z.object({
+          fromAirport: z.string().min(1, "Required"),
+          toAirport: z.string().min(1, "Required"),
+          departureDate: z.string().min(1, "Required"),
+          departureTime: z.string().min(1, "Required"),
+          arrivalDate: z.string().min(1, "Required"),
+          arrivalTime: z.string().min(1, "Required"),
+        }),
+      )
+      .min(1),
+    returnSegments: z.array(
+      z.object({
+        fromAirport: z.string().min(1, "Required"),
+        toAirport: z.string().min(1, "Required"),
+        departureDate: z.string().min(1, "Required"),
+        departureTime: z.string().min(1, "Required"),
+        arrivalDate: z.string().min(1, "Required"),
+        arrivalTime: z.string().min(1, "Required"),
+      }),
+    ),
   })
   .refine(
     (data) => {
@@ -323,27 +691,61 @@ const onSubmit = (data: any) => {
     data.departureTime,
   );
   const arrivalIso = toIsoFromDateTimeUtc(data.arrivalDate, data.arrivalTime);
-  let parsedExtras: any = undefined;
-  try {
-    parsedExtras = data.extras ? JSON.parse(data.extras) : undefined;
-  } catch {
-    // Keep as string if invalid JSON; backend may reject
-    parsedExtras = data.extras;
-  }
+  const returnDepartureIso = toIsoFromDateTimeUtc(
+    data.returnDepartureDate,
+    data.returnDepartureTime,
+  );
+  const returnArrivalIso = toIsoFromDateTimeUtc(
+    data.returnArrivalDate,
+    data.returnArrivalTime,
+  );
+
+  const segments = [
+    ...state.outboundSegments.map((s) => ({
+      fromAirport: s.fromAirport,
+      fromAirportTimezone: s.fromAirportTimezone,
+      toAirport: s.toAirport,
+      toAirportTimezone: s.toAirportTimezone,
+      departureDate: toIsoFromDateTimeUtc(s.departureDate, s.departureTime),
+      arrivalDate: toIsoFromDateTimeUtc(s.arrivalDate, s.arrivalTime),
+      isReturn: false,
+    })),
+    ...(data.isRoundTrip
+      ? state.returnSegments.map((s) => ({
+          fromAirport: s.fromAirport,
+          fromAirportTimezone: s.fromAirportTimezone,
+          toAirport: s.toAirport,
+          toAirportTimezone: s.toAirportTimezone,
+          departureDate: toIsoFromDateTimeUtc(s.departureDate, s.departureTime),
+          arrivalDate: toIsoFromDateTimeUtc(s.arrivalDate, s.arrivalTime),
+          isReturn: true,
+        }))
+      : []),
+  ];
 
   const payload = {
+    airlineName: data.airlineName || "",
+    flightNumber: data.flightNumber || "",
     airline: { name: data.airlineName || "", symbol: data.flightNumber || "" },
     fromAirport: { name: "", symbol: data.fromSymbol || "" },
     toAirport: { name: "", symbol: data.toSymbol || "" },
     departureDate: departureIso,
     arrivalDate: arrivalIso,
+    returnDepartureDate: data.isRoundTrip ? returnDepartureIso : null,
+    returnArrivalDate: data.isRoundTrip ? returnArrivalIso : null,
+    isRoundTrip: !!data.isRoundTrip,
     travelClass: data.travelClass || "economy",
     stops: Number(data.stops) || 0,
     baseFare: Number(data.baseFare) || 0,
     currencyId: data.currencyId || undefined,
     bookingUrl: data.bookingUrl || "",
     notes: data.notes || "",
-    extras: parsedExtras,
+    extras: {
+      seatReservation: Number(data.seatReservation) || 0,
+      checkedBaggage: Number(data.checkedBaggage) || 0,
+      other: Number(data.otherExtras) || 0,
+    },
+    segments,
   };
   emit("submit", payload);
 };

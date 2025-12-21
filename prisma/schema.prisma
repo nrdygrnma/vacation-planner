@@ -65,10 +65,20 @@ model Flight {
   bookingUrl              String?
   notes                   String?
   durationMin             Int?
+  outboundDurationMin     Int?
+  outboundStopoverMin     Int?
+  returnDurationMin       Int?
+  returnStopoverMin       Int?
+  isRoundTrip             Boolean   @default(false)
+  returnDepartureDate     DateTime?
+  returnArrivalDate       DateTime?
+  outboundNetDurationMin  Int?
+  returnNetDurationMin    Int?
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
   stopOverAirports        String?
   stopOverDurationMinutes Int?
+  segments                String?
   currency                Currency  @relation(fields: [currencyId], references: [id])
   trip                    Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
   selectedOnTrip          Trip?     @relation("SelectedFlightOnTrip")
