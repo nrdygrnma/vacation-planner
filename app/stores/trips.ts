@@ -28,8 +28,7 @@ export const useTripsStore = defineStore("trips", () => {
     try {
       pending.value = true;
       error.value = null;
-      const data = await $fetch<Trip[]>("/api/trips");
-      items.value = data;
+      items.value = await $fetch<Trip[]>("/api/trips");
     } catch (e: any) {
       console.error(e);
       error.value = e?.statusMessage || "Failed to load trips";

@@ -16,6 +16,12 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
+  // Force light mode by default so the UI doesn't appear dark when the OS is in dark mode
+  colorMode: {
+    preference: "light",
+    fallback: "light",
+    classSuffix: "",
+  },
   modules: [
     "@nuxt/icon",
     "vue-sonner/nuxt",

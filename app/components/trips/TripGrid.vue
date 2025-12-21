@@ -5,6 +5,8 @@
       :key="trip.id"
       :trip="trip"
       @changed="$emit('changed')"
+      @delete="$emit('delete', $event)"
+      @edit="$emit('edit', $event)"
       @open="$emit('open', $event)"
     />
   </div>
@@ -16,6 +18,10 @@ import type { Trip } from "@/types/tripTypes";
 
 defineProps<{ trips: Trip[] }>();
 
-defineEmits<{ (e: "open", trip: Trip): void; (e: "changed"): void }>();
+defineEmits<{
+  (e: "open", trip: Trip): void;
+  (e: "changed"): void;
+  (e: "delete", trip: Trip): void;
+  (e: "edit", trip: Trip): void;
+}>();
 </script>
-ö
