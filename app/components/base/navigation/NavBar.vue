@@ -1,64 +1,73 @@
 <template>
-  <nav class="navbar shadow-sm shadow-base-300/20 px-6 py-0 rounded-sm">
-    <div class="w-full flex items-center justify-between">
+  <header class="px-6 py-4 pb-3 border border-gray-100 rounded-md shadow-sm">
+    <div class="flex items-center justify-between gap-4">
       <NuxtLink
-        class="text-lg font-semibold uppercase no-underline text-base-content whitespace-nowrap"
+        aria-label="Tripé Vacation Planner home"
+        class="inline-flex items-center gap-2 no-underline"
         to="/"
       >
         <img
           alt="Tripé Vacation Planner"
-          class="pt-1 h-6 w-auto"
+          class="h-6 w-auto"
           src="/images/tripe_logo.png"
         />
       </NuxtLink>
 
-      <!-- Tabs -->
-      <div class="hidden md:flex items-center gap-2">
-        <TabLink to="/">Trips</TabLink>
-        <TabLink to="/flights">Flights</TabLink>
-        <TabLink to="/car-rentals">Car Rentals</TabLink>
-        <TabLink to="/accommodations">Accommodations</TabLink>
-        <TabLink to="/map">Map</TabLink>
-      </div>
+      <!-- Desktop navigation using custom TabLink -->
+      <nav class="hidden md:flex items-center gap-8">
+        <TabLink v-for="item in links" :key="item.to" :to="item.to">{{
+          item.label
+        }}</TabLink>
+      </nav>
 
       <!-- Mobile toggle -->
       <div class="md:hidden">
-        <button
-          class="btn btn-outline btn-secondary btn-sm btn-square p-1"
-          type="button"
+        <UButton
+          v-if="!isOpen"
+          :aria-label="isOpen ? 'Close menu' : 'Open menu'"
+          color="neutral"
+          icon="i-lucide-menu"
+          variant="ghost"
           @click="isOpen = !isOpen"
-        >
-          <Icon v-if="!isOpen" name="lucide:menu" size="24" />
-          <Icon v-else name="lucide:x" size="24" />
-        </button>
+        />
+        <UButton
+          v-else
+          aria-label="Close menu"
+          color="neutral"
+          icon="i-lucide-x"
+          variant="ghost"
+          @click="isOpen = false"
+        />
       </div>
     </div>
 
-    <!-- Mobile Tabs -->
-    <div v-if="isOpen" class="flex flex-col gap-1 mt-1 md:hidden">
-      <TabLink to="/">Trips</TabLink>
-      <TabLink to="/flights">Flights</TabLink>
-      <TabLink to="/car-rentals">Car Rentals</TabLink>
-      <TabLink to="/accommodations">Accommodations</TabLink>
-      <TabLink to="/map">Map</TabLink>
+    <!-- Mobile navigation using custom TabLink -->
+    <div v-if="isOpen" class="mt-2 md:hidden">
+      <nav class="flex flex-col gap-2" @click="isOpen = false">
+        <TabLink v-for="item in links" :key="item.to" :to="item.to">{{
+          item.label
+        }}</TabLink>
+      </nav>
     </div>
-  </nav>
+  </header>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import TabLink from "./TabLink.vue";
+import TabLink from "~/components/base/navigation/TabLink.vue";
+
+const links = [
+  { label: "Trips", to: "/" },
+  { label: "Flights", to: "/flights" },
+  { label: "Car Rentals", to: "/car-rentals" },
+  { label: "Accommodations", to: "/accommodations" },
+  { label: "Map", to: "/map" },
+];
 
 const isOpen = ref(false);
 </script>
 
 <style scoped>
-.navbar {
+header {
   min-height: 3rem;
-}
-
-.tabs .tab {
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
 }
 </style>

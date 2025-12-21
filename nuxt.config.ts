@@ -16,13 +16,20 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
-  modules: ["@nuxt/icon", "vue-sonner/nuxt", "@nuxt/fonts", "@pinia/nuxt"],
+  modules: [
+    "@nuxt/icon",
+    "vue-sonner/nuxt",
+    "@nuxt/fonts",
+    "@pinia/nuxt",
+    "@nuxt/ui",
+  ],
   icon: {
     serverBundle: {
       collections: ["lucide"],
     },
   },
   css: ["~/assets/css/main.css"],
+  plugins: ["~/plugins/fix-nuxt-link.ts"],
   vite: {
     plugins: [tailwindcss()],
     resolve: {
