@@ -141,15 +141,6 @@ const onFormSubmit = async (data: any) => {
   }
 };
 
-watch(isFormOpen, (open) => {
-  if (!open) {
-    setTimeout(() => {
-      currentTrip.value = null;
-      formKey.value++;
-    }, 200);
-  }
-});
-
 const toDateInput = (value: unknown): string => {
   if (!value) return "";
   try {
@@ -196,6 +187,15 @@ const formDescription = computed(() =>
 const formSubmitLabel = computed(() =>
   formMode.value === "create" ? "Create" : "Save changes",
 );
+
+watch(isFormOpen, (open) => {
+  if (!open) {
+    setTimeout(() => {
+      currentTrip.value = null;
+      formKey.value++;
+    }, 200);
+  }
+});
 
 onMounted(() => {
   if (!items.value?.length) tripsStore.fetchTrips();

@@ -16,10 +16,12 @@
 
     <TripDetailsHeader :trip="trip" @delete="openDelete()" @edit="openEdit()" />
 
-    <div class="divide-neutral/20 divide-y space-y-2">
-      <TripFlightsAccordion :trip="trip" />
-      <TripCarRentalsAccordion :trip="trip" />
-      <TripStopsAccordion :trip="trip" />
+    <div class="space-y-3">
+      <UTabs v-model="activeTab" :items="tabItems" />
+
+      <FlightsSection v-if="activeTab === 'flights'" :trip="trip" />
+      <CarRentalsSection v-else-if="activeTab === 'cars'" :trip="trip" />
+      <StaysSection v-else-if="activeTab === 'stays'" :trip="trip" />
     </div>
 
     <CrudModal
@@ -67,8 +69,6 @@
 
 <script lang="ts" setup>
 import TripDetailsHero from "~/components/trips/TripDetailsHero.vue";
-import TripCarRentalsAccordion from "~/components/carRentals/TripCarRentalsAccordion.vue";
-import TripFlightsAccordion from "~/components/flights/TripFlightsAccordion.vue";
 import ConfirmDeleteModal from "~/components/base/ConfirmDeleteModal.vue";
 import CrudModal from "~/components/base/CrudModal.vue";
 import TripFormNuxt from "~/components/trips/TripFormNuxt.vue";
@@ -77,10 +77,23 @@ import { useTripsStore } from "@/stores/trips";
 import type { Trip } from "@/types/tripTypes";
 import { toast } from "vue-sonner";
 import TripDetailsHeader from "~/components/trips/TripDetailsHeader.vue";
+import FlightsSection from "~/components/sections/FlightsSection.vue";
+import CarRentalsSection from "~/components/sections/CarRentalsSection.vue";
+import StaysSection from "~/components/sections/StaysSection.vue";
 
 const route = useRoute();
 const tripId = computed(() => String(route.params.id || ""));
 const { trip, refresh, pending } = useTrip(tripId.value);
+
+// --------------------
+// Tabs
+// --------------------
+const tabItems = [
+  { label: "Flights", icon: "i-lucide-plane", value: "flights" },
+  { label: "Car Rentals", icon: "i-lucide-car", value: "cars" },
+  { label: "Stays", icon: "i-lucide-bed", value: "stays" },
+];
+const activeTab = ref<string>("flights");
 
 // --------------------
 // Delete flow
