@@ -1,7 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-
-type Airline = { code: string; name: string };
+import type { Airline } from "~/types/tripTypes";
 
 export default defineEventHandler(async (event) => {
   const filePath = join(

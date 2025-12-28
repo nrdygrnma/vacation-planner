@@ -10,13 +10,11 @@
   >
     <template #default="{ state }">
       <div class="space-y-6 w-full">
-        <!-- Core Info -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-4">
           <UFormField label="Airline" name="airlineName" required>
-            <UInput
+            <AirlineSelect
               v-model="state.airlineName"
-              class="w-full"
-              placeholder="Airline name"
+              @change="(a) => (state.flightNumber = a.code)"
             />
           </UFormField>
 
@@ -71,128 +69,15 @@
             </UButton>
           </div>
 
-          <div
+          <FlightSegmentForm
             v-for="(seg, idx) in state.outboundSegments"
             :key="idx"
-            class="p-3 border border-gray-300 rounded-lg bg-gray-50/50 space-y-3 relative"
-          >
-            <UButton
-              class="absolute -top-2 -right-2 rounded-full"
-              color="error"
-              icon="i-lucide-x"
-              size="xs"
-              variant="solid"
-              @click="removeSegment(idx, false)"
-            />
-            <div class="grid grid-cols-1 gap-3 w-full">
-              <div class="grid grid-cols-2 gap-4">
-                <UFormField
-                  :name="`outboundSegments.${idx}.fromAirport`"
-                  label="From"
-                  required
-                >
-                  <UInput
-                    v-model="seg.fromAirport"
-                    class="w-full"
-                    placeholder="LHR"
-                  />
-                </UFormField>
-                <UFormField
-                  :name="`outboundSegments.${idx}.fromAirportTimezone`"
-                  label="Timezone"
-                  required
-                >
-                  <USelectMenu
-                    v-model="seg.fromAirportTimezone"
-                    :items="timezoneOptions"
-                    class="w-full"
-                    searchable
-                    value-key="value"
-                  />
-                </UFormField>
-              </div>
-              <div class="grid grid-cols-2 gap-4">
-                <UFormField
-                  :name="`outboundSegments.${idx}.toAirport`"
-                  label="To"
-                  required
-                >
-                  <UInput
-                    v-model="seg.toAirport"
-                    class="w-full"
-                    placeholder="CDG"
-                  />
-                </UFormField>
-                <UFormField
-                  :name="`outboundSegments.${idx}.toAirportTimezone`"
-                  label="Timezone"
-                  required
-                >
-                  <USelectMenu
-                    v-model="seg.toAirportTimezone"
-                    :items="timezoneOptions"
-                    class="w-full"
-                    searchable
-                    value-key="value"
-                  />
-                </UFormField>
-              </div>
-              <div class="grid grid-cols-1 gap-4">
-                <div class="grid grid-cols-2 gap-4">
-                  <UFormField
-                    :name="`outboundSegments.${idx}.departureDate`"
-                    class="w-full"
-                    label="Departure Date"
-                    required
-                  >
-                    <UInput
-                      v-model="seg.departureDate"
-                      class="w-full"
-                      type="date"
-                    />
-                  </UFormField>
-                  <UFormField
-                    :name="`outboundSegments.${idx}.departureTime`"
-                    class="w-full"
-                    label="Time"
-                    required
-                  >
-                    <UInput
-                      v-model="seg.departureTime"
-                      class="w-full"
-                      type="time"
-                    />
-                  </UFormField>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                  <UFormField
-                    :name="`outboundSegments.${idx}.arrivalDate`"
-                    class="w-full"
-                    label="Arrival Date"
-                    required
-                  >
-                    <UInput
-                      v-model="seg.arrivalDate"
-                      class="w-full"
-                      type="date"
-                    />
-                  </UFormField>
-                  <UFormField
-                    :name="`outboundSegments.${idx}.arrivalTime`"
-                    class="w-full"
-                    label="Time"
-                    required
-                  >
-                    <UInput
-                      v-model="seg.arrivalTime"
-                      class="w-full"
-                      type="time"
-                    />
-                  </UFormField>
-                </div>
-              </div>
-            </div>
-          </div>
+            v-model="state.outboundSegments[idx]"
+            :name-prefix="`outboundSegments.${idx}`"
+            :removable="state.outboundSegments.length > 1"
+            :timezone-options="timezoneOptions"
+            @remove="removeSegment(idx, false)"
+          />
 
           <template v-if="state.isRoundTrip">
             <div
@@ -212,128 +97,15 @@
               </UButton>
             </div>
 
-            <div
+            <FlightSegmentForm
               v-for="(seg, idx) in state.returnSegments"
               :key="idx"
-              class="p-3 border border-gray-300 rounded-lg bg-gray-50/50 space-y-3 relative"
-            >
-              <UButton
-                class="absolute -top-2 -right-2 rounded-full"
-                color="error"
-                icon="i-lucide-x"
-                size="xs"
-                variant="solid"
-                @click="removeSegment(idx, true)"
-              />
-              <div class="grid grid-cols-1 gap-3 w-full">
-                <div class="grid grid-cols-2 gap-4">
-                  <UFormField
-                    :name="`returnSegments.${idx}.fromAirport`"
-                    label="From"
-                    required
-                  >
-                    <UInput
-                      v-model="seg.fromAirport"
-                      class="w-full"
-                      placeholder="SJO"
-                    />
-                  </UFormField>
-                  <UFormField
-                    :name="`returnSegments.${idx}.fromAirportTimezone`"
-                    label="Timezone"
-                    required
-                  >
-                    <USelectMenu
-                      v-model="seg.fromAirportTimezone"
-                      :items="timezoneOptions"
-                      class="w-full"
-                      searchable
-                      value-key="value"
-                    />
-                  </UFormField>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                  <UFormField
-                    :name="`returnSegments.${idx}.toAirport`"
-                    label="To"
-                    required
-                  >
-                    <UInput
-                      v-model="seg.toAirport"
-                      class="w-full"
-                      placeholder="MAD"
-                    />
-                  </UFormField>
-                  <UFormField
-                    :name="`returnSegments.${idx}.toAirportTimezone`"
-                    label="Timezone"
-                    required
-                  >
-                    <USelectMenu
-                      v-model="seg.toAirportTimezone"
-                      :items="timezoneOptions"
-                      class="w-full"
-                      searchable
-                      value-key="value"
-                    />
-                  </UFormField>
-                </div>
-                <div class="grid grid-cols-1 gap-4">
-                  <div class="grid grid-cols-2 gap-4">
-                    <UFormField
-                      :name="`returnSegments.${idx}.departureDate`"
-                      class="w-full"
-                      label="Departure Date"
-                      required
-                    >
-                      <UInput
-                        v-model="seg.departureDate"
-                        class="w-full"
-                        type="date"
-                      />
-                    </UFormField>
-                    <UFormField
-                      :name="`returnSegments.${idx}.departureTime`"
-                      class="w-full"
-                      label="Time"
-                      required
-                    >
-                      <UInput
-                        v-model="seg.departureTime"
-                        class="w-full"
-                        type="time"
-                      />
-                    </UFormField>
-                  </div>
-                  <div class="grid grid-cols-2 gap-4">
-                    <UFormField
-                      :name="`returnSegments.${idx}.arrivalDate`"
-                      class="w-full"
-                      label="Arrival Date"
-                      required
-                    >
-                      <UInput
-                        v-model="seg.arrivalDate"
-                        class="w-full"
-                        type="date"
-                      />
-                    </UFormField>
-                    <UFormField
-                      :name="`returnSegments.${idx}.arrivalTime`"
-                      class="w-full"
-                      label="Time"
-                      required
-                    >
-                      <UInput
-                        v-model="seg.arrivalTime"
-                        class="w-full"
-                        type="time"
-                      />
-                    </UFormField>
-                  </div>
-                </div>
-              </div>
-            </div>
+              v-model="state.returnSegments[idx]"
+              :name-prefix="`returnSegments.${idx}`"
+              :removable="true"
+              :timezone-options="timezoneOptions"
+              @remove="removeSegment(idx, true)"
+            />
           </template>
         </div>
 
@@ -389,6 +161,9 @@
 
 <script lang="ts" setup>
 import CrudForm from "~/components/base/CrudForm.vue";
+import AirlineSelect from "~/components/flights/AirlineSelect.vue";
+import type { FormSegment } from "~/components/flights/FlightSegmentForm.vue";
+import FlightSegmentForm from "~/components/flights/FlightSegmentForm.vue";
 import type { Currency, FlightOption } from "@/types/tripTypes";
 import { z } from "zod";
 
@@ -437,27 +212,17 @@ const toIsoFromDateTimeUtc = (
   return new Date(`${dateStr}T${t}Z`).toISOString();
 };
 
-interface FormSegment {
-  fromAirport: string;
-  fromAirportTimezone: string;
-  toAirport: string;
-  toAirportTimezone: string;
-  departureDate: string;
-  departureTime: string;
-  arrivalDate: string;
-  arrivalTime: string;
-  isReturn: boolean;
-}
+interface FormSegmentInternal extends FormSegment {}
 
-const initialOutbound: FormSegment[] = [];
-const initialReturn: FormSegment[] = [];
+const initialOutbound: FormSegmentInternal[] = [];
+const initialReturn: FormSegmentInternal[] = [];
 
 if (
   props.initialValues?.segments &&
   Array.isArray(props.initialValues.segments)
 ) {
   props.initialValues.segments.forEach((s: any) => {
-    const seg: FormSegment = {
+    const seg: FormSegmentInternal = {
       fromAirport: s.fromAirport,
       fromAirportTimezone: s.fromAirportTimezone || "UTC",
       toAirport: s.toAirport,
@@ -569,7 +334,6 @@ const removeSegment = (idx: number, isReturn: boolean) => {
   list.splice(idx, 1);
 };
 
-// Watch segments to auto-populate header fields
 watch(
   [
     () => state.outboundSegments,

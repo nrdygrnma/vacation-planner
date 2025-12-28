@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { FlightOption } from "@/types/tripTypes";
+import type { Airline, FlightOption } from "@/types/tripTypes";
 
 interface FlightBucket {
   items: FlightOption[];
@@ -13,6 +13,24 @@ export const useFlightsStore = defineStore("flights", () => {
   // State
   // -----------------------------------
   const byTrip = ref<Record<string, FlightBucket>>({});
+  const airlines = ref<Airline[]>([]);
+  const airlinesLoading = ref(false);
+
+  // -----------------------------------
+  // Actions
+  // -----------------------------------
+  async function fetchAirlines() {
+    if (airlines.value.length > 0) return;
+    airlinesLoading.value = true;
+    try {
+      const data = await $fetch<Airline[]>("/api/airlines");
+      airlines.value = data || [];
+    } catch (err) {
+      console.error("Failed to fetch airlines:", err);
+    } finally {
+      airlinesLoading.value = false;
+    }
+  }
 
   // -----------------------------------
   // Helpers
@@ -194,11 +212,15 @@ export const useFlightsStore = defineStore("flights", () => {
 
   return {
     byTrip,
+    airlines,
+    airlinesLoading,
+    fetchAirlines,
     ensure,
     fetchByTrip,
     add,
     update,
     remove,
     selectFinal,
+    mapFormToApi,
   };
 });

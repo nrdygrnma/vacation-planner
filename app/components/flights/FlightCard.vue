@@ -105,6 +105,15 @@
     <template #trailing>
       <div class="flex items-center gap-1" @click.stop>
         <UButton
+          v-if="!selected"
+          color="primary"
+          icon="i-lucide-check"
+          label="Select"
+          size="sm"
+          variant="soft"
+          @click="$emit('select')"
+        />
+        <UButton
           color="neutral"
           icon="i-lucide-pencil"
           size="sm"
