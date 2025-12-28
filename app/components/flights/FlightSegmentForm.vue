@@ -65,10 +65,10 @@
           label="Departure Date"
           required
         >
-          <UInput v-model="modelValue.departureDate" type="date" />
+          <UInput v-model="modelValue.departureDate" class="w-full" type="date"/>
         </UFormField>
         <UFormField :name="`${namePrefix}.departureTime`" label="Time" required>
-          <UInput v-model="modelValue.departureTime" type="time" />
+          <UInput v-model="modelValue.departureTime" class="w-full" type="time" />
         </UFormField>
       </div>
 
@@ -78,10 +78,10 @@
           label="Arrival Date"
           required
         >
-          <UInput v-model="modelValue.arrivalDate" type="date" />
+          <UInput v-model="modelValue.arrivalDate" class="w-full" type="date" />
         </UFormField>
         <UFormField :name="`${namePrefix}.arrivalTime`" label="Time" required>
-          <UInput v-model="modelValue.arrivalTime" type="time" />
+          <UInput v-model="modelValue.arrivalTime" class="w-full" type="time" />
         </UFormField>
       </div>
     </div>

@@ -104,29 +104,45 @@
 
     <template #trailing>
       <div class="flex items-center gap-1" @click.stop>
-        <UButton
-          v-if="!selected"
-          color="primary"
-          icon="i-lucide-check"
-          label="Select"
-          size="sm"
-          variant="soft"
-          @click="$emit('select')"
-        />
-        <UButton
-          color="neutral"
-          icon="i-lucide-pencil"
-          size="sm"
-          variant="outline"
-          @click="$emit('edit')"
-        />
-        <UButton
-          color="error"
-          icon="i-lucide-trash"
-          size="sm"
-          variant="outline"
-          @click="$emit('delete')"
-        />
+        <UTooltip
+          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+          arrow
+          text="Select flight"
+        >
+          <UButton
+            v-if="!selected"
+            color="primary"
+            icon="i-lucide-check"
+            label="Select"
+            size="sm"
+            variant="soft"
+            @click="$emit('select')"
+          />
+        </UTooltip>
+        <UTooltip
+          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+          arrow
+          text="Edit"
+        >
+          <UButton
+            icon="i-lucide-edit"
+            variant="outline"
+            @click="$emit('edit')"
+          />
+        </UTooltip>
+
+        <UTooltip
+          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+          arrow
+          text="Delete"
+        >
+          <UButton
+            color="error"
+            icon="i-lucide-trash"
+            variant="outline"
+            @click="$emit('delete')"
+          />
+        </UTooltip>
       </div>
     </template>
   </BaseItemCard>

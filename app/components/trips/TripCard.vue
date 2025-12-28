@@ -66,7 +66,7 @@
           text="Edit"
         >
           <UButton
-            icon="lucide:edit"
+            icon="i-lucide-edit"
             variant="outline"
             @click="emit('edit', trip)"
           />
@@ -79,7 +79,7 @@
         >
           <UButton
             color="error"
-            icon="lucide:trash"
+            icon="i-lucide-trash"
             variant="outline"
             @click="emit('delete', trip)"
           />

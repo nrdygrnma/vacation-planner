@@ -32,23 +32,30 @@
       </div>
 
       <div class="flex items-center justify-end gap-2">
-        <UButton
-          color="neutral"
-          icon="i-lucide-edit"
-          variant="outline"
-          @click="$emit('edit')"
+        <UTooltip
+          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+          arrow
+          text="Edit"
         >
-          Edit
-        </UButton>
+          <UButton
+            icon="i-lucide-edit"
+            variant="outline"
+            @click="emit('edit')"
+          />
+        </UTooltip>
 
-        <UButton
-          color="error"
-          icon="i-lucide-trash"
-          variant="outline"
-          @click="$emit('delete')"
+        <UTooltip
+          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+          arrow
+          text="Delete"
         >
-          Delete
-        </UButton>
+          <UButton
+            color="error"
+            icon="lucide:trash"
+            variant="outline"
+            @click="emit('delete')"
+          />
+        </UTooltip>
       </div>
     </div>
 
