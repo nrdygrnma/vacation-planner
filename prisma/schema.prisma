@@ -90,7 +90,7 @@ model Flight {
 
 model CarType {
   id      String      @id @default(cuid())
-  name    String
+  name    String      @unique
   rentals CarRental[]
 }
 
@@ -107,6 +107,7 @@ model CarRental {
   insurancePerDay Decimal?
   currencyId      String
   totalCostEUR    Decimal?
+  notes           String?
   tripId          String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt

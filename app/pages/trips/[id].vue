@@ -24,7 +24,11 @@
         :trip="trip"
         @refresh="refresh"
       />
-      <CarRentalsSection v-else-if="activeTab === 'cars'" :trip="trip" />
+      <CarRentalsSection
+        v-else-if="activeTab === 'cars'"
+        :trip="trip"
+        @refresh="refresh"
+      />
       <StaysSection v-else-if="activeTab === 'stays'" :trip="trip" />
     </div>
 

@@ -9,12 +9,19 @@
     @submit="onSubmit"
   >
     <template #default="{ state }">
-      <div class="space-y-6 w-full">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-4">
+      <div class="space-y-4 w-full">
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
           <UFormField label="Company / Provider" name="company" required>
-            <UInput v-model="state.company" placeholder="Hertz, Avis, etc." />
+            <UInput
+              v-model="state.company"
+              class="w-full"
+              placeholder="Hertz, Avis, etc."
+            />
           </UFormField>
-
+        </div>
+        <div
+          class="grid grid-cols-2 md:grid-cols-2 gap-4 pb-4 border-b border-gray-300"
+        >
           <UFormField label="Car Type" name="carTypeId" required>
             <USelectMenu
               v-model="state.carTypeId"
@@ -46,15 +53,16 @@
             <UFormField label="Location" name="pickupLocation" required>
               <UInput
                 v-model="state.pickupLocation"
+                class="w-full"
                 placeholder="Airport, City, etc."
               />
             </UFormField>
             <div class="grid grid-cols-2 gap-2">
               <UFormField label="Date" name="pickupDate" required>
-                <UInput v-model="state.pickupDate" type="date" />
+                <UInput v-model="state.pickupDate" class="w-full" type="date" />
               </UFormField>
               <UFormField label="Time" name="pickupTime" required>
-                <UInput v-model="state.pickupTime" type="time" />
+                <UInput v-model="state.pickupTime" class="w-full" type="time" />
               </UFormField>
             </div>
           </div>
@@ -68,22 +76,31 @@
             <UFormField label="Location" name="dropOffLocation" required>
               <UInput
                 v-model="state.dropOffLocation"
+                class="w-full"
                 placeholder="Airport, City, etc."
               />
             </UFormField>
             <div class="grid grid-cols-2 gap-2">
               <UFormField label="Date" name="dropOffDate" required>
-                <UInput v-model="state.dropOffDate" type="date" />
+                <UInput
+                  v-model="state.dropOffDate"
+                  class="w-full"
+                  type="date"
+                />
               </UFormField>
               <UFormField label="Time" name="dropOffTime" required>
-                <UInput v-model="state.dropOffTime" type="time" />
+                <UInput
+                  v-model="state.dropOffTime"
+                  class="w-full"
+                  type="time"
+                />
               </UFormField>
             </div>
           </div>
         </div>
 
         <div
-          class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-gray-100 pt-4"
+          class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-gray-300 pt-4"
         >
           <UFormField label="Base Rate" name="baseRate">
             <UInput
@@ -115,6 +132,7 @@
           <UTextarea
             v-model="state.notes"
             :rows="2"
+            class="w-full"
             placeholder="Any specific details..."
           />
         </UFormField>
@@ -148,14 +166,14 @@ const emit = defineEmits<{
 const toDateInput = (value: unknown): string => {
   if (!value) return "";
   const d = new Date(value as any);
-  if (isNaN(d.getTime())) return "";
-  return d.toISOString().split("T")[0];
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString().split("T").at(0) ?? "";
 };
 
 const toTimeInput = (value: unknown): string => {
   if (!value || typeof value !== "string") return "";
   const m = value.match(/T(\d{2}:\d{2})/);
-  return m ? m[1] : "";
+  return m && m[1] ? m[1] : "";
 };
 
 const toIsoFromDateTimeUtc = (
@@ -195,7 +213,9 @@ const state = reactive({
   notes: props.initialValues?.notes || "",
 });
 
-const { data: currencies } = useFetch<Currency[]>("/api/currencies");
+const { data: currencies } = useFetch<Currency[]>("/api/currencies", {
+  server: false,
+});
 const currencyOptions = computed(() =>
   (currencies.value || []).map((c) => ({
     label: `${c.symbol} — ${c.name}`,
@@ -205,7 +225,9 @@ const currencyOptions = computed(() =>
 
 // We need car types too. For now let's assume an endpoint or hardcode some for MVP if not available.
 // Let's check schema again - CarType is a model.
-const { data: carTypes } = useFetch<CarType[]>("/api/car-types");
+const { data: carTypes } = useFetch<CarType[]>("/api/car-types", {
+  server: false,
+});
 const carTypeOptions = computed(() =>
   (carTypes.value || []).map((t) => ({
     label: t.name,

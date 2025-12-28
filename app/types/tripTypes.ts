@@ -98,6 +98,7 @@ export interface CarRentalOption {
   currencyId: string;
   currency?: Currency;
   totalCostEUR?: number;
+  notes?: string;
   tripId: string;
   trip?: Trip;
 }
