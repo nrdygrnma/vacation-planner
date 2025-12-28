@@ -1,0 +1,10 @@
+[
+  { "id": "booking-com", "name": "Booking.com" },
+  { "id": "airbnb", "name": "Airbnb" },
+  { "id": "hotels-com", "name": "Hotels.com" },
+  { "id": "expedia", "name": "Expedia" },
+  { "id": "agoda", "name": "Agoda" },
+  { "id": "vrbo", "name": "VRBO" },
+  { "id": "direct", "name": "Direct Booking" },
+  { "id": "other", "name": "Other" }
+]

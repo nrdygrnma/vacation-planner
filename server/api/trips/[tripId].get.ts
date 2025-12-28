@@ -22,7 +22,20 @@ export default defineEventHandler(async (event) => {
       carRentals: true,
       tripStops: {
         orderBy: { startDate: "asc" },
-        include: { accommodations: true },
+        include: {
+          accommodations: {
+            include: {
+              currency: true,
+              images: true,
+            },
+          },
+          selectedAccommodation: {
+            include: {
+              currency: true,
+              images: true,
+            },
+          },
+        },
       },
     },
   });

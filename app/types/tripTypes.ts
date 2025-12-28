@@ -99,6 +99,8 @@ export interface CarRentalOption {
   currency?: Currency;
   totalCostEUR?: number;
   notes?: string;
+  url?: string;
+  imageUrl?: string;
   tripId: string;
   trip?: Trip;
 }
@@ -106,9 +108,15 @@ export interface CarRentalOption {
 // ------------------
 // AccommodationOption
 // ------------------
+export interface AccommodationImage {
+  id: string;
+  url: string;
+  accommodationId: string;
+}
+
 export interface AccommodationOption {
   id: string;
-  title: string;
+  name: string;
   provider?: string;
   roomType?: string;
   nightlyRate: number;
@@ -116,6 +124,8 @@ export interface AccommodationOption {
   currency?: Currency; // loaded relation
   totalCostEUR?: number;
   url?: string;
+  notes?: string;
+  images?: AccommodationImage[];
   tripStopId?: string;
   tripStop?: TripStop; // optional loaded relation
 }

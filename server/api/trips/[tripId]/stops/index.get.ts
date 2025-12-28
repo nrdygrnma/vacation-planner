@@ -1,5 +1,4 @@
 import { prisma } from "~~/server/utils/prisma";
-import { defineEventHandler, getRouterParam } from "h3";
 
 export default defineEventHandler(async (event) => {
   const tripId = getRouterParam(event, "tripId");
@@ -17,11 +16,13 @@ export default defineEventHandler(async (event) => {
       accommodations: {
         include: {
           currency: true,
+          images: true,
         },
       },
       selectedAccommodation: {
         include: {
           currency: true,
+          images: true,
         },
       },
     },

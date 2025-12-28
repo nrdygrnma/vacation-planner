@@ -29,7 +29,7 @@
         :trip="trip"
         @refresh="refresh"
       />
-      <StaysSection v-else-if="activeTab === 'stays'" :trip="trip" />
+      <ItinerarySection v-else-if="activeTab === 'itinerary'" :trip="trip" />
     </div>
 
     <CrudModal
@@ -87,7 +87,7 @@ import { toast } from "vue-sonner";
 import TripDetailsHeader from "~/components/trips/TripDetailsHeader.vue";
 import FlightsSection from "~/components/sections/FlightsSection.vue";
 import CarRentalsSection from "~/components/sections/CarRentalsSection.vue";
-import StaysSection from "~/components/sections/StaysSection.vue";
+import ItinerarySection from "~/components/sections/ItinerarySection.vue";
 
 const route = useRoute();
 const tripId = computed(() => String(route.params.id || ""));
@@ -99,7 +99,7 @@ const { trip, refresh, pending } = useTrip(tripId.value);
 const tabItems = [
   { label: "Flights", icon: "i-lucide-plane", value: "flights" },
   { label: "Car Rentals", icon: "i-lucide-car", value: "cars" },
-  { label: "Stays", icon: "i-lucide-bed", value: "stays" },
+  { label: "Itinerary", icon: "i-lucide-map-pin", value: "itinerary" },
 ];
 const activeTab = ref<string>("flights");
 

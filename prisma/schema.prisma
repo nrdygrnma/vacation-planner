@@ -108,6 +108,8 @@ model CarRental {
   currencyId      String
   totalCostEUR    Decimal?
   notes           String?
+  url             String?
+  imageUrl        String?
   tripId          String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -134,7 +136,7 @@ model TripStop {
 }
 
 model Accommodation {
-  id             String    @id @default(cuid())
+  id             String               @id @default(cuid())
   name           String
   provider       String?
   roomType       String?
@@ -142,9 +144,19 @@ model Accommodation {
   totalCostEUR   Decimal?
   currencyId     String
   tripStopId     String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  currency       Currency  @relation(fields: [currencyId], references: [id])
-  tripStop       TripStop? @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
-  selectedOnStop TripStop? @relation("SelectedAccommodationOnStop")
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  notes          String?
+  url            String?
+  currency       Currency             @relation(fields: [currencyId], references: [id])
+  tripStop       TripStop?            @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
+  selectedOnStop TripStop?            @relation("SelectedAccommodationOnStop")
+  images         AccommodationImage[]
+}
+
+model AccommodationImage {
+  id              String        @id @default(cuid())
+  url             String
+  accommodationId String
+  accommodation   Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
 }

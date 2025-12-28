@@ -24,18 +24,30 @@ export default defineEventHandler(async (event) => {
         name: body.name,
         provider: body.provider || null,
         roomType: body.roomType || null,
-        nightlyRate: body.nightlyRate ? parseFloat(body.nightlyRate) : 0,
+        nightlyRate: body.nightlyRate ? Number(body.nightlyRate) : null,
         currencyId: body.currencyId,
-        totalCostEUR: body.totalCostEUR ? parseFloat(body.totalCostEUR) : 0,
-        tripStop: { connect: { id: stopId } },
+        totalCostEUR: body.totalCostEUR ? Number(body.totalCostEUR) : null,
+        tripStopId: stopId,
+        notes: body.notes || null,
+        url: body.url || null,
+        images:
+          body.images && Array.isArray(body.images)
+            ? {
+                create: body.images.map((url: string) => ({ url })),
+              }
+            : undefined,
       },
-      include: { currency: true },
+      include: {
+        currency: true,
+        images: true,
+      },
     });
     return accommodation;
   } catch (e: any) {
+    console.error("Error creating accommodation:", e);
     throw createError({
       statusCode: 500,
-      statusMessage: "Failed to create accommodation",
+      statusMessage: `Failed to create accommodation: ${e.message}`,
     });
   }
 });

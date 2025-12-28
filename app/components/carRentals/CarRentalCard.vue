@@ -6,24 +6,41 @@
     @click="$emit('select')"
   >
     <template #title>
-      <div class="flex items-center gap-2 min-w-0 flex-1">
-        <UIcon
-          :class="selected ? 'text-primary' : 'text-gray-600'"
-          class="size-4 shrink-0"
-          name="i-lucide-car"
-        />
-        <span
-          :class="selected ? 'text-primary font-semibold' : 'font-medium'"
-          class="truncate"
+      <div class="flex items-center gap-3 min-w-0 flex-1">
+        <div
+          v-if="rental.imageUrl"
+          class="size-10 rounded overflow-hidden shrink-0 border border-gray-100"
         >
-          {{ rental.company || rental.provider || "Unknown Provider" }}
-        </span>
-        <span class="text-muted shrink-0">·</span>
-        <span class="truncate">{{ rental.carType?.name || "Car" }}</span>
-      </div>
-      <div v-if="selected" class="flex items-center gap-1.5 shrink-0">
-        <UBadge color="primary" size="sm" variant="soft">Selected</UBadge>
-        <UIcon class="size-5 text-primary" name="i-lucide-check-circle-2" />
+          <img
+            :src="rental.imageUrl"
+            alt="Car"
+            class="size-full object-cover"
+          />
+        </div>
+        <div
+          v-else
+          class="size-10 rounded bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100"
+        >
+          <UIcon
+            :class="selected ? 'text-primary' : 'text-gray-400'"
+            class="size-5"
+            name="i-lucide-car"
+          />
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2">
+            <span
+              :class="selected ? 'text-primary font-semibold' : 'font-medium'"
+              class="truncate"
+            >
+              {{ rental.company || rental.provider || "Unknown Provider" }}
+            </span>
+            <span class="text-muted shrink-0">·</span>
+            <span class="truncate text-gray-500 text-sm">{{
+              rental.carType?.name || "Car"
+            }}</span>
+          </div>
+        </div>
       </div>
     </template>
 
@@ -75,6 +92,16 @@
             </template>
           </UPopover>
 
+          <UButton
+            v-if="rental.url"
+            :to="rental.url"
+            color="neutral"
+            icon="i-lucide-external-link"
+            size="xs"
+            target="_blank"
+            variant="ghost"
+            @click.stop
+          />
           <UPopover
             :content="{ align: 'center', side: 'top', sideOffset: 8 }"
             arrow
@@ -88,80 +115,112 @@
               @click.stop
             />
             <template #content>
-              <div class="p-4 space-y-4 text-sm max-w-sm">
-                <div class="grid grid-cols-2 gap-6">
-                  <div>
-                    <span
-                      class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
-                      >Provider</span
-                    >
-                    <p class="font-semibold text-gray-900 leading-tight">
-                      {{ rental.company || rental.provider }}
-                    </p>
-                    <p class="text-[11px] text-gray-500 font-medium">
-                      {{ rental.carType?.name || "Standard Car" }}
-                    </p>
+              <div
+                class="overflow-hidden rounded-lg bg-white shadow-xl ring-1 ring-gray-200"
+              >
+                <div
+                  v-if="rental.imageUrl"
+                  class="w-full h-40 overflow-hidden border-b border-gray-100"
+                >
+                  <img
+                    :src="rental.imageUrl"
+                    alt="Car Preview"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div class="p-4 space-y-4 text-sm max-w-sm">
+                  <div class="grid grid-cols-2 gap-6">
+                    <div>
+                      <span
+                        class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
+                        >Provider</span
+                      >
+                      <p class="font-semibold text-gray-900 leading-tight">
+                        {{ rental.company || rental.provider }}
+                      </p>
+                      <p class="text-[11px] text-gray-500 font-medium">
+                        {{ rental.carType?.name || "Standard Car" }}
+                      </p>
+                    </div>
+                    <div>
+                      <span
+                        class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
+                        >Locations</span
+                      >
+                      <p
+                        class="font-semibold text-gray-900 leading-tight truncate"
+                      >
+                        {{ rental.pickupLocation }}
+                      </p>
+                      <p class="text-[11px] text-gray-500 font-medium truncate">
+                        to
+                        {{ rental.dropOffLocation || rental.dropoffLocation }}
+                      </p>
+                    </div>
                   </div>
-                  <div>
+
+                  <div class="space-y-2 border-t pt-3">
+                    <span
+                      class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block"
+                      >Rental Period</span
+                    >
+                    <div class="space-y-1.5">
+                      <div class="text-[11px] flex items-center gap-2">
+                        <UIcon
+                          class="size-3 text-green-500"
+                          name="i-lucide-arrow-up-right"
+                        />
+                        <span class="text-gray-600">Pick-up:</span>
+                        <span
+                          class="font-medium text-gray-900 ml-auto tabular-nums"
+                          >{{ formatDate(rental.pickupDate) }}</span
+                        >
+                      </div>
+                      <div class="text-[11px] flex items-center gap-2">
+                        <UIcon
+                          class="size-3 text-blue-500"
+                          name="i-lucide-arrow-down-left"
+                        />
+                        <span class="text-gray-600">Drop-off:</span>
+                        <span
+                          class="font-medium text-gray-900 ml-auto tabular-nums"
+                          >{{
+                            formatDate(rental.dropOffDate || rental.dropoffDate)
+                          }}</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    v-if="rental.notes"
+                    class="bg-gray-50 p-2.5 rounded-md border border-gray-100"
+                  >
                     <span
                       class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
-                      >Locations</span
+                      >Notes</span
                     >
                     <p
-                      class="font-semibold text-gray-900 leading-tight truncate"
+                      class="text-[11px] leading-relaxed text-gray-600 italic whitespace-pre-wrap"
                     >
-                      {{ rental.pickupLocation }}
-                    </p>
-                    <p class="text-[11px] text-gray-500 font-medium truncate">
-                      to {{ rental.dropOffLocation || rental.dropoffLocation }}
+                      "{{ rental.notes }}"
                     </p>
                   </div>
-                </div>
 
-                <div class="space-y-2 border-t pt-3">
-                  <span
-                    class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block"
-                    >Rental Period</span
-                  >
-                  <div class="space-y-1.5">
-                    <div class="text-[11px] flex items-center gap-2">
-                      <UIcon
-                        class="size-3 text-green-500"
-                        name="i-lucide-arrow-up-right"
-                      />
-                      <span class="text-gray-600">Pick-up:</span>
-                      <span
-                        class="font-medium text-gray-900 ml-auto tabular-nums"
-                        >{{ formatDate(rental.pickupDate) }}</span
-                      >
-                    </div>
-                    <div class="text-[11px] flex items-center gap-2">
-                      <UIcon
-                        class="size-3 text-blue-500"
-                        name="i-lucide-arrow-down-left"
-                      />
-                      <span class="text-gray-600">Drop-off:</span>
-                      <span
-                        class="font-medium text-gray-900 ml-auto tabular-nums"
-                        >{{
-                          formatDate(rental.dropOffDate || rental.dropoffDate)
-                        }}</span
-                      >
-                    </div>
+                  <!-- Booking Link -->
+                  <div v-if="rental.url" class="border-t pt-3">
+                    <UButton
+                      :to="rental.url"
+                      block
+                      class="text-[11px]"
+                      color="primary"
+                      icon="i-lucide-external-link"
+                      size="xs"
+                      target="_blank"
+                    >
+                      View Booking Website
+                    </UButton>
                   </div>
-                </div>
-
-                <div
-                  v-if="rental.notes"
-                  class="bg-gray-50 p-2.5 rounded-md border border-gray-100"
-                >
-                  <span
-                    class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
-                    >Notes</span
-                  >
-                  <p class="text-[11px] leading-relaxed text-gray-600 italic">
-                    "{{ rental.notes }}"
-                  </p>
                 </div>
               </div>
             </template>
@@ -172,6 +231,11 @@
 
     <template #trailing>
       <div class="flex items-center gap-1" @click.stop>
+        <div v-if="selected" class="flex items-center gap-1.5 mr-2">
+          <UBadge color="primary" size="sm" variant="soft">Selected</UBadge>
+          <UIcon class="size-5 text-primary" name="i-lucide-check-circle-2" />
+        </div>
+
         <UTooltip
           :content="{ align: 'center', side: 'top', sideOffset: 8 }"
           arrow

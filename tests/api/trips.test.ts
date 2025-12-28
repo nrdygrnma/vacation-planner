@@ -95,7 +95,7 @@ describe("Trips API", () => {
       createdTripId = data.id;
     });
 
-    it("should fail without title", async () => {
+    it("should fail without name", async () => {
       const invalidTrip = {
         startDate: "2024-06-01T00:00:00.000Z",
         endDate: "2024-06-10T00:00:00.000Z",
@@ -115,7 +115,7 @@ describe("Trips API", () => {
       expect(data.statusMessage).toContain("Title is required");
     });
 
-    it("should fail with empty title", async () => {
+    it("should fail with empty name", async () => {
       const invalidTrip = {
         title: "   ",
         startDate: "2024-06-01T00:00:00.000Z",
@@ -356,7 +356,7 @@ describe("Trips API", () => {
       }
     });
 
-    it("should update trip title", async () => {
+    it("should update trip name", async () => {
       const updatedData = {
         title: "Updated Trip Title",
       };

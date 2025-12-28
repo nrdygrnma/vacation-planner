@@ -16,19 +16,32 @@ export default defineEventHandler(async (event) => {
   if (body.provider !== undefined) data.provider = body.provider;
   if (body.roomType !== undefined) data.roomType = body.roomType;
   if (body.nightlyRate !== undefined)
-    data.nightlyRate = body.nightlyRate ? parseFloat(body.nightlyRate) : 0;
+    data.nightlyRate = body.nightlyRate ? Number(body.nightlyRate) : null;
   if (body.currencyId !== undefined) data.currencyId = body.currencyId;
   if (body.totalCostEUR !== undefined)
-    data.totalCostEUR = body.totalCostEUR ? parseFloat(body.totalCostEUR) : 0;
+    data.totalCostEUR = body.totalCostEUR ? Number(body.totalCostEUR) : null;
+  if (body.notes !== undefined) data.notes = body.notes;
+  if (body.url !== undefined) data.url = body.url;
+
+  if (body.images !== undefined && Array.isArray(body.images)) {
+    data.images = {
+      deleteMany: {},
+      create: body.images.map((url: string) => ({ url })),
+    };
+  }
 
   try {
     const updated = await prisma.accommodation.update({
       where: { id: accommodationId },
       data,
-      include: { currency: true },
+      include: {
+        currency: true,
+        images: true,
+      },
     });
     return updated;
   } catch (e: any) {
+    console.error("Error updating accommodation:", e);
     if (e.code === "P2025") {
       throw createError({
         statusCode: 404,
@@ -37,7 +50,7 @@ export default defineEventHandler(async (event) => {
     }
     throw createError({
       statusCode: 500,
-      statusMessage: "Failed to update accommodation",
+      statusMessage: `Failed to update accommodation: ${e.message}`,
     });
   }
 });

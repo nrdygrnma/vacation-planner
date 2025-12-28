@@ -59,7 +59,7 @@
       </div>
     </div>
 
-    <!-- Mobile meta below title when < sm -->
+    <!-- Mobile meta below name when < sm -->
     <div
       class="sm:hidden flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600"
     >

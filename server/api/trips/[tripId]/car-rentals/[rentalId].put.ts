@@ -53,7 +53,9 @@ export default defineEventHandler(async (event) => {
         fees: Number(body.fees) || 0,
         insurancePerDay: Number(body.insurancePerDay) || 0,
         currencyId: body.currencyId,
-        notes: body.notes ? String(body.notes).trim() : null,
+        notes: body.notes ? String(body.notes) : null,
+        url: body.url ? String(body.url).trim() : null,
+        imageUrl: body.imageUrl ? String(body.imageUrl).trim() : null,
       },
       include: {
         currency: true,

@@ -1,5 +1,4 @@
 import { prisma } from "~~/server/utils/prisma";
-import { createError, defineEventHandler, getRouterParam, readBody } from "h3";
 
 export default defineEventHandler(async (event) => {
   const tripId = getRouterParam(event, "tripId");
@@ -13,36 +12,34 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const data: any = {};
-  if (body.name !== undefined) data.name = body.name;
-  if (body.startDate !== undefined) data.startDate = new Date(body.startDate);
-  if (body.endDate !== undefined) data.endDate = new Date(body.endDate);
-  if (body.lat !== undefined) data.lat = body.lat ? parseFloat(body.lat) : null;
-  if (body.lng !== undefined) data.lng = body.lng ? parseFloat(body.lng) : null;
-  if (body.selectedAccommodationId !== undefined)
-    data.selectedAccommodationId = body.selectedAccommodationId;
 
   try {
     const updated = await prisma.tripStop.update({
-      where: { id: stopId, tripId: tripId },
-      data,
+      where: { id: stopId },
+      data: {
+        name: body.name,
+        startDate: body.startDate ? new Date(body.startDate) : undefined,
+        endDate: body.endDate ? new Date(body.endDate) : undefined,
+        lat: body.lat !== undefined ? parseFloat(body.lat) : undefined,
+        lng: body.lng !== undefined ? parseFloat(body.lng) : undefined,
+        selectedAccommodationId: body.selectedAccommodationId,
+      },
       include: {
         accommodations: {
-          include: { currency: true },
+          include: {
+            currency: true,
+          },
         },
         selectedAccommodation: {
-          include: { currency: true },
+          include: {
+            currency: true,
+          },
         },
       },
     });
     return updated;
   } catch (e: any) {
-    if (e.code === "P2025") {
-      throw createError({
-        statusCode: 404,
-        statusMessage: "Trip stop not found",
-      });
-    }
+    console.error(e);
     throw createError({
       statusCode: 500,
       statusMessage: "Failed to update trip stop",

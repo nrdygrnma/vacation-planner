@@ -134,6 +134,25 @@
             :rows="2"
             class="w-full"
             placeholder="Any specific details..."
+            @keydown.enter.stop
+          />
+        </UFormField>
+
+        <UFormField label="Preview Image URL" name="imageUrl">
+          <UInput
+            v-model="state.imageUrl"
+            class="w-full"
+            placeholder="https://example.com/car.jpg"
+            type="url"
+          />
+        </UFormField>
+
+        <UFormField label="Booking URL" name="url">
+          <UInput
+            v-model="state.url"
+            class="w-full"
+            placeholder="https://..."
+            type="url"
           />
         </UFormField>
       </div>
@@ -206,12 +225,42 @@ const state = reactive({
     props.initialValues?.dropOffDate ||
       (props.initialValues as any)?.dropoffDate,
   ),
-  baseRate: props.initialValues?.baseRate || 0,
-  fees: props.initialValues?.fees || 0,
-  insurancePerDay: props.initialValues?.insurancePerDay || 0,
+  baseRate: Number(props.initialValues?.baseRate || 0),
+  fees: Number(props.initialValues?.fees || 0),
+  insurancePerDay: Number(props.initialValues?.insurancePerDay || 0),
   currencyId: props.initialValues?.currencyId || "",
   notes: props.initialValues?.notes || "",
+  url: props.initialValues?.url || "",
+  imageUrl: props.initialValues?.imageUrl || "",
 });
+
+watch(
+  () => props.initialValues,
+  (newVal) => {
+    if (!newVal) return;
+    state.company = newVal.company || (newVal as any).provider || "";
+    state.carTypeId = newVal.carTypeId || "";
+    state.pickupLocation = newVal.pickupLocation || "";
+    state.pickupDate = toDateInput(newVal.pickupDate);
+    state.pickupTime = toTimeInput(newVal.pickupDate);
+    state.dropOffLocation =
+      newVal.dropOffLocation || (newVal as any).dropoffLocation || "";
+    state.dropOffDate = toDateInput(
+      newVal.dropOffDate || (newVal as any).dropoffDate,
+    );
+    state.dropOffTime = toTimeInput(
+      newVal.dropOffDate || (newVal as any).dropoffDate,
+    );
+    state.baseRate = Number(newVal.baseRate || 0);
+    state.fees = Number(newVal.fees || 0);
+    state.insurancePerDay = Number(newVal.insurancePerDay || 0);
+    state.currencyId = newVal.currencyId || "";
+    state.notes = newVal.notes || "";
+    state.url = newVal.url || "";
+    state.imageUrl = newVal.imageUrl || "";
+  },
+  { immediate: true, deep: true },
+);
 
 const { data: currencies } = useFetch<Currency[]>("/api/currencies", {
   server: false,
@@ -245,11 +294,13 @@ const schema = z
     dropOffLocation: z.string().min(1, "Drop-off location is required"),
     dropOffDate: z.string().min(1, "Drop-off date is required"),
     dropOffTime: z.string().min(1, "Drop-off time is required"),
-    baseRate: z.number().min(0),
-    fees: z.number().min(0).optional(),
-    insurancePerDay: z.number().min(0).optional(),
+    baseRate: z.coerce.number().min(0),
+    fees: z.coerce.number().min(0).optional(),
+    insurancePerDay: z.coerce.number().min(0).optional(),
     currencyId: z.string().min(1, "Currency is required"),
     notes: z.string().optional(),
+    url: z.string().url("Invalid URL").optional().or(z.literal("")),
+    imageUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   })
   .refine(
     (data) => {

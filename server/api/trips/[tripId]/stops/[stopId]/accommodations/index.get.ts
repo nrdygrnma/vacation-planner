@@ -12,7 +12,10 @@ export default defineEventHandler(async (event) => {
 
   return prisma.accommodation.findMany({
     where: { tripStopId: stopId },
-    include: { currency: true },
+    include: {
+      currency: true,
+      images: true,
+    },
     orderBy: { createdAt: "asc" },
   });
 });
