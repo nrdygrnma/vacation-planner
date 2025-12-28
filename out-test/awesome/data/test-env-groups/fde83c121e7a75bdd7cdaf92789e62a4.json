@@ -1,0 +1,1 @@
+{"id":"fde83c121e7a75bdd7cdaf92789e62a4","fullName":"tests/api/smoke.test.ts#API Smoke Tests Error Handling should return 400 for invalid data","name":"should return 400 for invalid data","status":"passed","testResultsByEnv":{"default":"05dd6d29f26f89a5dcc286a8ba3618bc"}}

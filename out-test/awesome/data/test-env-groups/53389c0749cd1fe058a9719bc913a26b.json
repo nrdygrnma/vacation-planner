@@ -1,0 +1,1 @@
+{"id":"53389c0749cd1fe058a9719bc913a26b","fullName":"tests/api/flights.test.ts#Flights API POST /api/trips/:tripId/flights should create flight with optional fields","name":"should create flight with optional fields","status":"passed","testResultsByEnv":{"default":"e60d3d6b7ba2a2996a100ef7304494bc"}}

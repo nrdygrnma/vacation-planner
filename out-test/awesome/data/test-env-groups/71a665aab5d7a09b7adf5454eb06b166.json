@@ -1,0 +1,1 @@
+{"id":"71a665aab5d7a09b7adf5454eb06b166","fullName":"tests/api/currencies.test.ts#Currencies API GET /api/currencies should return proper content-type header","name":"should return proper content-type header","status":"passed","testResultsByEnv":{"default":"6097a26b9f76e11e9ab683d8acab3995"}}

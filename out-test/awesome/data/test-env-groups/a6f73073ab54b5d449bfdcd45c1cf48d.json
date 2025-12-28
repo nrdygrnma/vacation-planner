@@ -1,0 +1,1 @@
+{"id":"a6f73073ab54b5d449bfdcd45c1cf48d","fullName":"tests/api/trips.test.ts#Trips API DELETE /api/trips/:tripId should return 404 when deleting non-existent trip","name":"should return 404 when deleting non-existent trip","status":"passed","testResultsByEnv":{"default":"6f75c4db7c9cf1af2b0dbf8a9575d435"}}

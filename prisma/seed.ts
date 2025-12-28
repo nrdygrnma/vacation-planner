@@ -4,17 +4,17 @@ import { Currency } from "../app/types/tripTypes";
 const prisma = new PrismaClient();
 
 const currencies: Currency[] = [
-  { name: "Euro", symbol: "€" },
-  { name: "US Dollar", symbol: "$" },
-  { name: "British Pound", symbol: "£" },
-  { name: "Costa Rican Colón", symbol: "₡" },
+  { name: "Euro (EUR)", symbol: "€" },
+  { name: "US Dollar (USD)", symbol: "$" },
+  { name: "British Pound (GBP)", symbol: "£" },
+  { name: "Costa Rican Colón (CRC)", symbol: "₡" },
 ];
 
 async function main() {
   for (const c of currencies) {
     await prisma.currency.upsert({
-      where: { name: c.name },
-      update: {},
+      where: { symbol: c.symbol },
+      update: { name: c.name },
       create: c,
     });
   }

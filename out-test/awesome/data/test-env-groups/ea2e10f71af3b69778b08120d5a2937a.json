@@ -1,0 +1,1 @@
+{"id":"ea2e10f71af3b69778b08120d5a2937a","fullName":"tests/api/flights.test.ts#Flights API POST /api/trips/:tripId/flights should fail without stops","name":"should fail without stops","status":"passed","testResultsByEnv":{"default":"f725bcb5988900c315b072c00a5caa24"}}

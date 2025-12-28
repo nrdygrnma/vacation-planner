@@ -1,0 +1,1 @@
+{"id":"ecf1ad3ef46c83992d3a6667abf39c1a","fullName":"tests/api/airlines.test.ts#Airlines API GET /api/airlines should return empty array for non-matching search","name":"should return empty array for non-matching search","status":"passed","testResultsByEnv":{"default":"30e6581a8c37cb42070c1c18b180cc6b"}}

@@ -1,0 +1,1 @@
+{"id":"59d01ebe066ccbda8caf0b9c01453dbf","fullName":"tests/api/airlines.test.ts#Airlines API GET /api/airlines should handle zero limit gracefully","name":"should handle zero limit gracefully","status":"passed","testResultsByEnv":{"default":"a98a8a996ebc3df3d338d02f5d08570c"}}

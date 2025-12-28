@@ -1,0 +1,1 @@
+{"id":"ec7c6b46afbec7a2e249a962d2d44fb4","fullName":"tests/api/flights.test.ts#Flights API PUT /api/trips/:tripId/final-flight should unset final flight when flightId is null","name":"should unset final flight when flightId is null","status":"passed","testResultsByEnv":{"default":"32d0a4761aa187fd0ae36701a80865cb"}}

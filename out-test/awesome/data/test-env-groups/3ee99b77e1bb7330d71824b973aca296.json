@@ -1,0 +1,1 @@
+{"id":"3ee99b77e1bb7330d71824b973aca296","fullName":"tests/api/airlines.test.ts#Airlines API GET /api/airlines should filter airlines by search query (name)","name":"should filter airlines by search query (name)","status":"passed","testResultsByEnv":{"default":"ecebb19936a64e43611fb726c4471725"}}

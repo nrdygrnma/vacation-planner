@@ -1,0 +1,1 @@
+{"id":"3934000a6afc62d89af8bed81e3b693e","fullName":"tests/api/trips.test.ts#Trips API POST /api/trips should fail without currency","name":"should fail without currency","status":"passed","testResultsByEnv":{"default":"4cae0e04bd164b1a251728b5ba1aa9a4"}}

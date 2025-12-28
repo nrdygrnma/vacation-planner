@@ -1,0 +1,1 @@
+{"id":"da8e35f8205f8b80bdf0a209ce9fe311","fullName":"tests/api/flights.test.ts#Flights API DELETE /api/trips/:tripId/flights/:flightId should delete a flight","name":"should delete a flight","status":"passed","testResultsByEnv":{"default":"187d5d0aad92b0743bb80a43d80c6716"}}

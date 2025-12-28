@@ -1,0 +1,1 @@
+{"id":"556c3444937d0df026046523016b99dc","fullName":"tests/api/flights.test.ts#Flights API POST /api/trips/:tripId/flights should fail without travelClass","name":"should fail without travelClass","status":"passed","testResultsByEnv":{"default":"164721a98a4d122f22771356ee61eda8"}}

@@ -1,0 +1,1 @@
+{"id":"5ae6264574181e12a4d56b53aca3258b","fullName":"tests/api/trips.test.ts#Trips API POST /api/trips should fail without title","name":"should fail without title","status":"passed","testResultsByEnv":{"default":"ce1c71aeba9bc8643a5f272b794bc94c"}}

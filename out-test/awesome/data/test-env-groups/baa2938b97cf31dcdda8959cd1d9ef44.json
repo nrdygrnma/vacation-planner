@@ -1,0 +1,1 @@
+{"id":"baa2938b97cf31dcdda8959cd1d9ef44","fullName":"tests/api/flights.test.ts#Flights API PUT /api/trips/:tripId/final-flight should return 404 for non-existent trip","name":"should return 404 for non-existent trip","status":"passed","testResultsByEnv":{"default":"80f254e65a5be18faaf7aa2ad93cb8db"}}

@@ -1,0 +1,1 @@
+{"id":"0a04c1629d36b7d81177b85f2fe16834","fullName":"tests/api/trips.test.ts#Trips API POST /api/trips should fail without end date","name":"should fail without end date","status":"passed","testResultsByEnv":{"default":"ef8b15ee904beeb8248d30c2a1c7db57"}}

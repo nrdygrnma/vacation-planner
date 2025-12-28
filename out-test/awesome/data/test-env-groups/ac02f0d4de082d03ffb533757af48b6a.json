@@ -1,0 +1,1 @@
+{"id":"ac02f0d4de082d03ffb533757af48b6a","fullName":"tests/api/flights.test.ts#Flights API POST /api/trips/:tripId/flights should create a new flight with required fields","name":"should create a new flight with required fields","status":"passed","testResultsByEnv":{"default":"c5f61072e0e263fbbcb866e3c513adcb"}}

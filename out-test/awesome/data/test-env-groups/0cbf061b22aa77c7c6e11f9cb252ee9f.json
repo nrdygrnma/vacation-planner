@@ -1,0 +1,1 @@
+{"id":"0cbf061b22aa77c7c6e11f9cb252ee9f","fullName":"tests/api/flights.test.ts#Flights API POST /api/trips/:tripId/flights should fail without currencyId","name":"should fail without currencyId","status":"passed","testResultsByEnv":{"default":"fb65007e48f0db8261b794f15fe847cf"}}

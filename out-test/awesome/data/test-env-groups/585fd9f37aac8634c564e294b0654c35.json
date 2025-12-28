@@ -1,0 +1,1 @@
+{"id":"585fd9f37aac8634c564e294b0654c35","fullName":"tests/api/flights.test.ts#Flights API POST /api/trips/:tripId/flights should fail without airline","name":"should fail without airline","status":"passed","testResultsByEnv":{"default":"2ce903534d3b723b597e209db993def8"}}

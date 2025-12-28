@@ -1,0 +1,1 @@
+{"id":"cf06f4682c1ed4b5a8313c7b6416a050","fullName":"tests/api/airlines.test.ts#Airlines API GET /api/airlines should handle negative limit gracefully","name":"should handle negative limit gracefully","status":"passed","testResultsByEnv":{"default":"f573fb833dc4233b925cc329ef7ea74f"}}

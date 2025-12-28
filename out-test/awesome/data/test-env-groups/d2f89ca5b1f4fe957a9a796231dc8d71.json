@@ -1,0 +1,1 @@
+{"id":"d2f89ca5b1f4fe957a9a796231dc8d71","fullName":"tests/api/flights.test.ts#Flights API POST /api/trips/:tripId/flights should create flight with segments","name":"should create flight with segments","status":"passed","testResultsByEnv":{"default":"86f9f2832e3c1bcf3ea407ceec7bd030"}}

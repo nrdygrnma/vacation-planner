@@ -1,0 +1,1 @@
+{"id":"f47883d2b1145de45b2b3229a3ac2568","fullName":"tests/api/flights.test.ts#Flights API PUT /api/trips/:tripId/final-flight should set a flight as the final/selected flight","name":"should set a flight as the final/selected flight","status":"passed","testResultsByEnv":{"default":"6ba3f410a58309e91c5a77928e53ae25"}}

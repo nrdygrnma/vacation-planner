@@ -10,8 +10,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const body = await readBody<{ flightId: string }>(event);
-  if (!body.flightId) {
+  const body = await readBody<{ flightId: string | null }>(event);
+  if (body.flightId === undefined) {
     throw createError({
       statusCode: 400,
       statusMessage: "Missing flight id",
@@ -29,15 +29,17 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Verify flight exists and belongs to this trip
-  const flight = await prisma.flight.findUnique({
-    where: { id: body.flightId },
-  });
-  if (!flight || flight.tripId !== tripId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Flight not found or does not belong to this trip",
+  if (body.flightId !== null) {
+    // Verify flight exists and belongs to this trip
+    const flight = await prisma.flight.findUnique({
+      where: { id: body.flightId },
     });
+    if (!flight || flight.tripId !== tripId) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Flight not found or does not belong to this trip",
+      });
+    }
   }
 
   try {

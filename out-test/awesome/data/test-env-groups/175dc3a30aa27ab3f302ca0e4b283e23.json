@@ -1,0 +1,1 @@
+{"id":"175dc3a30aa27ab3f302ca0e4b283e23","fullName":"tests/api/airlines.test.ts#Airlines API GET /api/airlines should return airlines with code and name","name":"should return airlines with code and name","status":"passed","testResultsByEnv":{"default":"4ba368b2682d441e8370fcc0b0e8c871"}}

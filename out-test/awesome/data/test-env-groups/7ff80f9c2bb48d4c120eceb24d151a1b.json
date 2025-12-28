@@ -1,0 +1,1 @@
+{"id":"7ff80f9c2bb48d4c120eceb24d151a1b","fullName":"tests/api/currencies.test.ts#Currencies API GET /api/currencies should return non-empty strings for all fields","name":"should return non-empty strings for all fields","status":"passed","testResultsByEnv":{"default":"7094d099367086dbe4886c64e8ea1ec0"}}
