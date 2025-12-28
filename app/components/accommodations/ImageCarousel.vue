@@ -37,13 +37,13 @@ const prev = () => {
     <!-- Navigation Arrows -->
     <template v-if="images.length > 1">
       <button
-        class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-1 rounded-full backdrop-blur-sm opacity-0 group-hover/carousel:opacity-100 transition-opacity"
+        class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white size-6 flex items-center justify-center rounded-full backdrop-blur-sm opacity-0 group-hover/carousel:opacity-100 transition-opacity"
         @click.stop="prev"
       >
         <UIcon class="size-4" name="i-lucide-chevron-left" />
       </button>
       <button
-        class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-1 rounded-full backdrop-blur-sm opacity-0 group-hover/carousel:opacity-100 transition-opacity"
+        class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white size-6 flex items-center justify-center rounded-full backdrop-blur-sm opacity-0 group-hover/carousel:opacity-100 transition-opacity"
         @click.stop="next"
       >
         <UIcon class="size-4" name="i-lucide-chevron-right" />
