@@ -10,6 +10,19 @@
   >
     <template #default="{ state }">
       <div class="space-y-4 w-full">
+        <UFormField label="Type" name="type" required>
+          <USelectMenu
+            v-model="state.type"
+            :items="[
+              { label: 'Destination (with stay)', value: 'STOP' },
+              { label: 'Hub (Airport/Start/End)', value: 'HUB' },
+            ]"
+            class="w-full"
+            option-attribute="label"
+            value-key="value"
+          />
+        </UFormField>
+
         <UFormField label="Location Name" name="name" required>
           <UInput
             v-model="state.name"
@@ -93,6 +106,7 @@ const state = reactive({
   endDate: toDateInput(props.initialValues?.endDate),
   lat: props.initialValues?.lat || undefined,
   lng: props.initialValues?.lng || undefined,
+  type: props.initialValues?.type || "STOP",
 });
 
 const schema = z
@@ -102,6 +116,7 @@ const schema = z
     endDate: z.string().min(1, "End date is required"),
     lat: z.number().optional(),
     lng: z.number().optional(),
+    type: z.enum(["STOP", "HUB"]),
   })
   .refine(
     (data) => {

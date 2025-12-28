@@ -36,6 +36,12 @@ model Trip {
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
   imageUrl            String?
+  startLocationName   String?
+  startLat            Float?
+  startLng            Float?
+  endLocationName     String?
+  endLat              Float?
+  endLng              Float?
   carRentals          CarRental[] @relation("TripCarRentals")
   flights             Flight[]    @relation("TripFlights")
   selectedCarRental   CarRental?  @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
@@ -126,6 +132,8 @@ model TripStop {
   endDate                 DateTime
   lat                     Float?
   lng                     Float?
+  order                   Int             @default(0)
+  type                    String          @default("STOP") // STOP, HUB
   selectedAccommodationId String?         @unique
   tripId                  String
   createdAt               DateTime        @default(now())

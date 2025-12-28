@@ -85,13 +85,13 @@ export interface FlightOption {
 // ------------------
 export interface CarRentalOption {
   id: string;
-  company: string;
+  provider: string;
   carTypeId: string;
   carType?: CarType;
   pickupDate: string;
-  dropOffDate: string;
+  dropoffDate: string;
   pickupLocation: string;
-  dropOffLocation: string;
+  dropoffLocation: string;
   baseRate: number;
   fees?: number;
   insurancePerDay?: number;
@@ -141,6 +141,8 @@ export interface TripStop {
   endDate: string;
   lat?: number;
   lng?: number;
+  order: number;
+  type: "STOP" | "HUB";
   selectedAccommodationId?: string;
   selectedAccommodation?: AccommodationOption; // optional loaded relation
   tripId: string;
@@ -161,6 +163,12 @@ export interface Trip {
   people: number;
   totalCostEUR: number;
   imageUrl?: string | null;
+  startLocationName?: string | null;
+  startLat?: number | null;
+  startLng?: number | null;
+  endLocationName?: string | null;
+  endLat?: number | null;
+  endLng?: number | null;
   selectedFlightId?: string;
   selectedFlight?: FlightOption; // optional loaded relation
   selectedCarRentalId?: string;

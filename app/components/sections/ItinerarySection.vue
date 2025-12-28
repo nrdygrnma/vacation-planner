@@ -34,30 +34,43 @@
       <!-- Vertical line -->
       <div class="absolute left-[11px] top-4 bottom-4 w-0.5 bg-gray-200"></div>
 
-      <div v-for="(stop, idx) in stops" :key="stop.id" class="relative">
-        <!-- Dot on the line -->
-        <div
-          class="absolute -left-[19px] top-6 size-2.5 rounded-full border-2 border-white bg-primary-500 z-10"
-        ></div>
+      <draggable
+        :list="stopsList"
+        class="space-y-3"
+        handle=".drag-handle"
+        item-key="id"
+        @change="onDragChange"
+      >
+        <template #item="{ element: stop, index: idx }">
+          <div class="relative">
+            <!-- Dot on the line -->
+            <div
+              :class="stop.type === 'HUB' ? 'bg-primary-600' : 'bg-primary-500'"
+              class="absolute -left-[19px] top-6 size-2.5 rounded-full border-2 border-white z-10"
+            ></div>
 
-        <TripStopCard
-          :is-expanded="expandedStopId === stop.id"
-          :stop="stop"
-          @delete="onDelete(stop)"
-          @edit="onEdit(stop)"
-          @refresh="stopsStore.fetchByTrip(trip.id)"
-          @toggle-expand="toggleStopExpand(stop.id)"
-        />
+            <TripStopCard
+              :is-expanded="expandedStopId === stop.id"
+              :stop="stop"
+              @delete="onDelete"
+              @edit="onEdit"
+              @refresh="stopsStore.fetchByTrip(trip.id)"
+              @toggle-expand="toggleStopExpand(stop.id)"
+            />
 
-        <!-- Gap indicator between stops -->
-        <div
-          v-if="idx < stops.length - 1 && hasGap(stop, stops[idx + 1])"
-          class="my-1 py-0.5 px-2 bg-orange-50 rounded border border-orange-100 text-[10px] text-orange-600 font-medium inline-block ml-2"
-        >
-          <UIcon class="size-3 mr-1" name="i-lucide-clock" />
-          {{ gapDuration(stop, stops[idx + 1]) }} unplanned
-        </div>
-      </div>
+            <!-- Gap indicator between stops -->
+            <div
+              v-if="
+                idx < stopsList.length - 1 && hasGap(stop, stopsList[idx + 1])
+              "
+              class="my-1 py-0.5 px-2 bg-orange-50 rounded border border-orange-100 text-[10px] text-orange-600 font-medium inline-block ml-2"
+            >
+              <UIcon class="size-3 mr-1" name="i-lucide-clock" />
+              {{ gapDuration(stop, stopsList[idx + 1]) }} unplanned
+            </div>
+          </div>
+        </template>
+      </draggable>
     </div>
 
     <CrudModal
@@ -93,6 +106,7 @@
 </template>
 
 <script lang="ts" setup>
+import draggable from "vuedraggable";
 import TripStopCard from "~/components/tripStops/TripStopCard.vue";
 import TripStopFormNuxt from "~/components/tripStops/TripStopFormNuxt.vue";
 import CrudModal from "~/components/base/CrudModal.vue";
@@ -111,6 +125,27 @@ const stops = computed(() => stopsStore.byTrip[props.trip.id]?.items ?? []);
 const pending = computed(
   () => stopsStore.byTrip[props.trip.id]?.pending ?? false,
 );
+
+const stopsList = ref<TripStop[]>([]);
+watch(
+  stops,
+  (newVal) => {
+    stopsList.value = [...newVal];
+  },
+  { immediate: true },
+);
+
+const onDragChange = async () => {
+  const orders = stopsList.value.map((s, i) => ({ id: s.id, order: i }));
+  try {
+    await stopsStore.reorder(props.trip.id, orders);
+    toast.success("Order updated");
+  } catch (e) {
+    toast.error("Failed to update order");
+    // revert
+    stopsList.value = [...stops.value];
+  }
+};
 
 const expandedStopId = ref<string | null>(null);
 

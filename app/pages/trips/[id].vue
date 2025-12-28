@@ -30,6 +30,7 @@
         @refresh="refresh"
       />
       <ItinerarySection v-else-if="activeTab === 'itinerary'" :trip="trip" />
+      <TripMap v-else-if="activeTab === 'map' && trip" :trip="trip" />
     </div>
 
     <CrudModal
@@ -88,6 +89,7 @@ import TripDetailsHeader from "~/components/trips/TripDetailsHeader.vue";
 import FlightsSection from "~/components/sections/FlightsSection.vue";
 import CarRentalsSection from "~/components/sections/CarRentalsSection.vue";
 import ItinerarySection from "~/components/sections/ItinerarySection.vue";
+import TripMap from "~/components/trips/TripMap.vue";
 
 const route = useRoute();
 const tripId = computed(() => String(route.params.id || ""));
@@ -100,6 +102,7 @@ const tabItems = [
   { label: "Flights", icon: "i-lucide-plane", value: "flights" },
   { label: "Car Rentals", icon: "i-lucide-car", value: "cars" },
   { label: "Itinerary", icon: "i-lucide-map-pin", value: "itinerary" },
+  { label: "Map", icon: "i-lucide-map", value: "map" },
 ];
 const activeTab = ref<string>("flights");
 
@@ -169,6 +172,12 @@ const editInitialValues = computed(() => {
     endDate: toDateInput((t as any).endDate),
     people: (t as any).people ?? 1,
     currencyId: (t as any).currencyId ?? (t as any).currency?.id ?? "",
+    startLocationName: (t as any).startLocationName ?? "",
+    startLat: (t as any).startLat ?? null,
+    startLng: (t as any).startLng ?? null,
+    endLocationName: (t as any).endLocationName ?? "",
+    endLat: (t as any).endLat ?? null,
+    endLng: (t as any).endLng ?? null,
   };
 });
 

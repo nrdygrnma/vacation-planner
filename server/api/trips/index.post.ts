@@ -8,17 +8,28 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "Title is required." });
   }
   if (!body.startDate) {
-    throw createError({ statusCode: 400, statusMessage: "Start date is required." });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Start date is required.",
+    });
   }
   if (!body.endDate) {
-    throw createError({ statusCode: 400, statusMessage: "End date is required." });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "End date is required.",
+    });
   }
   if (!body.currencyId) {
-    throw createError({ statusCode: 400, statusMessage: "Currency is required." });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Currency is required.",
+    });
   }
 
   // Validate currency exists
-  const currency = await prisma.currency.findUnique({ where: { id: body.currencyId } });
+  const currency = await prisma.currency.findUnique({
+    where: { id: body.currencyId },
+  });
   if (!currency) {
     throw createError({ statusCode: 400, statusMessage: "Invalid currency." });
   }
@@ -32,6 +43,12 @@ export default defineEventHandler(async (event) => {
       totalCostEUR: body.totalCostEUR ?? 0,
       imageUrl: body.imageUrl ?? null,
       currencyId: body.currencyId,
+      startLocationName: body.startLocationName ?? null,
+      startLat: body.startLat ?? null,
+      startLng: body.startLng ?? null,
+      endLocationName: body.endLocationName ?? null,
+      endLat: body.endLat ?? null,
+      endLng: body.endLng ?? null,
     },
   });
 });

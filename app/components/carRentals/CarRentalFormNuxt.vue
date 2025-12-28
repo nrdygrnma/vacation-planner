@@ -11,9 +11,9 @@
     <template #default="{ state }">
       <div class="space-y-4 w-full">
         <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <UFormField label="Company / Provider" name="company" required>
+          <UFormField label="Company / Provider" name="provider" required>
             <UInput
-              v-model="state.company"
+              v-model="state.provider"
               class="w-full"
               placeholder="Hertz, Avis, etc."
             />
@@ -73,24 +73,24 @@
             >
               Drop-off
             </h5>
-            <UFormField label="Location" name="dropOffLocation" required>
+            <UFormField label="Location" name="dropoffLocation" required>
               <UInput
-                v-model="state.dropOffLocation"
+                v-model="state.dropoffLocation"
                 class="w-full"
                 placeholder="Airport, City, etc."
               />
             </UFormField>
             <div class="grid grid-cols-2 gap-2">
-              <UFormField label="Date" name="dropOffDate" required>
+              <UFormField label="Date" name="dropoffDate" required>
                 <UInput
-                  v-model="state.dropOffDate"
+                  v-model="state.dropoffDate"
                   class="w-full"
                   type="date"
                 />
               </UFormField>
-              <UFormField label="Time" name="dropOffTime" required>
+              <UFormField label="Time" name="dropoffTime" required>
                 <UInput
-                  v-model="state.dropOffTime"
+                  v-model="state.dropoffTime"
                   class="w-full"
                   type="time"
                 />
@@ -205,26 +205,17 @@ const toIsoFromDateTimeUtc = (
 };
 
 const state = reactive({
-  company:
-    props.initialValues?.company ||
+  provider:
+    props.initialValues?.provider ||
     (props.initialValues as any)?.provider ||
     "",
   carTypeId: props.initialValues?.carTypeId || "",
   pickupLocation: props.initialValues?.pickupLocation || "",
   pickupDate: toDateInput(props.initialValues?.pickupDate),
   pickupTime: toTimeInput(props.initialValues?.pickupDate),
-  dropOffLocation:
-    props.initialValues?.dropOffLocation ||
-    (props.initialValues as any)?.dropoffLocation ||
-    "",
-  dropOffDate: toDateInput(
-    props.initialValues?.dropOffDate ||
-      (props.initialValues as any)?.dropoffDate,
-  ),
-  dropOffTime: toTimeInput(
-    props.initialValues?.dropOffDate ||
-      (props.initialValues as any)?.dropoffDate,
-  ),
+  dropoffLocation: props.initialValues?.dropoffLocation || "",
+  dropoffDate: toDateInput(props.initialValues?.dropoffDate),
+  dropoffTime: toTimeInput(props.initialValues?.dropoffDate),
   baseRate: Number(props.initialValues?.baseRate || 0),
   fees: Number(props.initialValues?.fees || 0),
   insurancePerDay: Number(props.initialValues?.insurancePerDay || 0),
@@ -238,19 +229,14 @@ watch(
   () => props.initialValues,
   (newVal) => {
     if (!newVal) return;
-    state.company = newVal.company || (newVal as any).provider || "";
+    state.provider = newVal.provider || "";
     state.carTypeId = newVal.carTypeId || "";
     state.pickupLocation = newVal.pickupLocation || "";
     state.pickupDate = toDateInput(newVal.pickupDate);
     state.pickupTime = toTimeInput(newVal.pickupDate);
-    state.dropOffLocation =
-      newVal.dropOffLocation || (newVal as any).dropoffLocation || "";
-    state.dropOffDate = toDateInput(
-      newVal.dropOffDate || (newVal as any).dropoffDate,
-    );
-    state.dropOffTime = toTimeInput(
-      newVal.dropOffDate || (newVal as any).dropoffDate,
-    );
+    state.dropoffLocation = newVal.dropoffLocation || "";
+    state.dropoffDate = toDateInput(newVal.dropoffDate);
+    state.dropoffTime = toTimeInput(newVal.dropoffDate);
     state.baseRate = Number(newVal.baseRate || 0);
     state.fees = Number(newVal.fees || 0);
     state.insurancePerDay = Number(newVal.insurancePerDay || 0);
@@ -286,14 +272,14 @@ const carTypeOptions = computed(() =>
 
 const schema = z
   .object({
-    company: z.string().min(1, "Company is required"),
+    provider: z.string().min(1, "Provider is required"),
     carTypeId: z.string().min(1, "Car type is required"),
     pickupLocation: z.string().min(1, "Pickup location is required"),
     pickupDate: z.string().min(1, "Pickup date is required"),
     pickupTime: z.string().min(1, "Pickup time is required"),
-    dropOffLocation: z.string().min(1, "Drop-off location is required"),
-    dropOffDate: z.string().min(1, "Drop-off date is required"),
-    dropOffTime: z.string().min(1, "Drop-off time is required"),
+    dropoffLocation: z.string().min(1, "Drop-off location is required"),
+    dropoffDate: z.string().min(1, "Drop-off date is required"),
+    dropoffTime: z.string().min(1, "Drop-off time is required"),
     baseRate: z.coerce.number().min(0),
     fees: z.coerce.number().min(0).optional(),
     insurancePerDay: z.coerce.number().min(0).optional(),
@@ -305,22 +291,21 @@ const schema = z
   .refine(
     (data) => {
       const start = toIsoFromDateTimeUtc(data.pickupDate, data.pickupTime);
-      const end = toIsoFromDateTimeUtc(data.dropOffDate, data.dropOffTime);
+      const end = toIsoFromDateTimeUtc(data.dropoffDate, data.dropoffTime);
       if (!start || !end) return true;
       return new Date(end) >= new Date(start);
     },
     {
       message: "Drop-off cannot be before pick-up",
-      path: ["dropOffDate"],
+      path: ["dropoffDate"],
     },
   );
 
 const onSubmit = (data: any) => {
   const payload = {
     ...data,
-    provider: data.company, // for backend compatibility if needed
     pickupDate: toIsoFromDateTimeUtc(data.pickupDate, data.pickupTime),
-    dropOffDate: toIsoFromDateTimeUtc(data.dropOffDate, data.dropOffTime),
+    dropoffDate: toIsoFromDateTimeUtc(data.dropoffDate, data.dropoffTime),
     // Ensure numbers
     baseRate: Number(data.baseRate),
     fees: Number(data.fees),

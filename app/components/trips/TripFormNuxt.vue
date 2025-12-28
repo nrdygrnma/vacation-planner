@@ -75,6 +75,60 @@
             />
           </UFormField>
         </div>
+
+        <div class="border-t border-gray-100 pt-4 space-y-4">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">
+            Route (Optional)
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <UFormField label="Start Point Name" name="startLocationName">
+              <UInput
+                v-model="state.startLocationName"
+                placeholder="Home, Airport, etc."
+              />
+            </UFormField>
+            <UFormField label="Start Lat" name="startLat">
+              <UInput
+                v-model.number="state.startLat"
+                placeholder="48.8566"
+                step="any"
+                type="number"
+              />
+            </UFormField>
+            <UFormField label="Start Lng" name="startLng">
+              <UInput
+                v-model.number="state.startLng"
+                placeholder="2.3522"
+                step="any"
+                type="number"
+              />
+            </UFormField>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <UFormField label="End Point Name" name="endLocationName">
+              <UInput
+                v-model="state.endLocationName"
+                placeholder="Home, Hotel, etc."
+              />
+            </UFormField>
+            <UFormField label="End Lat" name="endLat">
+              <UInput
+                v-model.number="state.endLat"
+                placeholder="48.8566"
+                step="any"
+                type="number"
+              />
+            </UFormField>
+            <UFormField label="End Lng" name="endLng">
+              <UInput
+                v-model.number="state.endLng"
+                placeholder="2.3522"
+                step="any"
+                type="number"
+              />
+            </UFormField>
+          </div>
+        </div>
       </div>
     </template>
   </CrudForm>
@@ -94,6 +148,12 @@ const props = withDefaults(
       endDate: string | null;
       people: number;
       currencyId: string;
+      startLocationName: string | null;
+      startLat: number | null;
+      startLng: number | null;
+      endLocationName: string | null;
+      endLat: number | null;
+      endLng: number | null;
     }>;
     submitLabel?: string;
     cancelLabel?: string;
@@ -136,6 +196,12 @@ const state = reactive({
   endDate: toDateInput(props.initialValues?.endDate ?? ""),
   people: props.initialValues?.people ?? 1,
   currencyId: props.initialValues?.currencyId ?? "",
+  startLocationName: props.initialValues?.startLocationName ?? "",
+  startLat: props.initialValues?.startLat ?? null,
+  startLng: props.initialValues?.startLng ?? null,
+  endLocationName: props.initialValues?.endLocationName ?? "",
+  endLat: props.initialValues?.endLat ?? null,
+  endLng: props.initialValues?.endLng ?? null,
 });
 
 const { data: currencies } = useFetch<Currency[]>("/api/currencies", {
@@ -158,6 +224,12 @@ const schema = z
     endDate: z.string().min(1, "End date is required."),
     people: z.coerce.number().min(1, "People must be at least 1."),
     currencyId: z.string().min(1, "Currency is required."),
+    startLocationName: z.string().optional().or(z.literal("")),
+    startLat: z.coerce.number().optional().nullable(),
+    startLng: z.coerce.number().optional().nullable(),
+    endLocationName: z.string().optional().or(z.literal("")),
+    endLat: z.coerce.number().optional().nullable(),
+    endLng: z.coerce.number().optional().nullable(),
   })
   .refine(
     (data) => {

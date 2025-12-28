@@ -43,12 +43,15 @@ export const useTripStopsStore = defineStore("tripStops", () => {
       body: payload,
     });
     const bucket = ensure(tripId);
-    bucket.items.push(created);
-    // Sort items by startDate after adding
-    bucket.items.sort(
+    // Use spread to trigger reactivity by replacing the array reference
+    const newItems = [...bucket.items, created];
+    // Sort items by order, then startDate
+    newItems.sort(
       (a, b) =>
+        a.order - b.order ||
         new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
     );
+    bucket.items = newItems;
     return created;
   }
 
@@ -63,11 +66,14 @@ export const useTripStopsStore = defineStore("tripStops", () => {
     const bucket = ensure(tripId);
     const index = bucket.items.findIndex((i) => i.id === stopId);
     if (index !== -1) {
-      bucket.items[index] = { ...bucket.items[index], ...updated };
-      bucket.items.sort(
+      const newItems = [...bucket.items];
+      newItems[index] = { ...newItems[index], ...updated };
+      newItems.sort(
         (a, b) =>
+          a.order - b.order ||
           new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
       );
+      bucket.items = newItems;
     }
     return updated;
   }
@@ -80,11 +86,35 @@ export const useTripStopsStore = defineStore("tripStops", () => {
     bucket.items = bucket.items.filter((i) => i.id !== stopId);
   }
 
+  async function reorder(
+    tripId: string,
+    orders: { id: string; order: number }[],
+  ) {
+    await $fetch(`/api/trips/${tripId}/stops/reorder`, {
+      method: "PUT",
+      body: { orders },
+    });
+    // Local update
+    const bucket = ensure(tripId);
+    const newItems = [...bucket.items];
+    orders.forEach((o) => {
+      const stop = newItems.find((i) => i.id === o.id);
+      if (stop) stop.order = o.order;
+    });
+    newItems.sort(
+      (a, b) =>
+        a.order - b.order ||
+        new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+    );
+    bucket.items = newItems;
+  }
+
   return {
     byTrip,
     fetchByTrip,
     add,
     update,
     remove,
+    reorder,
   };
 });

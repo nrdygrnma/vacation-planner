@@ -22,6 +22,8 @@ export default defineEventHandler(async (event) => {
         endDate: body.endDate ? new Date(body.endDate) : undefined,
         lat: body.lat !== undefined ? parseFloat(body.lat) : undefined,
         lng: body.lng !== undefined ? parseFloat(body.lng) : undefined,
+        type: body.type,
+        order: body.order !== undefined ? parseInt(body.order) : undefined,
         selectedAccommodationId: body.selectedAccommodationId,
       },
       include: {

@@ -1,10 +1,35 @@
 <template>
-  <BaseItemCard :selectable="false" class="relative group">
+  <BaseItemCard
+    :class="[
+      'relative group',
+      stop.type === 'HUB'
+        ? 'bg-primary-50/20 border-primary-100 shadow-sm'
+        : '',
+    ]"
+    :selectable="false"
+  >
     <template #title>
       <div class="flex items-center gap-2 min-w-0 flex-1">
-        <UIcon class="size-4 shrink-0 text-gray-600" name="i-lucide-map-pin" />
-        <span class="font-medium truncate text-lg">
+        <UIcon
+          class="size-4 text-gray-400 cursor-grab active:cursor-grabbing shrink-0 drag-handle"
+          name="i-lucide-grip-vertical"
+        />
+        <UIcon
+          :class="stop.type === 'HUB' ? 'text-primary-700' : 'text-gray-600'"
+          :name="stop.type === 'HUB' ? 'i-lucide-plane' : 'i-lucide-map-pin'"
+          class="size-4 shrink-0"
+        />
+        <span
+          :class="{ 'text-primary-700': stop.type === 'HUB' }"
+          class="font-medium truncate text-lg"
+        >
           {{ stop.name }}
+          <span
+            v-if="stop.type === 'HUB'"
+            class="text-[9px] uppercase tracking-tighter bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full ml-2 font-black border border-primary-200"
+          >
+            Hub
+          </span>
         </span>
       </div>
     </template>
@@ -16,14 +41,21 @@
             <UIcon class="size-3" name="i-lucide-calendar" />
             <span>{{ dateRange }}</span>
           </div>
-          <div class="flex items-center gap-1">
+          <div v-if="stop.type !== 'HUB'" class="flex items-center gap-1">
             <UIcon class="size-3" name="i-lucide-moon" />
             <span>{{ nights }} {{ nights === 1 ? "night" : "nights" }}</span>
+          </div>
+          <div
+            v-else
+            class="flex items-center gap-1 text-primary-600 font-medium"
+          >
+            <UIcon class="size-3" name="i-lucide-plane-landing" />
+            <span>Transit Point</span>
           </div>
         </div>
 
         <div
-          v-if="stop.selectedAccommodation"
+          v-if="stop.type !== 'HUB' && stop.selectedAccommodation"
           class="bg-primary-50 rounded border border-primary-100 flex items-center justify-between group/stay cursor-pointer hover:bg-primary-100/50 transition-colors overflow-hidden h-12"
           @click="$emit('toggleExpand')"
         >
@@ -133,7 +165,7 @@
           </div>
         </div>
         <div
-          v-else
+          v-else-if="stop.type !== 'HUB'"
           class="border border-dashed border-gray-300 p-2 rounded flex items-center justify-between text-xs text-gray-400 cursor-pointer hover:bg-gray-50 transition-colors"
           @click="$emit('toggleExpand')"
         >
@@ -160,6 +192,7 @@
 
       <!-- Expandable Accommodations Section -->
       <Transition
+        v-if="stop.type !== 'HUB'"
         enter-active-class="transition duration-200 ease-out"
         enter-from-class="transform scale-95 opacity-0"
         enter-to-class="transform scale-100 opacity-100"
@@ -388,30 +421,23 @@
     />
 
     <template #trailing>
-      <div class="flex items-center gap-1" @click.stop>
-        <UTooltip
-          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
-          arrow
-          text="Edit stop"
-        >
-          <UButton
-            icon="i-lucide-edit"
-            variant="outline"
-            @click="$emit('edit')"
-          />
-        </UTooltip>
-        <UTooltip
-          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
-          arrow
-          text="Delete stop"
-        >
-          <UButton
-            color="error"
-            icon="i-lucide-trash"
-            variant="outline"
-            @click="$emit('delete')"
-          />
-        </UTooltip>
+      <div
+        class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <UButton
+          color="neutral"
+          icon="i-lucide-pencil"
+          size="xs"
+          variant="ghost"
+          @click="$emit('edit', stop)"
+        />
+        <UButton
+          color="error"
+          icon="i-lucide-trash-2"
+          size="xs"
+          variant="ghost"
+          @click="$emit('delete', stop)"
+        />
       </div>
     </template>
   </BaseItemCard>
@@ -432,8 +458,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "edit"): void;
-  (e: "delete"): void;
+  (e: "edit", stop: TripStop): void;
+  (e: "delete", stop: TripStop): void;
   (e: "refresh"): void;
   (e: "toggleExpand"): void;
 }>();
