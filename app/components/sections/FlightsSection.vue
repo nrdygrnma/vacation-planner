@@ -6,7 +6,7 @@
       </h3>
       <UButton color="primary" size="sm" @click="openAdd">
         <UIcon class="size-4" name="i-lucide-plus" />
-        <span class="ms-1">Add flight</span>
+        <span class="ms-1" data-testid="add-flight-btn">Add flight</span>
       </UButton>
     </div>
 
@@ -39,14 +39,16 @@
       @cancel="aeOpen = false"
       @submit="onModalSubmit"
     >
-      <FlightFormNuxt
-        :key="aeMode + (aeInitial?.id || '')"
-        ref="formRef"
-        :initial-values="aeInitial"
-        :submit-label="submitLabel"
-        @cancel="aeOpen = false"
-        @submit="save"
-      />
+      <div data-testid="crud-modal-body">
+        <FlightFormNuxt
+          :key="aeMode + (aeInitial?.id || '')"
+          ref="formRef"
+          :initial-values="aeInitial"
+          :submit-label="submitLabel"
+          @cancel="aeOpen = false"
+          @submit="save"
+        />
+      </div>
     </CrudModal>
 
     <ConfirmDeleteModal

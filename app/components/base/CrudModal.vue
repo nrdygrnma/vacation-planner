@@ -10,7 +10,7 @@
     </template>
 
     <template #footer>
-      <div class="flex items-center gap-2">
+      <div class="w-full flex justify-end gap-2">
         <UButton
           :label="cancelLabel"
           color="neutral"

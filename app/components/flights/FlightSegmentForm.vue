@@ -1,11 +1,11 @@
 <template>
-  <div
-    class="p-3 border border-gray-300 rounded-lg bg-gray-50/50 space-y-3 relative"
+  <div class="p-3 border border-gray-300 rounded-lg bg-gray-50/50 space-y-3 relative"
+    data-testid="flight-segment"
   >
-    <UButton
-      v-if="removable"
+    <UButton v-if="removable"
       class="absolute -top-2 -right-2 rounded-full"
       color="error"
+      data-testid="remove-segment"
       icon="i-lucide-x"
       size="xs"
       variant="solid"
