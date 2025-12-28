@@ -38,8 +38,18 @@ export default defineEventHandler(async (event) => {
         trip: { connect: { id: tripId } },
       },
       include: {
-        accommodations: true,
-        selectedAccommodation: true,
+        accommodations: {
+          include: {
+            currency: true,
+            images: true,
+          },
+        },
+        selectedAccommodation: {
+          include: {
+            currency: true,
+            images: true,
+          },
+        },
       },
     });
     return stop;

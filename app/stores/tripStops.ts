@@ -90,23 +90,39 @@ export const useTripStopsStore = defineStore("tripStops", () => {
     tripId: string,
     orders: { id: string; order: number }[],
   ) {
-    await $fetch(`/api/trips/${tripId}/stops/reorder`, {
-      method: "PUT",
-      body: { orders },
-    });
+    const response = await $fetch<{ success: boolean; stops: TripStop[] }>(
+      `/api/trips/${tripId}/stops/reorder`,
+      {
+        method: "PUT",
+        body: { orders },
+      },
+    );
+
     // Local update
     const bucket = ensure(tripId);
-    const newItems = [...bucket.items];
-    orders.forEach((o) => {
-      const stop = newItems.find((i) => i.id === o.id);
-      if (stop) stop.order = o.order;
-    });
-    newItems.sort(
-      (a, b) =>
-        a.order - b.order ||
-        new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+    bucket.items = response.stops;
+  }
+
+  async function batchUpdate(
+    tripId: string,
+    stops: {
+      id: string;
+      order: number;
+      startDate?: string;
+      endDate?: string;
+    }[],
+  ) {
+    const response = await $fetch<{ success: boolean; stops: TripStop[] }>(
+      `/api/trips/${tripId}/stops/batch`,
+      {
+        method: "PUT",
+        body: { stops },
+      },
     );
-    bucket.items = newItems;
+
+    // Use the full updated data from the backend to ensure all relations (images, etc) are correct
+    const bucket = ensure(tripId);
+    bucket.items = response.stops;
   }
 
   return {
@@ -116,5 +132,6 @@ export const useTripStopsStore = defineStore("tripStops", () => {
     update,
     remove,
     reorder,
+    batchUpdate,
   };
 });

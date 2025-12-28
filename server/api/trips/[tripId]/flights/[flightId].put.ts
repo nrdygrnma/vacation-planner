@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
       currencyId: string;
       totalCostEUR: number;
       bookingUrl?: string | null;
+      airlineLogoUrl?: string | null;
       notes?: string | null;
       stopOverDurationMinutes?: number | null;
       stopOverAirports?: any[] | null;
@@ -67,6 +68,8 @@ export default defineEventHandler(async (event) => {
   if (body.currencyId !== undefined) data.currencyId = body.currencyId;
   if (body.totalCostEUR !== undefined) data.totalCostEUR = body.totalCostEUR;
   if (body.bookingUrl !== undefined) data.bookingUrl = body.bookingUrl;
+  if (body.airlineLogoUrl !== undefined)
+    data.airlineLogoUrl = body.airlineLogoUrl;
   if (body.notes !== undefined) data.notes = body.notes;
   if (body.segments !== undefined) {
     data.segments = Array.isArray(body.segments)

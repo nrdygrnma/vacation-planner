@@ -231,7 +231,7 @@
                 :class="
                   stop.selectedAccommodationId === acc.id
                     ? 'border-primary-200 bg-primary-50/30 ring-1 ring-primary-100'
-                    : 'border-gray-100 hover:border-gray-200 bg-gray-50/30'
+                    : 'border-gray-300 hover:border-gray-400 bg-gray-50/30'
                 "
                 class="border rounded-md flex items-center justify-between transition-all group/item overflow-hidden h-11"
               >
@@ -376,7 +376,7 @@
           <!-- Inline Form for Add/Edit -->
           <div
             v-else
-            class="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-4"
+            class="bg-gray-50 p-3 rounded-lg border border-gray-300 space-y-4"
           >
             <div class="flex items-center justify-between border-b pb-2 mb-2">
               <span class="text-xs font-bold text-gray-600">

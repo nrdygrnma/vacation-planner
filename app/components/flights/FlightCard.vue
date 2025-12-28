@@ -6,79 +6,131 @@
     @click="$emit('select')"
   >
     <template #title>
-      <div class="flex items-center gap-2 min-w-0 flex-1">
-        <UIcon
-          :class="selected ? 'text-primary' : 'text-gray-600'"
-          class="size-4 shrink-0"
-          name="i-lucide-plane"
-        />
-        <span
-          :class="selected ? 'text-primary font-semibold' : 'font-medium'"
-          class="truncate text-sm"
+      <div class="flex items-center gap-3 min-w-0 flex-1">
+        <div
+          v-if="flight.airlineLogoUrl"
+          class="w-12 h-10 shrink-0 rounded overflow-hidden border border-gray-300 shadow-sm flex items-center justify-center bg-white"
         >
-          {{ airline }}
-        </span>
-        <span class="text-muted shrink-0 text-xs">·</span>
-        <span class="truncate text-xs text-gray-500"
-          >{{ fromLabel }} → {{ toLabel }}</span
+          <img
+            :src="flight.airlineLogoUrl"
+            alt="Airline"
+            class="max-w-full max-h-full object-contain p-1"
+          />
+        </div>
+        <div
+          v-else
+          class="size-10 bg-gray-50 flex items-center justify-center shrink-0 rounded border border-gray-300"
         >
+          <UIcon
+            :class="selected ? 'text-primary' : 'text-gray-400'"
+            class="size-5"
+            name="i-lucide-plane"
+          />
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2">
+            <span
+              :class="selected ? 'text-primary font-semibold' : 'font-medium'"
+              class="truncate text-sm"
+            >
+              {{ airline }}
+            </span>
+            <span class="text-muted shrink-0 text-xs">·</span>
+            <span class="truncate text-gray-500 text-xs"
+              >{{ fromLabel }} → {{ toLabel }}</span
+            >
+          </div>
+        </div>
       </div>
-      <div v-if="selected" class="flex items-center gap-1.5 shrink-0">
+      <div v-if="selected" class="flex items-center gap-1.5 shrink-0 ml-2">
         <UBadge color="primary" size="sm" variant="soft">Selected</UBadge>
         <UIcon class="size-5 text-primary" name="i-lucide-check-circle-2" />
       </div>
     </template>
 
     <template #subtitle>
-      <div class="space-y-1">
-        <div class="flex items-center gap-2">
-          <UBadge color="neutral" size="xs" variant="subtle">Outbound</UBadge>
-          <span v-if="outboundDuration" class="truncate">{{
+      <div class="space-y-1.5 mt-2">
+        <div class="flex items-center gap-2 text-xs text-gray-600">
+          <UBadge
+            class="w-16 justify-center"
+            color="neutral"
+            size="xs"
+            variant="subtle"
+            >Outbound</UBadge
+          >
+          <span v-if="outboundDuration" class="font-medium text-gray-700">{{
             outboundDuration
           }}</span>
-          <span v-if="outboundNet" class="text-xs text-gray-400"
+          <span v-if="outboundNet" class="text-[10px] text-gray-400"
             >(Net: {{ outboundNet }})</span
           >
-          <span v-if="outboundStopover" class="text-xs text-orange-500"
-            >·&nbsp;&nbsp;Stopover: {{ outboundStopover }}</span
-          >
-        </div>
-        <div v-if="flight.isRoundTrip" class="flex items-center gap-2">
-          <UBadge color="neutral" size="xs" variant="subtle">Return</UBadge>
-          <span v-if="returnDuration" class="truncate">{{
-            returnDuration
-          }}</span>
-          <span v-if="returnNet" class="text-xs text-gray-400"
-            >(Net: {{ returnNet }})</span
-          >
-          <span v-if="returnStopover" class="text-xs text-orange-500"
-            >·&nbsp;&nbsp;Stopover: {{ returnStopover }}</span
+          <span
+            v-if="outboundStopover"
+            class="text-[10px] text-orange-500 font-medium"
+            >· Stopover: {{ outboundStopover }}</span
           >
         </div>
         <div
-          class="text-xs text-gray-500 pt-1 flex items-center flex-wrap gap-x-2"
+          v-if="flight.isRoundTrip"
+          class="flex items-center gap-2 text-xs text-gray-600"
         >
-          <span v-if="stops !== undefined">Stops: {{ stops }}</span>
-          <span v-if="totalPriceDisplay" class="font-medium text-gray-900">
-            · {{ totalPriceDisplay }}
-          </span>
+          <UBadge
+            class="w-16 justify-center"
+            color="neutral"
+            size="xs"
+            variant="subtle"
+            >Return</UBadge
+          >
+          <span v-if="returnDuration" class="font-medium text-gray-700">{{
+            returnDuration
+          }}</span>
+          <span v-if="returnNet" class="text-[10px] text-gray-400"
+            >(Net: {{ returnNet }})</span
+          >
+          <span
+            v-if="returnStopover"
+            class="text-[10px] text-orange-500 font-medium"
+            >· Stopover: {{ returnStopover }}</span
+          >
+        </div>
+        <div
+          class="text-xs text-gray-500 pt-1 flex items-center flex-wrap gap-x-3 gap-y-1"
+        >
+          <div class="flex items-center gap-1.5">
+            <UIcon class="size-3 text-gray-400" name="i-lucide-list" />
+            <span v-if="stops !== undefined">Stops: {{ stops }}</span>
+          </div>
+
+          <div v-if="totalPriceDisplay" class="flex items-center gap-1.5">
+            <UIcon class="size-3 text-gray-400" name="i-lucide-banknote" />
+            <span class="font-extrabold text-gray-900 text-[13px]">
+              {{ totalPriceDisplay }}
+            </span>
+          </div>
+
           <UPopover v-if="hasExtras" mode="hover">
-            <UIcon
-              class="size-3 text-gray-400 cursor-help"
-              name="i-lucide-info"
+            <UButton
+              class="p-0.5"
+              color="neutral"
+              icon="i-lucide-info"
+              size="xs"
+              variant="ghost"
+              @click.stop
             />
             <template #content>
-              <div class="p-2 text-xs space-y-1">
+              <div class="p-2.5 text-xs space-y-1.5 min-w-[160px]">
                 <div class="flex justify-between gap-4">
-                  <span>Base Fare:</span>
-                  <span>{{ formatCurrency(flight.baseFare) }}</span>
+                  <span class="text-gray-500">Base Fare:</span>
+                  <span class="font-medium">{{
+                    formatCurrency(flight.baseFare)
+                  }}</span>
                 </div>
                 <div
                   v-if="flight.extras?.seatReservation"
                   class="flex justify-between gap-4"
                 >
-                  <span>Seat:</span>
-                  <span>{{
+                  <span class="text-gray-500">Seat:</span>
+                  <span class="font-medium">{{
                     formatCurrency(flight.extras.seatReservation)
                   }}</span>
                 </div>
@@ -86,8 +138,8 @@
                   v-if="flight.extras?.checkedBaggage"
                   class="flex justify-between gap-4"
                 >
-                  <span>Baggage:</span>
-                  <span>{{
+                  <span class="text-gray-500">Baggage:</span>
+                  <span class="font-medium">{{
                     formatCurrency(flight.extras.checkedBaggage)
                   }}</span>
                 </div>
@@ -95,8 +147,10 @@
                   v-if="flight.extras?.other"
                   class="flex justify-between gap-4"
                 >
-                  <span>Other:</span>
-                  <span>{{ formatCurrency(flight.extras.other) }}</span>
+                  <span class="text-gray-500">Other:</span>
+                  <span class="font-medium">{{
+                    formatCurrency(flight.extras.other)
+                  }}</span>
                 </div>
               </div>
             </template>
@@ -114,73 +168,90 @@
               @click.stop
             />
             <template #content>
-              <div class="p-4 space-y-4 text-sm max-w-sm">
-                <div class="grid grid-cols-2 gap-6">
-                  <div>
+              <div class="p-3 space-y-3 text-sm min-w-[320px] max-w-sm">
+                <div class="flex items-center gap-3">
+                  <div
+                    v-if="flight.airlineLogoUrl"
+                    class="w-10 h-8 rounded-md overflow-hidden border border-gray-300 bg-white flex items-center justify-center p-1.5 shrink-0"
+                  >
+                    <img
+                      :src="flight.airlineLogoUrl"
+                      alt="Airline Logo"
+                      class="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                  <div class="min-w-0 flex-1">
                     <span
-                      class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
+                      class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-0.5"
                       >Flight</span
                     >
-                    <p class="font-semibold text-gray-900 leading-tight">
+                    <p
+                      class="font-semibold text-gray-900 leading-tight truncate"
+                    >
                       {{ airline }}
                     </p>
-                    <p class="text-[11px] text-gray-500 font-medium">
+                    <p class="text-[11px] text-gray-500 font-medium truncate">
                       {{ flight.flightNumber }} · {{ travelClassLabel }}
                     </p>
                   </div>
-                  <div>
-                    <span
-                      class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
-                      >Route</span
-                    >
-                    <p class="font-semibold text-gray-900 leading-tight">
-                      {{ fullFromAirport }} → {{ fullToAirport }}
-                    </p>
-                  </div>
+                </div>
+
+                <div class="border-t border-gray-300 pt-3">
+                  <span
+                    class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
+                    >Route</span
+                  >
+                  <p class="font-semibold text-gray-900 leading-tight">
+                    {{ fullFromAirport }} → {{ fullToAirport }}
+                  </p>
                 </div>
 
                 <!-- Segments -->
                 <div
                   v-if="flight.segments?.length"
-                  class="space-y-2 border-t pt-3"
+                  class="space-y-3 border-t border-gray-300 pt-4"
                 >
                   <span
                     class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block"
                     >Segments ({{ flight.segments.length }})</span
                   >
-                  <div class="space-y-1.5">
+                  <div class="space-y-2">
                     <div
                       v-for="(seg, i) in flight.segments"
                       :key="i"
-                      class="text-[11px] flex items-center gap-2 group/seg"
+                      class="text-[12px] flex items-center gap-3 group/seg p-2 rounded-md hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-300"
                     >
                       <UIcon
                         :name="
                           seg.isReturn ? 'i-lucide-undo-2' : 'i-lucide-redo-2'
                         "
-                        class="size-3 text-gray-400 group-hover/seg:text-primary transition-colors"
+                        class="size-3.5 text-gray-400 group-hover/seg:text-primary transition-colors shrink-0"
                       />
-                      <span class="font-bold text-gray-700 w-8">{{
-                        seg.fromAirport
-                      }}</span>
-                      <UIcon
-                        class="size-2.5 text-gray-300"
-                        name="i-lucide-arrow-right"
-                      />
-                      <span class="font-bold text-gray-700 w-8">{{
-                        seg.toAirport
-                      }}</span>
-                      <span
-                        class="text-gray-400 ml-auto tabular-nums font-medium"
-                        >{{ formatDate(seg.departureDate) }}</span
-                      >
+                      <div class="flex flex-col">
+                        <span class="font-bold text-gray-900 leading-none mb-1"
+                          >{{ seg.fromAirport }} → {{ seg.toAirport }}</span
+                        >
+                        <span
+                          class="text-[10px] text-gray-500 font-medium tabular-nums"
+                          >{{ formatDateTime(seg.departureDate) }}</span
+                        >
+                      </div>
+                      <div class="ml-auto text-right">
+                        <UBadge
+                          v-if="seg.isReturn"
+                          color="neutral"
+                          size="xs"
+                          variant="subtle"
+                          >Return</UBadge
+                        >
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div
                   v-if="flight.notes"
-                  class="bg-gray-50 p-2.5 rounded-md border border-gray-100"
+                  class="bg-gray-50 p-2.5 rounded-md border border-gray-300"
                 >
                   <span
                     class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
@@ -193,7 +264,7 @@
 
                 <div
                   v-if="flight.bookingUrl"
-                  class="pt-2 border-t flex justify-center"
+                  class="pt-2 border-t border-gray-300 flex justify-center"
                 >
                   <UButton
                     :to="flight.bookingUrl"
@@ -214,14 +285,14 @@
     </template>
 
     <template #trailing>
-      <div class="flex items-center gap-1" @click.stop>
+      <div class="flex items-center gap-1 py-3 pr-3" @click.stop>
         <UTooltip
+          v-if="!selected"
           :content="{ align: 'center', side: 'top', sideOffset: 8 }"
           arrow
           text="Select flight"
         >
           <UButton
-            v-if="!selected"
             color="primary"
             icon="i-lucide-check"
             label="Select"
@@ -230,6 +301,7 @@
             @click="$emit('select')"
           />
         </UTooltip>
+
         <UTooltip
           :content="{ align: 'center', side: 'top', sideOffset: 8 }"
           arrow
@@ -299,6 +371,16 @@ const formatDate = (date: string | null | undefined) => {
   return new Date(date).toLocaleString(undefined, {
     dateStyle: "short",
     timeStyle: "short",
+  });
+};
+
+const formatDateTime = (date: string | null | undefined) => {
+  if (!date) return "—";
+  return new Date(date).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 

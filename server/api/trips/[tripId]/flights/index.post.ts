@@ -143,6 +143,7 @@ export default defineEventHandler(async (event) => {
       totalCostEUR: body.totalCostEUR ?? 0,
       extras: body.extras ?? null,
       bookingUrl: body.bookingUrl ?? null,
+      airlineLogoUrl: body.airlineLogoUrl ?? null,
       notes: body.notes ?? null,
       stops: outboundInfo ? outboundInfo.stops : (body.stops ?? 0),
       durationMin: outboundInfo ? outboundInfo.totalGross : null,

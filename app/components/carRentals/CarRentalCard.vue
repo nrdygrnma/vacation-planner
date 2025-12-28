@@ -9,7 +9,7 @@
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <div
           v-if="rental.imageUrl"
-          class="w-16 h-12 shrink-0 rounded overflow-hidden border border-gray-100 shadow-sm"
+          class="w-16 h-12 shrink-0 rounded overflow-hidden border border-gray-300 shadow-sm"
         >
           <img
             :src="rental.imageUrl"
@@ -19,7 +19,7 @@
         </div>
         <div
           v-else
-          class="size-10 bg-gray-50 flex items-center justify-center shrink-0 rounded border border-gray-100"
+          class="size-10 bg-gray-50 flex items-center justify-center shrink-0 rounded border border-gray-300"
         >
           <UIcon
             :class="selected ? 'text-primary' : 'text-gray-400'"
@@ -140,7 +140,7 @@
                 >
                   <div
                     v-if="rental.imageUrl"
-                    class="w-full h-40 overflow-hidden border-b border-gray-100"
+                    class="w-full h-40 overflow-hidden border-b border-gray-300"
                   >
                     <img
                       :src="rental.imageUrl"
@@ -148,7 +148,7 @@
                       class="w-full h-full object-cover"
                     />
                   </div>
-                  <div class="p-4 space-y-4 text-sm max-w-sm">
+                  <div class="p-3 space-y-3 text-sm max-w-sm">
                     <div class="grid grid-cols-2 gap-6">
                       <div>
                         <span
@@ -214,7 +214,7 @@
 
                     <div
                       v-if="rental.notes"
-                      class="bg-gray-50 p-2.5 rounded-md border border-gray-100"
+                      class="bg-gray-50 p-2.5 rounded-md border border-gray-300"
                     >
                       <span
                         class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
@@ -228,7 +228,10 @@
                     </div>
 
                     <!-- Booking Link -->
-                    <div v-if="rental.url" class="border-t pt-3">
+                    <div
+                      v-if="rental.url"
+                      class="border-t border-gray-300 pt-3"
+                    >
                       <UButton
                         :to="rental.url"
                         block

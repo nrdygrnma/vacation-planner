@@ -150,6 +150,19 @@
             />
           </UFormField>
 
+          <UFormField
+            class="w-full"
+            label="Airline Logo URL"
+            name="airlineLogoUrl"
+          >
+            <UInput
+              v-model="state.airlineLogoUrl"
+              class="w-full"
+              placeholder="https://..."
+              type="url"
+            />
+          </UFormField>
+
           <UFormField class="w-full" label="Notes" name="notes">
             <UTextarea v-model="state.notes" :rows="1" class="w-full" />
           </UFormField>
@@ -297,6 +310,7 @@ const state = reactive({
   baseFare: props.initialValues?.baseFare ?? 0,
   currencyId: props.initialValues?.currencyId ?? "",
   bookingUrl: props.initialValues?.bookingUrl ?? "",
+  airlineLogoUrl: props.initialValues?.airlineLogoUrl ?? "",
   notes: props.initialValues?.notes ?? "",
   seatReservation:
     (props.initialValues as any)?.seatReservation ??
@@ -409,6 +423,7 @@ const schema = z
     baseFare: z.coerce.number().min(0).optional().default(0),
     currencyId: z.string().trim().optional().or(z.literal("")),
     bookingUrl: z.url().optional().or(z.literal("")),
+    airlineLogoUrl: z.string().url().optional().or(z.literal("")),
     notes: z.string().optional().or(z.literal("")),
     seatReservation: z.coerce.number().min(0).optional().default(0),
     checkedBaggage: z.coerce.number().min(0).optional().default(0),
@@ -503,6 +518,7 @@ const onSubmit = (data: any) => {
     baseFare: Number(data.baseFare) || 0,
     currencyId: data.currencyId || undefined,
     bookingUrl: data.bookingUrl || "",
+    airlineLogoUrl: data.airlineLogoUrl || "",
     notes: data.notes || "",
     extras: {
       seatReservation: Number(data.seatReservation) || 0,

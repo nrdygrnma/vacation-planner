@@ -10,22 +10,26 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const { orders } = body; // Array of { id: string, order: number }
+  const { stops } = body; // Array of { id: string, order: number, startDate?: string, endDate?: string }
 
-  if (!Array.isArray(orders)) {
+  if (!Array.isArray(stops)) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid payload: orders must be an array",
+      statusMessage: "Invalid payload: stops must be an array",
     });
   }
 
   try {
     // Perform updates in a transaction
     await prisma.$transaction(
-      orders.map((o) =>
+      stops.map((s) =>
         prisma.tripStop.update({
-          where: { id: o.id },
-          data: { order: o.order },
+          where: { id: s.id },
+          data: {
+            order: s.order,
+            ...(s.startDate && { startDate: s.startDate }),
+            ...(s.endDate && { endDate: s.endDate }),
+          },
         }),
       ),
     );
@@ -53,7 +57,7 @@ export default defineEventHandler(async (event) => {
     console.error(e);
     throw createError({
       statusCode: 500,
-      statusMessage: "Failed to reorder trip stops",
+      statusMessage: "Failed to batch update trip stops",
     });
   }
 });

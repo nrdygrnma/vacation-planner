@@ -30,11 +30,13 @@ export default defineEventHandler(async (event) => {
         accommodations: {
           include: {
             currency: true,
+            images: true,
           },
         },
         selectedAccommodation: {
           include: {
             currency: true,
+            images: true,
           },
         },
       },

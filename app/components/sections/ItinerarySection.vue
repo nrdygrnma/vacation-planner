@@ -102,6 +102,11 @@
       @cancel="isDeleteOpen = false"
       @confirm="confirmDelete"
     />
+
+    <DateConflictModal
+      v-model:open="isConflictOpen"
+      @resolve="handleConflictResolve"
+    />
   </div>
 </template>
 
@@ -109,6 +114,7 @@
 import draggable from "vuedraggable";
 import TripStopCard from "~/components/tripStops/TripStopCard.vue";
 import TripStopFormNuxt from "~/components/tripStops/TripStopFormNuxt.vue";
+import DateConflictModal from "~/components/tripStops/DateConflictModal.vue";
 import CrudModal from "~/components/base/CrudModal.vue";
 import ConfirmDeleteModal from "~/components/base/ConfirmDeleteModal.vue";
 import { useTripStopsStore } from "~/stores/tripStops";
@@ -135,14 +141,94 @@ watch(
   { immediate: true },
 );
 
+const isConflictOpen = ref(false);
+
 const onDragChange = async () => {
+  // Check for chronological conflicts
+  let hasConflict = false;
+  for (let i = 1; i < stopsList.value.length; i++) {
+    const prev = stopsList.value[i - 1];
+    const curr = stopsList.value[i];
+    if (new Date(curr.startDate) < new Date(prev.endDate)) {
+      hasConflict = true;
+      break;
+    }
+  }
+
+  if (hasConflict) {
+    isConflictOpen.value = true;
+  } else {
+    // No conflict, just update order
+    await applyOrderUpdate();
+  }
+};
+
+const handleConflictResolve = async (action: "shift" | "keep" | "cancel") => {
+  if (action === "cancel") {
+    stopsList.value = [...stops.value];
+    return;
+  }
+
+  if (action === "keep") {
+    await applyOrderUpdate();
+    return;
+  }
+
+  if (action === "shift") {
+    await applyDateShiftUpdate();
+  }
+};
+
+const applyOrderUpdate = async () => {
   const orders = stopsList.value.map((s, i) => ({ id: s.id, order: i }));
   try {
     await stopsStore.reorder(props.trip.id, orders);
     toast.success("Order updated");
   } catch (e) {
     toast.error("Failed to update order");
-    // revert
+    stopsList.value = [...stops.value];
+  }
+};
+
+const applyDateShiftUpdate = async () => {
+  const updatedStops: any[] = [];
+  let currentRefDate = new Date(stopsList.value[0].startDate);
+
+  for (let i = 0; i < stopsList.value.length; i++) {
+    const stop = stopsList.value[i];
+    const start = new Date(stop.startDate);
+    const end = new Date(stop.endDate);
+    const duration = end.getTime() - start.getTime();
+
+    // If current stop starts before the reference date (previous stop's end), shift it
+    if (start < currentRefDate) {
+      const newStart = new Date(currentRefDate);
+      const newEnd = new Date(newStart.getTime() + duration);
+
+      updatedStops.push({
+        id: stop.id,
+        order: i,
+        startDate: newStart.toISOString(),
+        endDate: newEnd.toISOString(),
+      });
+      currentRefDate = newEnd;
+    } else {
+      // No shift needed for this stop, but update its order
+      updatedStops.push({
+        id: stop.id,
+        order: i,
+        startDate: stop.startDate,
+        endDate: stop.endDate,
+      });
+      currentRefDate = end;
+    }
+  }
+
+  try {
+    await stopsStore.batchUpdate(props.trip.id, updatedStops);
+    toast.success("Order and dates updated");
+  } catch (e) {
+    toast.error("Failed to update itinerary");
     stopsList.value = [...stops.value];
   }
 };

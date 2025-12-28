@@ -61,6 +61,7 @@ export interface FlightOption {
   baseFare: number;
   extras?: FlightExtras;
   bookingUrl?: string;
+  airlineLogoUrl?: string;
   notes?: string;
   durationMin?: number;
   outboundDurationMin?: number;

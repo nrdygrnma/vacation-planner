@@ -69,6 +69,7 @@ model Flight {
   flightNumber            String?
   stops                   Int?      @default(0)
   bookingUrl              String?
+  airlineLogoUrl          String?
   notes                   String?
   durationMin             Int?
   outboundDurationMin     Int?
