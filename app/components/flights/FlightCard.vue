@@ -2,6 +2,7 @@
   <BaseItemCard
     :selectable="!selected"
     :selected="selected"
+    class="relative overflow-hidden group"
     @click="$emit('select')"
   >
     <template #title>
@@ -98,6 +99,114 @@
               </div>
             </template>
           </UPopover>
+          <UPopover
+            :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+            arrow
+          >
+            <UButton
+              color="neutral"
+              icon="i-lucide-eye"
+              label="Details"
+              size="xs"
+              variant="ghost"
+              @click.stop
+            />
+            <template #content>
+              <div class="p-4 space-y-4 text-sm max-w-sm">
+                <div class="grid grid-cols-2 gap-6">
+                  <div>
+                    <span
+                      class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
+                      >Flight</span
+                    >
+                    <p class="font-semibold text-gray-900 leading-tight">
+                      {{ airline }}
+                    </p>
+                    <p class="text-[11px] text-gray-500 font-medium">
+                      {{ flight.flightNumber }} · {{ travelClassLabel }}
+                    </p>
+                  </div>
+                  <div>
+                    <span
+                      class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
+                      >Route</span
+                    >
+                    <p class="font-semibold text-gray-900 leading-tight">
+                      {{ fullFromAirport }} → {{ fullToAirport }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Segments -->
+                <div
+                  v-if="flight.segments?.length"
+                  class="space-y-2 border-t pt-3"
+                >
+                  <span
+                    class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block"
+                    >Segments ({{ flight.segments.length }})</span
+                  >
+                  <div class="space-y-1.5">
+                    <div
+                      v-for="(seg, i) in flight.segments"
+                      :key="i"
+                      class="text-[11px] flex items-center gap-2 group/seg"
+                    >
+                      <UIcon
+                        :name="
+                          seg.isReturn ? 'i-lucide-undo-2' : 'i-lucide-redo-2'
+                        "
+                        class="size-3 text-gray-400 group-hover/seg:text-primary transition-colors"
+                      />
+                      <span class="font-bold text-gray-700 w-8">{{
+                        seg.fromAirport
+                      }}</span>
+                      <UIcon
+                        class="size-2.5 text-gray-300"
+                        name="i-lucide-arrow-right"
+                      />
+                      <span class="font-bold text-gray-700 w-8">{{
+                        seg.toAirport
+                      }}</span>
+                      <span
+                        class="text-gray-400 ml-auto tabular-nums font-medium"
+                        >{{ formatDate(seg.departureDate) }}</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  v-if="flight.notes"
+                  class="bg-gray-50 p-2.5 rounded-md border border-gray-100"
+                >
+                  <span
+                    class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
+                    >Notes</span
+                  >
+                  <p class="text-[11px] leading-relaxed text-gray-600 italic">
+                    "{{ flight.notes }}"
+                  </p>
+                </div>
+
+                <div
+                  v-if="flight.bookingUrl"
+                  class="pt-2 border-t flex justify-center"
+                >
+                  <UButton
+                    :to="flight.bookingUrl"
+                    block
+                    color="primary"
+                    icon="i-lucide-external-link"
+                    label="Book this flight"
+                    size="sm"
+                    target="_blank"
+                    @click.stop
+                  />
+                </div>
+              </div>
+            </template>
+          </UPopover>
         </div>
       </div>
     </template>
@@ -157,10 +266,39 @@ const props = defineProps<{
   selected?: boolean;
 }>();
 
+const showDetails = ref(false);
+
 const airline = computed(() => {
   const f = props.flight as any;
   return f.airline?.name || f.airline || "—";
 });
+
+const fullFromAirport = computed(() => {
+  const f = props.flight as any;
+  return f.fromAirport?.name || f.fromAirport?.symbol || f.fromAirport || "—";
+});
+
+const fullToAirport = computed(() => {
+  const f = props.flight as any;
+  return f.toAirport?.name || f.toAirport?.symbol || f.toAirport || "—";
+});
+
+const travelClassLabel = computed(() => {
+  const labels: Record<string, string> = {
+    economy: "Economy",
+    premium_economy: "Premium Economy",
+    business: "Business",
+  };
+  return labels[props.flight.travelClass] || props.flight.travelClass;
+});
+
+const formatDate = (date: string | null | undefined) => {
+  if (!date) return "";
+  return new Date(date).toLocaleString(undefined, {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+};
 
 const fromLabel = computed(() => {
   const f = props.flight as any;

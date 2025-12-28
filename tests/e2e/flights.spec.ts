@@ -443,4 +443,40 @@ test.describe("Flights – FlightFormNuxt", () => {
     await dialog.getByRole("button", { name: /^add flight$/i }).click();
     await expect(page.getByText("DL777")).toBeVisible({ timeout: 20_000 });
   });
+
+  test("can view flight details", async ({ page }) => {
+    await openTrip(page);
+
+    // Find the first flight card
+    const card = page
+      .locator(".flight-card")
+      .first()
+      .or(
+        page
+          .locator("div[role='button']")
+          .filter({ hasText: /LH\s*123/i })
+          .first(),
+      );
+    await expect(card).toBeVisible({ timeout: 20_000 });
+
+    // Details should be hidden initially
+    // In the new implementation, we don't have showDetails ref affecting the DOM directly
+    // but the popover content is not in the DOM or hidden.
+    await expect(page.getByText(/Route/i)).not.toBeVisible();
+
+    // Click Details button
+    const detailsBtn = page.getByRole("button", { name: /details/i }).first();
+    await expect(detailsBtn).toBeVisible({ timeout: 20_000 });
+    await detailsBtn.click();
+
+    // Now details should be visible (popover usually renders in a portal)
+    await expect(
+      page.locator('[role="dialog"]').getByText(/Route/i),
+    ).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(
+      page.locator('[role="dialog"]').getByText(/FRA → JFK/i),
+    ).toBeVisible({ timeout: 20_000 });
+  });
 });
