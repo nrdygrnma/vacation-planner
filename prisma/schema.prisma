@@ -141,6 +141,7 @@ model Accommodation {
   provider       String?
   roomType       String?
   nightlyRate    Decimal?
+  totalPrice     Decimal?
   totalCostEUR   Decimal?
   currencyId     String
   tripStopId     String?

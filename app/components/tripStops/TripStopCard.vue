@@ -11,28 +11,29 @@
 
     <template #subtitle>
       <div class="space-y-2 mt-1">
-        <div class="flex items-center gap-4 text-sm text-gray-500">
-          <div class="flex items-center gap-1.5">
-            <UIcon class="size-3.5" name="i-lucide-calendar" />
+        <div class="flex items-center gap-3 text-xs text-gray-500">
+          <div class="flex items-center gap-1">
+            <UIcon class="size-3" name="i-lucide-calendar" />
             <span>{{ dateRange }}</span>
           </div>
-          <div class="flex items-center gap-1.5">
-            <UIcon class="size-3.5" name="i-lucide-moon" />
+          <div class="flex items-center gap-1">
+            <UIcon class="size-3" name="i-lucide-moon" />
             <span>{{ nights }} {{ nights === 1 ? "night" : "nights" }}</span>
           </div>
         </div>
 
         <div
           v-if="stop.selectedAccommodation"
-          class="bg-primary-50 p-2 rounded border border-primary-100 flex items-center justify-between group/stay cursor-pointer hover:bg-primary-100/50 transition-colors"
-          @click="isExpanded = !isExpanded"
+          class="bg-primary-50 rounded border border-primary-100 flex items-center justify-between group/stay cursor-pointer hover:bg-primary-100/50 transition-colors overflow-hidden h-12"
+          @click="$emit('toggleExpand')"
         >
-          <div class="flex items-center gap-3 min-w-0 flex-1">
+          <div class="flex items-center gap-3 min-w-0 flex-1 h-full">
             <div
               v-if="stop.selectedAccommodation.images?.length"
-              class="size-10 rounded overflow-hidden shrink-0 border border-primary-200"
+              class="w-16 h-full shrink-0 relative"
             >
               <img
+                v-if="stop.selectedAccommodation.images?.[0]?.url"
                 :src="stop.selectedAccommodation.images[0].url"
                 alt="Stay"
                 class="size-full object-cover"
@@ -46,59 +47,83 @@
             </div>
             <div
               v-else
-              class="size-10 rounded bg-primary-100 flex items-center justify-center shrink-0"
+              class="w-16 h-full bg-primary-100 flex items-center justify-center shrink-0"
             >
               <UIcon class="size-5 text-primary-600" name="i-lucide-bed" />
             </div>
-            <div class="min-w-0">
+            <div class="min-w-0 flex-1 py-1">
               <p class="text-xs font-semibold text-primary-900 truncate">
                 {{ stop.selectedAccommodation.name }}
               </p>
-              <p
-                v-if="stop.selectedAccommodation.nightlyRate"
-                class="text-[10px] text-primary-700"
-              >
-                {{ formatCurrency(stop.selectedAccommodation.nightlyRate) }} /
-                night
-              </p>
+              <div class="flex items-baseline gap-1.5 mt-0.5">
+                <span class="text-sm font-bold text-primary-700">
+                  {{
+                    formatCurrency(
+                      getDisplayPrice(stop.selectedAccommodation).value,
+                      stop.selectedAccommodation,
+                    )
+                  }}
+                </span>
+                <span
+                  class="text-[10px] text-primary-600/70 font-medium uppercase tracking-tight"
+                >
+                  {{ getDisplayPrice(stop.selectedAccommodation).label }}
+                </span>
+                <span
+                  v-if="getSecondaryPrice(stop.selectedAccommodation)"
+                  class="text-[10px] text-primary-500 italic ml-1"
+                >
+                  ({{
+                    formatCurrency(
+                      getSecondaryPrice(stop.selectedAccommodation)!.value,
+                      stop.selectedAccommodation,
+                    )
+                  }}{{ getSecondaryPrice(stop.selectedAccommodation)!.label }})
+                </span>
+              </div>
             </div>
           </div>
-          <div class="flex items-center gap-1">
-            <UPopover
-              v-if="stop.selectedAccommodation"
-              :content="{ align: 'center', side: 'top', sideOffset: 8 }"
-              arrow
-            >
-              <UButton
-                color="primary"
-                icon="i-lucide-eye"
-                size="xs"
-                variant="ghost"
-                @click.stop
-              />
-              <template #content>
-                <AccommodationsAccommodationDetails
-                  :accommodation="stop.selectedAccommodation"
-                  :date-range="dateRange"
+          <div class="flex items-center gap-1 shrink-0 ml-auto pr-2">
+            <div class="flex items-center">
+              <UPopover
+                v-if="stop.selectedAccommodation"
+                :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+                arrow
+              >
+                <UButton
+                  color="primary"
+                  icon="i-lucide-eye"
+                  size="xs"
+                  variant="ghost"
+                  @click.stop
                 />
-              </template>
-            </UPopover>
-            <UButton
-              v-if="stop.selectedAccommodation?.url"
-              :to="stop.selectedAccommodation.url"
-              color="primary"
-              icon="i-lucide-external-link"
-              size="xs"
-              target="_blank"
-              variant="ghost"
-              @click.stop
-            />
+                <template #content>
+                  <AccommodationsAccommodationDetails
+                    :accommodation="stop.selectedAccommodation"
+                    :date-range="dateRange"
+                    :nights="nights"
+                  />
+                </template>
+              </UPopover>
+              <div class="w-8 flex justify-center">
+                <UButton
+                  v-if="stop.selectedAccommodation?.url"
+                  :to="stop.selectedAccommodation.url"
+                  color="primary"
+                  icon="i-lucide-external-link"
+                  size="xs"
+                  target="_blank"
+                  variant="ghost"
+                  @click.stop
+                />
+              </div>
+            </div>
             <UButton
               color="primary"
               icon="i-lucide-settings-2"
               size="xs"
               variant="ghost"
-              @click.stop="isExpanded = !isExpanded"
+              @click.stop="$emit('toggleExpand')"
             />
             <UIcon
               :class="isExpanded ? 'rotate-180' : ''"
@@ -110,7 +135,7 @@
         <div
           v-else
           class="border border-dashed border-gray-300 p-2 rounded flex items-center justify-between text-xs text-gray-400 cursor-pointer hover:bg-gray-50 transition-colors"
-          @click="isExpanded = !isExpanded"
+          @click="$emit('toggleExpand')"
         >
           <div class="flex items-center gap-2">
             <UIcon class="size-4 shrink-0" name="i-lucide-bed" />
@@ -122,7 +147,7 @@
               label="Manage"
               size="xs"
               variant="ghost"
-              @click.stop="isExpanded = !isExpanded"
+              @click.stop="$emit('toggleExpand')"
             />
             <UIcon
               :class="isExpanded ? 'rotate-180' : ''"
@@ -175,15 +200,15 @@
                     ? 'border-primary-200 bg-primary-50/30 ring-1 ring-primary-100'
                     : 'border-gray-100 hover:border-gray-200 bg-gray-50/30'
                 "
-                class="p-2 border rounded-md flex items-center justify-between transition-all group/item"
+                class="border rounded-md flex items-center justify-between transition-all group/item overflow-hidden h-11"
               >
-                <div class="flex items-center gap-2 min-w-0 flex-1">
+                <div class="flex items-center gap-2 min-w-0 flex-1 h-full">
                   <div
-                    v-if="acc.images?.length"
-                    class="size-8 rounded overflow-hidden shrink-0 border border-gray-200"
+                    v-if="acc.images?.[0]?.url"
+                    class="w-12 h-full shrink-0 relative"
                   >
                     <img
-                      :src="acc.images[0]?.url || defaultImage"
+                      :src="acc.images[0].url"
                       alt="Stay"
                       class="size-full object-cover"
                     />
@@ -196,7 +221,7 @@
                   </div>
                   <div
                     v-else
-                    class="size-8 rounded bg-gray-100 flex items-center justify-center shrink-0"
+                    class="w-12 h-full bg-gray-100 flex items-center justify-center shrink-0"
                   >
                     <UIcon
                       :class="
@@ -208,7 +233,7 @@
                       name="i-lucide-bed"
                     />
                   </div>
-                  <div class="min-w-0">
+                  <div class="min-w-0 py-0.5">
                     <p class="text-xs font-semibold text-gray-900 truncate">
                       {{ acc.name }}
                     </p>
@@ -219,13 +244,33 @@
                   </div>
                 </div>
 
-                <div class="flex items-center gap-2">
-                  <p class="text-[11px] font-bold text-gray-700">
-                    {{ formatCurrency(acc.nightlyRate, acc) }}
-                  </p>
+                <div
+                  class="flex items-center gap-2 flex-1 shrink-0 justify-end"
+                >
+                  <div class="text-right">
+                    <p
+                      class="text-[13px] font-extrabold text-gray-700 whitespace-nowrap leading-tight"
+                    >
+                      {{ formatCurrency(getDisplayPrice(acc).value, acc) }}
+                    </p>
+                    <div class="flex items-center justify-end gap-1">
+                      <p
+                        class="text-[9px] text-gray-400 uppercase font-bold tracking-tighter"
+                      >
+                        {{ getDisplayPrice(acc).label }}
+                      </p>
+                      <template v-if="getSecondaryPrice(acc)">
+                        <p class="text-[9px] text-gray-400 italic">
+                          ({{
+                            formatCurrency(getSecondaryPrice(acc)!.value, acc)
+                          }}{{ getSecondaryPrice(acc)!.label }})
+                        </p>
+                      </template>
+                    </div>
+                  </div>
 
                   <div
-                    class="flex items-center border-l pl-2 gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                    class="flex items-center border-l pl-2 pr-2 gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity min-w-[130px] justify-end"
                   >
                     <UButton
                       v-if="stop.selectedAccommodationId !== acc.id"
@@ -258,20 +303,23 @@
                         <AccommodationsAccommodationDetails
                           :accommodation="acc"
                           :date-range="dateRange"
+                          :nights="nights"
                         />
                       </template>
                     </UPopover>
 
-                    <UButton
-                      v-if="acc.url"
-                      :to="acc.url"
-                      color="neutral"
-                      icon="i-lucide-external-link"
-                      size="xs"
-                      target="_blank"
-                      variant="ghost"
-                      @click.stop
-                    />
+                    <div class="w-8 flex justify-center">
+                      <UButton
+                        v-if="acc.url"
+                        :to="acc.url"
+                        color="neutral"
+                        icon="i-lucide-external-link"
+                        size="xs"
+                        target="_blank"
+                        variant="ghost"
+                        @click.stop
+                      />
+                    </div>
                     <UButton
                       color="neutral"
                       icon="i-lucide-edit"
@@ -380,12 +428,14 @@ import { toast } from "vue-sonner";
 
 const props = defineProps<{
   stop: TripStop;
+  isExpanded?: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: "edit"): void;
   (e: "delete"): void;
   (e: "refresh"): void;
+  (e: "toggleExpand"): void;
 }>();
 
 const formatDate = (date: string) => {
@@ -409,6 +459,27 @@ const nights = computed(() => {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 });
 
+const getDisplayPrice = (acc: any): { value: number; label: string } => {
+  if (acc.totalPrice) return { value: Number(acc.totalPrice), label: "total" };
+  if (acc.nightlyRate) {
+    const total = Number(acc.nightlyRate) * nights.value;
+    return { value: total, label: "total est." };
+  }
+  return { value: 0, label: "total" };
+};
+
+const getSecondaryPrice = (
+  acc: any,
+): { value: number; label: string } | null => {
+  if (acc.totalPrice && nights.value > 0) {
+    return { value: Number(acc.totalPrice) / nights.value, label: "/ night" };
+  }
+  if (acc.nightlyRate) {
+    return { value: Number(acc.nightlyRate), label: "/ night" };
+  }
+  return null;
+};
+
 const formatCurrency = (val: number | string, acc?: any) => {
   const v = Number(val) || 0;
   const symbol =
@@ -420,18 +491,12 @@ const formatCurrency = (val: number | string, acc?: any) => {
 
 const accommodationsStore = useAccommodationsStore();
 
-const isExpanded = ref(false);
 const modalView = ref<"list" | "form">("list");
 
 // Delete State
 const isDeleteOpen = ref(false);
 const deleting = ref(false);
 const itemToDelete = ref<string | null>(null);
-
-const openManageStays = () => {
-  modalView.value = "list";
-  isExpanded.value = !isExpanded.value;
-};
 
 // Add/Edit Stay
 const aeStayMode = ref<"add" | "edit">("add");

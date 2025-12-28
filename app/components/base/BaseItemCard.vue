@@ -1,13 +1,14 @@
 <template>
   <div
     :class="[
-      'border rounded-md p-3 flex gap-3 items-start bg-white',
+      'border rounded-md flex gap-3 items-start bg-white',
       selected
         ? 'border-primary ring-2 ring-primary shadow-sm bg-primary/5'
         : 'border-gray-300',
       selectable ? 'cursor-pointer' : '',
       disabled ? 'opacity-60 pointer-events-none' : '',
     ]"
+    class="p-3"
     role="group"
     tabindex="0"
     @click="onClick"

@@ -2,14 +2,14 @@
   <BaseItemCard
     :selectable="!selected"
     :selected="selected"
-    class="relative overflow-hidden group"
+    class="relative overflow-hidden group !p-0"
     @click="$emit('select')"
   >
     <template #title>
-      <div class="flex items-center gap-3 min-w-0 flex-1">
+      <div class="flex items-stretch gap-3 min-w-0 flex-1">
         <div
           v-if="rental.imageUrl"
-          class="size-10 rounded overflow-hidden shrink-0 border border-gray-100"
+          class="w-20 h-auto min-h-[80px] shrink-0 border-r border-gray-100"
         >
           <img
             :src="rental.imageUrl"
@@ -19,24 +19,24 @@
         </div>
         <div
           v-else
-          class="size-10 rounded bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100"
+          class="w-20 h-auto min-h-[80px] bg-gray-50 flex items-center justify-center shrink-0 border-r border-gray-100"
         >
           <UIcon
             :class="selected ? 'text-primary' : 'text-gray-400'"
-            class="size-5"
+            class="size-6"
             name="i-lucide-car"
           />
         </div>
-        <div class="min-w-0 flex-1">
+        <div class="min-w-0 flex-1 py-3 pr-3">
           <div class="flex items-center gap-2">
             <span
               :class="selected ? 'text-primary font-semibold' : 'font-medium'"
-              class="truncate"
+              class="truncate text-sm"
             >
               {{ rental.company || rental.provider || "Unknown Provider" }}
             </span>
-            <span class="text-muted shrink-0">·</span>
-            <span class="truncate text-gray-500 text-sm">{{
+            <span class="text-muted shrink-0 text-xs">·</span>
+            <span class="truncate text-gray-500 text-xs">{{
               rental.carType?.name || "Car"
             }}</span>
           </div>
@@ -45,7 +45,7 @@
     </template>
 
     <template #subtitle>
-      <div class="space-y-1">
+      <div class="space-y-1 pb-3 pr-3">
         <div class="flex items-center gap-2 text-xs">
           <UIcon class="size-3 text-gray-400" name="i-lucide-map-pin" />
           <span class="truncate"
@@ -230,7 +230,7 @@
     </template>
 
     <template #trailing>
-      <div class="flex items-center gap-1" @click.stop>
+      <div class="flex items-center gap-1 py-3 pr-3" @click.stop>
         <div v-if="selected" class="flex items-center gap-1.5 mr-2">
           <UBadge color="primary" size="sm" variant="soft">Selected</UBadge>
           <UIcon class="size-5 text-primary" name="i-lucide-check-circle-2" />

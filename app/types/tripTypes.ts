@@ -119,7 +119,8 @@ export interface AccommodationOption {
   name: string;
   provider?: string;
   roomType?: string;
-  nightlyRate: number;
+  nightlyRate?: number;
+  totalPrice?: number;
   currencyId: string;
   currency?: Currency; // loaded relation
   totalCostEUR?: number;

@@ -54,10 +54,24 @@
               v-model.number="state.nightlyRate"
               class="w-full"
               min="0"
+              placeholder="0.00"
               step="0.01"
               type="number"
             />
           </UFormField>
+          <UFormField label="OR Total Price" name="totalPrice">
+            <UInput
+              v-model.number="state.totalPrice"
+              class="w-full"
+              min="0"
+              placeholder="0.00"
+              step="0.01"
+              type="number"
+            />
+          </UFormField>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <UFormField label="Currency" name="currencyId" required>
             <USelectMenu
               v-model="state.currencyId"
@@ -121,7 +135,8 @@ const state = reactive({
   provider: "",
   roomType: "",
   url: "",
-  nightlyRate: 0,
+  nightlyRate: undefined as number | undefined,
+  totalPrice: undefined as number | undefined,
   currencyId: "",
   notes: "",
 });
@@ -139,7 +154,11 @@ watch(
       state.nightlyRate =
         newVal.nightlyRate !== undefined && newVal.nightlyRate !== null
           ? Number(newVal.nightlyRate)
-          : 0;
+          : undefined;
+      state.totalPrice =
+        newVal.totalPrice !== undefined && newVal.totalPrice !== null
+          ? Number(newVal.totalPrice)
+          : undefined;
       state.currencyId = newVal.currencyId || "";
       state.notes = newVal.notes || "";
       imagesText.value = newVal.images?.map((img) => img.url).join("\n") || "";
@@ -191,7 +210,8 @@ const schema = z.object({
   provider: z.string().optional(),
   roomType: z.string().optional(),
   url: z.string().url("Invalid URL").optional().or(z.literal("")),
-  nightlyRate: z.number().min(0),
+  nightlyRate: z.number().min(0).optional(),
+  totalPrice: z.number().min(0).optional(),
   currencyId: z.string().min(1, "Currency is required"),
   notes: z.string().optional(),
 });

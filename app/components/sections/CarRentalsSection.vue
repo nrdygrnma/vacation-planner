@@ -12,11 +12,26 @@
       </UButton>
     </div>
 
-    <div v-if="pending" class="text-sm text-muted">Loading…</div>
-    <div v-else-if="!rentals.length" class="text-sm italic text-muted">
+    <div v-if="pending && !rentals.length" class="text-sm text-muted">
+      Loading…
+    </div>
+    <div
+      v-else-if="!rentals.length && !pending"
+      class="text-sm italic text-muted"
+    >
       No car rentals yet. Add one.
     </div>
-    <div v-else class="grid gap-2">
+    <div v-else class="grid gap-2 sm:grid-cols-2 lg:grid-cols-2 relative">
+      <!-- Loading overlay for refresh -->
+      <div
+        v-if="pending"
+        class="absolute inset-0 bg-white/50 z-20 flex items-center justify-center rounded-lg"
+      >
+        <UIcon
+          class="size-6 animate-spin text-primary-500"
+          name="i-lucide-loader-2"
+        />
+      </div>
       <CarRentalCard
         v-for="r in rentals"
         :key="r.id"

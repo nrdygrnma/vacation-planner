@@ -4,7 +4,27 @@ import type { AccommodationOption } from "~/types/tripTypes";
 defineProps<{
   accommodation: AccommodationOption;
   dateRange: string;
+  nights: number;
 }>();
+
+const getDisplayPrice = (acc: AccommodationOption, nightsCount: number) => {
+  if (acc.totalPrice) return { value: acc.totalPrice, label: "total" };
+  if (acc.nightlyRate) {
+    const total = Number(acc.nightlyRate) * (nightsCount || 0);
+    return { value: total, label: "total est." };
+  }
+  return { value: 0, label: "total" };
+};
+
+const getSecondaryPrice = (acc: AccommodationOption, nightsCount: number) => {
+  if (acc.totalPrice && nightsCount > 0) {
+    return { value: Number(acc.totalPrice) / nightsCount, label: "/ night" };
+  }
+  if (acc.nightlyRate) {
+    return { value: acc.nightlyRate, label: "/ night" };
+  }
+  return null;
+};
 
 const formatCurrency = (
   amount: number | string | null | undefined,
@@ -61,12 +81,36 @@ const formatCurrency = (
         <div>
           <span
             class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-0.5"
-            >Rate</span
+            >Price</span
           >
-          <p class="text-[11px] text-gray-700 font-medium">
-            {{ formatCurrency(accommodation.nightlyRate, accommodation) }} /
-            night
-          </p>
+          <div class="space-y-0.5">
+            <p class="text-sm font-bold text-gray-700 leading-none">
+              {{
+                formatCurrency(
+                  getDisplayPrice(accommodation, nights).value,
+                  accommodation,
+                )
+              }}
+            </p>
+            <p
+              class="text-[10px] text-gray-500 font-medium flex items-center gap-1"
+            >
+              <span class="uppercase tracking-tighter">{{
+                getDisplayPrice(accommodation, nights).label
+              }}</span>
+              <span
+                v-if="getSecondaryPrice(accommodation, nights)"
+                class="italic opacity-70"
+              >
+                ({{
+                  formatCurrency(
+                    getSecondaryPrice(accommodation, nights).value,
+                    accommodation,
+                  )
+                }}{{ getSecondaryPrice(accommodation, nights).label }})
+              </span>
+            </p>
+          </div>
         </div>
       </div>
 

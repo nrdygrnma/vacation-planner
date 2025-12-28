@@ -14,12 +14,14 @@
         />
         <span
           :class="selected ? 'text-primary font-semibold' : 'font-medium'"
-          class="truncate"
+          class="truncate text-sm"
         >
           {{ airline }}
         </span>
-        <span class="text-muted shrink-0">·</span>
-        <span class="truncate">{{ fromLabel }} → {{ toLabel }}</span>
+        <span class="text-muted shrink-0 text-xs">·</span>
+        <span class="truncate text-xs text-gray-500"
+          >{{ fromLabel }} → {{ toLabel }}</span
+        >
       </div>
       <div v-if="selected" class="flex items-center gap-1.5 shrink-0">
         <UBadge color="primary" size="sm" variant="soft">Selected</UBadge>

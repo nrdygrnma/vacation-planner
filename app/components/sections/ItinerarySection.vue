@@ -10,32 +10,49 @@
       </UButton>
     </div>
 
-    <div v-if="pending" class="text-sm text-muted">Loading…</div>
-    <div v-else-if="!stops.length" class="text-sm italic text-muted">
+    <div v-if="pending && !stops.length" class="text-sm text-muted">
+      Loading…
+    </div>
+    <div
+      v-else-if="!stops.length && !pending"
+      class="text-sm italic text-muted"
+    >
       No stops planned yet. Start building your itinerary.
     </div>
 
-    <div v-else class="relative pl-8 space-y-4">
+    <div v-else class="relative pl-6 space-y-3">
+      <!-- Loading overlay for refresh -->
+      <div
+        v-if="pending"
+        class="absolute inset-0 bg-white/50 z-20 flex items-center justify-center rounded-lg"
+      >
+        <UIcon
+          class="size-6 animate-spin text-primary-500"
+          name="i-lucide-loader-2"
+        />
+      </div>
       <!-- Vertical line -->
-      <div class="absolute left-[15px] top-4 bottom-4 w-0.5 bg-gray-200"></div>
+      <div class="absolute left-[11px] top-4 bottom-4 w-0.5 bg-gray-200"></div>
 
       <div v-for="(stop, idx) in stops" :key="stop.id" class="relative">
         <!-- Dot on the line -->
         <div
-          class="absolute -left-[22px] top-6 size-3 rounded-full border-2 border-white bg-primary-500 z-10"
+          class="absolute -left-[19px] top-6 size-2.5 rounded-full border-2 border-white bg-primary-500 z-10"
         ></div>
 
         <TripStopCard
+          :is-expanded="expandedStopId === stop.id"
           :stop="stop"
           @delete="onDelete(stop)"
           @edit="onEdit(stop)"
           @refresh="stopsStore.fetchByTrip(trip.id)"
+          @toggle-expand="toggleStopExpand(stop.id)"
         />
 
         <!-- Gap indicator between stops -->
         <div
           v-if="idx < stops.length - 1 && hasGap(stop, stops[idx + 1])"
-          class="my-2 py-1 px-3 bg-orange-50 rounded border border-orange-100 text-[10px] text-orange-600 font-medium inline-block ml-4"
+          class="my-1 py-0.5 px-2 bg-orange-50 rounded border border-orange-100 text-[10px] text-orange-600 font-medium inline-block ml-2"
         >
           <UIcon class="size-3 mr-1" name="i-lucide-clock" />
           {{ gapDuration(stop, stops[idx + 1]) }} unplanned
@@ -94,6 +111,16 @@ const stops = computed(() => stopsStore.byTrip[props.trip.id]?.items ?? []);
 const pending = computed(
   () => stopsStore.byTrip[props.trip.id]?.pending ?? false,
 );
+
+const expandedStopId = ref<string | null>(null);
+
+const toggleStopExpand = (stopId: string) => {
+  if (expandedStopId.value === stopId) {
+    expandedStopId.value = null;
+  } else {
+    expandedStopId.value = stopId;
+  }
+};
 
 onMounted(() => {
   stopsStore.fetchByTrip(props.trip.id);
