@@ -1,6 +1,6 @@
 <template>
   <BaseItemCard
-    :selectable="!selected"
+    :selectable="true"
     :selected="selected"
     class="relative overflow-hidden group"
     @click="$emit('select')"
@@ -77,7 +77,6 @@
           <div class="flex items-center gap-1">
             <UPopover mode="hover">
               <UButton
-                class="p-0.5"
                 color="neutral"
                 icon="i-lucide-info"
                 size="xs"
@@ -113,7 +112,6 @@
             <UButton
               v-if="rental.url"
               :to="rental.url"
-              class="p-0.5"
               color="neutral"
               icon="i-lucide-external-link"
               size="xs"

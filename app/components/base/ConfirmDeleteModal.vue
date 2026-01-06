@@ -9,16 +9,18 @@
       <div class="flex items-center justify-end gap-2">
         <UButton
           :disabled="loading"
+          :label="cancelLabel"
           color="neutral"
           variant="outline"
           @click="onCancel"
-        >
-          {{ cancelLabel }}
-        </UButton>
-        <UButton :loading="loading" color="error" @click="onConfirm">
-          <UIcon class="mr-1" name="i-lucide-trash" />
-          {{ confirmLabel }}
-        </UButton>
+        />
+        <UButton
+          :label="confirmLabel"
+          :loading="loading"
+          color="error"
+          icon="i-lucide-trash"
+          @click="onConfirm"
+        />
       </div>
     </template>
   </UModal>

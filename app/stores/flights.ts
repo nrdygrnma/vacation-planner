@@ -19,7 +19,7 @@ export const useFlightsStore = defineStore("flights", () => {
   // -----------------------------------
   // Actions
   // -----------------------------------
-  async function fetchAirlines() {
+  const fetchAirlines = async () => {
     if (airlines.value.length > 0) return;
     airlinesLoading.value = true;
     try {
@@ -30,12 +30,12 @@ export const useFlightsStore = defineStore("flights", () => {
     } finally {
       airlinesLoading.value = false;
     }
-  }
+  };
 
   // -----------------------------------
   // Helpers
   // -----------------------------------
-  function ensure(tripId: string): FlightBucket {
+  const ensure = (tripId: string): FlightBucket => {
     if (!byTrip.value[tripId]) {
       byTrip.value[tripId] = {
         items: [],
@@ -44,9 +44,9 @@ export const useFlightsStore = defineStore("flights", () => {
       };
     }
     return byTrip.value[tripId];
-  }
+  };
 
-  function mapFormToApi(data: any, defaults?: { currencyId?: string }) {
+  const mapFormToApi = (data: any, defaults?: { currencyId?: string }) => {
     // If the data is already in the API shape (nested objects), we can largely pass it through
     // or perform final normalization.
     const isNewForm = data && typeof data.airline === "object";
@@ -141,12 +141,12 @@ export const useFlightsStore = defineStore("flights", () => {
         (stopOverAirports && stopOverAirports.length ? stopOverAirports : null),
       segments: segments ?? null,
     };
-  }
+  };
 
   // -----------------------------------
   // Actions
   // -----------------------------------
-  async function fetchByTrip(tripId: string) {
+  const fetchByTrip = async (tripId: string) => {
     const bucket = ensure(tripId);
 
     try {
@@ -161,9 +161,9 @@ export const useFlightsStore = defineStore("flights", () => {
     } finally {
       bucket.pending = false;
     }
-  }
+  };
 
-  async function add(tripId: string, formPayload: any) {
+  const add = async (tripId: string, formPayload: any) => {
     const body = mapFormToApi(formPayload);
 
     const created = await $fetch<FlightOption>(`/api/trips/${tripId}/flights`, {
@@ -173,9 +173,9 @@ export const useFlightsStore = defineStore("flights", () => {
 
     ensure(tripId).items.unshift(created);
     return created;
-  }
+  };
 
-  async function update(tripId: string, flightId: string, body: any) {
+  const update = async (tripId: string, flightId: string, body: any) => {
     // Flatten payload if it's coming from the Nuxt form
     const payload = mapFormToApi(body);
 
@@ -192,23 +192,23 @@ export const useFlightsStore = defineStore("flights", () => {
     }
 
     return updated;
-  }
+  };
 
-  async function remove(tripId: string, flightId: string) {
+  const remove = async (tripId: string, flightId: string) => {
     await $fetch(`/api/trips/${tripId}/flights/${flightId}`, {
       method: "DELETE",
     });
 
     const bucket = ensure(tripId);
     bucket.items = bucket.items.filter((f) => f.id !== flightId);
-  }
+  };
 
-  async function selectFinal(tripId: string, flightId: string) {
+  const selectFinal = async (tripId: string, flightId: string | null) => {
     await $fetch(`/api/trips/${tripId}/final-flight`, {
       method: "PUT",
       body: { flightId },
     });
-  }
+  };
 
   return {
     byTrip,

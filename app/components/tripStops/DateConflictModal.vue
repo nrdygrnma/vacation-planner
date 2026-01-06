@@ -13,12 +13,12 @@
             class="w-full justify-start"
             color="primary"
             icon="i-lucide-calendar-range"
-            variant="subtle"
+            variant="outline"
             @click="resolve('shift')"
           >
-            <div>
-              <div class="font-medium text-left">Shift dates automatically</div>
-              <div class="text-xs text-gray-500 text-left">
+            <div class="text-left">
+              <div class="font-medium">Shift dates automatically</div>
+              <div class="text-[10px] text-gray-500">
                 Keep stop durations and move dates forward to match new order.
               </div>
             </div>
@@ -28,12 +28,12 @@
             class="w-full justify-start"
             color="neutral"
             icon="i-lucide-list-ordered"
-            variant="subtle"
+            variant="outline"
             @click="resolve('keep')"
           >
-            <div>
-              <div class="font-medium text-left">Keep original dates</div>
-              <div class="text-xs text-gray-500 text-left">
+            <div class="text-left">
+              <div class="font-medium">Keep original dates</div>
+              <div class="text-[10px] text-gray-500">
                 Only update the order, but keep the dates as they are.
               </div>
             </div>
@@ -43,9 +43,12 @@
     </template>
     <template #footer>
       <div class="flex justify-end gap-2">
-        <UButton color="neutral" variant="ghost" @click="isOpen = false">
-          Cancel Drag
-        </UButton>
+        <UButton
+          color="neutral"
+          label="Cancel Drag"
+          variant="outline"
+          @click="isOpen = false"
+        />
       </div>
     </template>
   </UModal>

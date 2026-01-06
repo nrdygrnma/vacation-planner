@@ -1,6 +1,6 @@
 <template>
   <BaseItemCard
-    :selectable="!selected"
+    :selectable="true"
     :selected="selected"
     class="relative overflow-hidden group flight-card"
     data-testid="flight-card"
@@ -42,10 +42,6 @@
             >
           </div>
         </div>
-      </div>
-      <div v-if="selected" class="flex items-center gap-1.5 shrink-0 ml-2">
-        <UBadge color="primary" size="sm" variant="soft">Selected</UBadge>
-        <UIcon class="size-5 text-primary" name="i-lucide-check-circle-2" />
       </div>
     </template>
 
@@ -111,7 +107,6 @@
 
           <UPopover v-if="hasExtras" mode="hover">
             <UButton
-              class="p-0.5"
               color="neutral"
               icon="i-lucide-info"
               size="xs"
@@ -287,6 +282,11 @@
 
     <template #trailing>
       <div class="flex items-center gap-1 py-3 pr-3" @click.stop>
+        <div v-if="selected" class="flex items-center gap-1.5 mr-2">
+          <UBadge color="primary" size="sm" variant="soft">Selected</UBadge>
+          <UIcon class="size-5 text-primary" name="i-lucide-check-circle-2" />
+        </div>
+
         <UTooltip
           v-if="!selected"
           :content="{ align: 'center', side: 'top', sideOffset: 8 }"

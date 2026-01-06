@@ -15,10 +15,9 @@
       <UButton
         color="primary"
         icon="i-lucide-map-pin-plus"
+        label="Create trip"
         @click="$emit('open-create')"
-      >
-        Create trip
-      </UButton>
+      />
     </div>
   </div>
 </template>

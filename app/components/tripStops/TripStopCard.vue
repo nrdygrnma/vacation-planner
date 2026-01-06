@@ -122,42 +122,40 @@
             </div>
           </div>
           <div class="flex items-center gap-1 shrink-0 ml-auto pr-2">
-            <div class="flex items-center">
-              <UPopover
-                v-if="stop.selectedAccommodation"
-                :content="{ align: 'center', side: 'top', sideOffset: 8 }"
-                arrow
-              >
-                <UButton
-                  color="primary"
-                  icon="i-lucide-eye"
-                  size="xs"
-                  variant="ghost"
-                  @click.stop
+            <UPopover
+              v-if="stop.selectedAccommodation"
+              :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+              arrow
+            >
+              <UButton
+                color="neutral"
+                icon="i-lucide-eye"
+                size="xs"
+                variant="ghost"
+                @click.stop
+              />
+              <template #content>
+                <AccommodationsAccommodationDetails
+                  :accommodation="stop.selectedAccommodation"
+                  :date-range="dateRange"
+                  :nights="nights"
                 />
-                <template #content>
-                  <AccommodationsAccommodationDetails
-                    :accommodation="stop.selectedAccommodation"
-                    :date-range="dateRange"
-                    :nights="nights"
-                  />
-                </template>
-              </UPopover>
-              <div class="w-8 flex justify-center">
-                <UButton
-                  v-if="stop.selectedAccommodation?.url"
-                  :to="stop.selectedAccommodation.url"
-                  color="primary"
-                  icon="i-lucide-external-link"
-                  size="xs"
-                  target="_blank"
-                  variant="ghost"
-                  @click.stop
-                />
-              </div>
+              </template>
+            </UPopover>
+            <div class="w-8 flex justify-center">
+              <UButton
+                v-if="stop.selectedAccommodation?.url"
+                :to="stop.selectedAccommodation.url"
+                color="neutral"
+                icon="i-lucide-external-link"
+                size="xs"
+                target="_blank"
+                variant="ghost"
+                @click.stop
+              />
             </div>
             <UButton
-              color="primary"
+              color="neutral"
               icon="i-lucide-settings-2"
               size="xs"
               variant="ghost"
@@ -218,7 +216,6 @@
               icon="i-lucide-plus"
               label="New"
               size="xs"
-              variant="soft"
               @click="openAddStay"
             />
           </div>
@@ -387,20 +384,31 @@
                         @click.stop
                       />
                     </div>
-                    <UButton
-                      color="neutral"
-                      icon="i-lucide-edit"
-                      size="xs"
-                      variant="ghost"
-                      @click="onEditStay(acc)"
-                    />
-                    <UButton
-                      color="error"
-                      icon="i-lucide-trash"
-                      size="xs"
-                      variant="ghost"
-                      @click="onDeleteStay(acc.id)"
-                    />
+                    <UTooltip
+                      :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+                      arrow
+                      text="Edit"
+                    >
+                      <UButton
+                        color="neutral"
+                        icon="i-lucide-edit"
+                        variant="outline"
+                        @click="onEditStay(acc)"
+                      />
+                    </UTooltip>
+
+                    <UTooltip
+                      :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+                      arrow
+                      text="Delete"
+                    >
+                      <UButton
+                        color="error"
+                        icon="i-lucide-trash"
+                        variant="outline"
+                        @click="onDeleteStay(acc.id)"
+                      />
+                    </UTooltip>
                   </div>
                 </div>
               </div>
@@ -416,14 +424,18 @@
               <span class="text-xs font-bold text-gray-600">
                 {{ aeStayMode === "add" ? "Add New Stay" : "Edit Stay" }}
               </span>
-              <UButton
-                color="neutral"
-                icon="i-lucide-arrow-left"
-                label="Cancel"
-                size="xs"
-                variant="ghost"
-                @click="switchToList"
-              />
+              <UTooltip
+                :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+                arrow
+                text="Back"
+              >
+                <UButton
+                  color="neutral"
+                  icon="i-lucide-arrow-left"
+                  variant="outline"
+                  @click="switchToList"
+                />
+              </UTooltip>
             </div>
 
             <AccommodationFormNuxt
@@ -435,9 +447,14 @@
 
             <div class="flex justify-end gap-2 pt-2 border-t border-gray-300">
               <UButton
+                color="neutral"
+                label="Cancel"
+                variant="outline"
+                @click="switchToList"
+              />
+              <UButton
                 :label="aeStayMode === 'add' ? 'Add Option' : 'Save Changes'"
                 color="primary"
-                size="sm"
                 @click="onAeStaySubmit"
               />
             </div>
@@ -460,18 +477,23 @@
       >
         <UButton
           color="neutral"
-          icon="i-lucide-pencil"
+          icon="i-lucide-edit"
           size="xs"
           variant="ghost"
           @click="$emit('edit', stop)"
         />
-        <UButton
-          color="error"
-          icon="i-lucide-trash-2"
-          size="xs"
-          variant="ghost"
-          @click="$emit('delete', stop)"
-        />
+        <UTooltip
+          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+          arrow
+          text="Delete"
+        >
+          <UButton
+            color="error"
+            icon="i-lucide-trash"
+            variant="outline"
+            @click="$emit('delete', stop)"
+          />
+        </UTooltip>
       </div>
     </template>
   </BaseItemCard>
@@ -479,8 +501,7 @@
 
 <script lang="ts" setup>
 import BaseItemCard from "~/components/base/BaseItemCard.vue";
-import type { TripStop } from "~/types/tripTypes";
-// Manage Stays
+import type { TripStop } from "~/types/tripTypes"; // Manage Stays
 import { useAccommodationsStore } from "~/stores/accommodations";
 import AccommodationFormNuxt from "~/components/accommodations/AccommodationFormNuxt.vue";
 import ConfirmDeleteModal from "~/components/base/ConfirmDeleteModal.vue";

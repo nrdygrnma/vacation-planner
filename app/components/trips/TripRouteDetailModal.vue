@@ -14,7 +14,6 @@
             icon="i-lucide-file-text"
             label="Export PDF"
             size="xs"
-            variant="soft"
             @click="exportToPDF"
           />
         </div>

@@ -66,6 +66,7 @@
           text="Edit"
         >
           <UButton
+            color="neutral"
             icon="i-lucide-edit"
             variant="outline"
             @click="emit('edit', trip)"

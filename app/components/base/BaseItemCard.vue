@@ -50,8 +50,8 @@ const emit = defineEmits<{
   (e: "click"): void;
 }>();
 
-function onClick() {
+const onClick = () => {
   if (props.disabled) return;
   if (props.selectable) emit("click");
-}
+};
 </script>

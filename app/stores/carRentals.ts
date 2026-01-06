@@ -11,7 +11,7 @@ interface CarRentalBucket {
 export const useCarRentalsStore = defineStore("carRentals", () => {
   const byTrip = ref<Record<string, CarRentalBucket>>({});
 
-  function ensure(tripId: string): CarRentalBucket {
+  const ensure = (tripId: string): CarRentalBucket => {
     if (!byTrip.value[tripId]) {
       byTrip.value[tripId] = {
         items: [],
@@ -20,9 +20,9 @@ export const useCarRentalsStore = defineStore("carRentals", () => {
       };
     }
     return byTrip.value[tripId];
-  }
+  };
 
-  async function fetchByTrip(tripId: string) {
+  const fetchByTrip = async (tripId: string) => {
     const bucket = ensure(tripId);
     try {
       bucket.pending = true;
@@ -37,9 +37,9 @@ export const useCarRentalsStore = defineStore("carRentals", () => {
     } finally {
       bucket.pending = false;
     }
-  }
+  };
 
-  async function add(tripId: string, payload: any) {
+  const add = async (tripId: string, payload: any) => {
     const created = await $fetch<CarRentalOption>(
       `/api/trips/${tripId}/car-rentals`,
       {
@@ -49,9 +49,9 @@ export const useCarRentalsStore = defineStore("carRentals", () => {
     );
     ensure(tripId).items.unshift(created);
     return created;
-  }
+  };
 
-  async function update(tripId: string, rentalId: string, payload: any) {
+  const update = async (tripId: string, rentalId: string, payload: any) => {
     const updated = await $fetch<CarRentalOption>(
       `/api/trips/${tripId}/car-rentals/${rentalId}`,
       {
@@ -65,22 +65,22 @@ export const useCarRentalsStore = defineStore("carRentals", () => {
       bucket.items[index] = { ...bucket.items[index], ...updated };
     }
     return updated;
-  }
+  };
 
-  async function remove(tripId: string, rentalId: string) {
+  const remove = async (tripId: string, rentalId: string) => {
     await $fetch(`/api/trips/${tripId}/car-rentals/${rentalId}`, {
       method: "DELETE",
     });
     const bucket = ensure(tripId);
     bucket.items = bucket.items.filter((i) => i.id !== rentalId);
-  }
+  };
 
-  async function selectFinal(tripId: string, rentalId: string | null) {
+  const selectFinal = async (tripId: string, rentalId: string | null) => {
     await $fetch(`/api/trips/${tripId}/final-car-rental`, {
       method: "PUT",
       body: { carRentalId: rentalId },
     });
-  }
+  };
 
   return {
     byTrip,

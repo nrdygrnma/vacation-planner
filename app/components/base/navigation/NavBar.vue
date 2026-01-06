@@ -55,7 +55,10 @@
 <script lang="ts" setup>
 import TabLink from "~/components/base/navigation/TabLink.vue";
 
-const links = [{ label: "Trips", to: "/" }];
+const links = [
+  { label: "Trips", to: "/" },
+  { label: "Currencies", to: "/currencies" },
+];
 
 const isOpen = ref(false);
 </script>

@@ -4,10 +4,13 @@
       <h3 class="text-base font-medium flex items-center gap-2">
         <UIcon class="size-4" name="i-lucide-map-pin" /> Itinerary
       </h3>
-      <UButton color="primary" size="sm" @click="openAdd">
-        <UIcon class="size-4" name="i-lucide-plus" />
-        <span class="ms-1">Add stop</span>
-      </UButton>
+      <UButton
+        color="primary"
+        icon="i-lucide-plus"
+        label="Add stop"
+        size="sm"
+        @click="openAdd"
+      />
     </div>
 
     <div v-if="pending && !stops.length" class="text-sm text-muted">

@@ -8,12 +8,11 @@
         id="add-car-rental-btn"
         color="primary"
         data-testid="add-car-rental-btn"
+        icon="i-lucide-plus"
+        label="Add car rental"
         size="sm"
         @click="openAdd"
-      >
-        <UIcon class="size-4" name="i-lucide-plus" />
-        <span class="ms-1">Add car rental</span>
-      </UButton>
+      />
     </div>
 
     <div v-if="pending && !rentals.length" class="text-sm text-muted">
@@ -188,12 +187,15 @@ const confirmDelete = async () => {
 
 const onSelect = async (r: CarRentalOption) => {
   try {
-    await carRentalsStore.selectFinal(props.trip.id, r.id);
-    toast.success("Car rental selected for trip");
+    const isSelected = props.trip.selectedCarRentalId === r.id;
+    await carRentalsStore.selectFinal(props.trip.id, isSelected ? null : r.id);
+    toast.success(
+      isSelected ? "Car rental deselected" : "Car rental selected for trip",
+    );
     emit("refresh");
   } catch (e) {
     console.error(e);
-    toast.error("Failed to select car rental");
+    toast.error("Failed to select/deselect car rental");
   }
 };
 </script>

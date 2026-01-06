@@ -11,7 +11,7 @@ interface StopBucket {
 export const useTripStopsStore = defineStore("tripStops", () => {
   const byTrip = ref<Record<string, StopBucket>>({});
 
-  function ensure(tripId: string): StopBucket {
+  const ensure = (tripId: string): StopBucket => {
     if (!byTrip.value[tripId]) {
       byTrip.value[tripId] = {
         items: [],
@@ -20,9 +20,9 @@ export const useTripStopsStore = defineStore("tripStops", () => {
       };
     }
     return byTrip.value[tripId];
-  }
+  };
 
-  async function fetchByTrip(tripId: string) {
+  const fetchByTrip = async (tripId: string) => {
     const bucket = ensure(tripId);
     try {
       bucket.pending = true;
@@ -35,9 +35,9 @@ export const useTripStopsStore = defineStore("tripStops", () => {
     } finally {
       bucket.pending = false;
     }
-  }
+  };
 
-  async function add(tripId: string, payload: any) {
+  const add = async (tripId: string, payload: any) => {
     const created = await $fetch<TripStop>(`/api/trips/${tripId}/stops`, {
       method: "POST",
       body: payload,
@@ -46,16 +46,18 @@ export const useTripStopsStore = defineStore("tripStops", () => {
     // Use spread to trigger reactivity by replacing the array reference
     const newItems = [...bucket.items, created];
     // Sort items by order, then startDate
-    newItems.sort(
-      (a, b) =>
-        a.order - b.order ||
-        new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
-    );
+    newItems.sort((a, b) => {
+      if (a.order !== b.order) return a.order - b.order;
+      const dateA = new Date(a.startDate).getTime();
+      const dateB = new Date(b.startDate).getTime();
+      if (dateA !== dateB) return dateA - dateB;
+      return a.type.localeCompare(b.type); // HUB before STOP
+    });
     bucket.items = newItems;
     return created;
-  }
+  };
 
-  async function update(tripId: string, stopId: string, payload: any) {
+  const update = async (tripId: string, stopId: string, payload: any) => {
     const updated = await $fetch<TripStop>(
       `/api/trips/${tripId}/stops/${stopId}`,
       {
@@ -68,28 +70,30 @@ export const useTripStopsStore = defineStore("tripStops", () => {
     if (index !== -1) {
       const newItems = [...bucket.items];
       newItems[index] = { ...newItems[index], ...updated };
-      newItems.sort(
-        (a, b) =>
-          a.order - b.order ||
-          new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
-      );
+      newItems.sort((a, b) => {
+        if (a.order !== b.order) return a.order - b.order;
+        const dateA = new Date(a.startDate).getTime();
+        const dateB = new Date(b.startDate).getTime();
+        if (dateA !== dateB) return dateA - dateB;
+        return a.type.localeCompare(b.type); // HUB before STOP
+      });
       bucket.items = newItems;
     }
     return updated;
-  }
+  };
 
-  async function remove(tripId: string, stopId: string) {
+  const remove = async (tripId: string, stopId: string) => {
     await $fetch(`/api/trips/${tripId}/stops/${stopId}`, {
       method: "DELETE",
     });
     const bucket = ensure(tripId);
     bucket.items = bucket.items.filter((i) => i.id !== stopId);
-  }
+  };
 
-  async function reorder(
+  const reorder = async (
     tripId: string,
     orders: { id: string; order: number }[],
-  ) {
+  ) => {
     const response = await $fetch<{ success: boolean; stops: TripStop[] }>(
       `/api/trips/${tripId}/stops/reorder`,
       {
@@ -101,9 +105,9 @@ export const useTripStopsStore = defineStore("tripStops", () => {
     // Local update
     const bucket = ensure(tripId);
     bucket.items = response.stops;
-  }
+  };
 
-  async function batchUpdate(
+  const batchUpdate = async (
     tripId: string,
     stops: {
       id: string;
@@ -111,7 +115,7 @@ export const useTripStopsStore = defineStore("tripStops", () => {
       startDate?: string;
       endDate?: string;
     }[],
-  ) {
+  ) => {
     const response = await $fetch<{ success: boolean; stops: TripStop[] }>(
       `/api/trips/${tripId}/stops/batch`,
       {
@@ -123,7 +127,7 @@ export const useTripStopsStore = defineStore("tripStops", () => {
     // Use the full updated data from the backend to ensure all relations (images, etc) are correct
     const bucket = ensure(tripId);
     bucket.items = response.stops;
-  }
+  };
 
   return {
     byTrip,

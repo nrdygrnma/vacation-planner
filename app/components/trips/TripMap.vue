@@ -15,14 +15,13 @@
       >
         <div ref="mapContainer" class="w-full h-full z-0"></div>
 
-        <!-- Map Action Buttons -->
         <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
           <UButton
             :icon="isFullscreen ? 'i-lucide-minimize-2' : 'i-lucide-maximize-2'"
             class="shadow-md"
             color="neutral"
             size="sm"
-            variant="subtle"
+            variant="outline"
             @click="toggleFullscreen"
           />
           <UButton
@@ -30,7 +29,7 @@
             color="neutral"
             icon="i-lucide-list"
             size="sm"
-            variant="subtle"
+            variant="outline"
             @click="isListOpen = true"
           />
         </div>

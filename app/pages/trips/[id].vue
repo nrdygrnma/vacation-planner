@@ -4,17 +4,21 @@
       <UButton
         color="neutral"
         icon="i-lucide-arrow-left"
+        label="Back"
         size="xs"
         variant="ghost"
         @click="navigateTo('/')"
-      >
-        Back
-      </UButton>
+      />
     </div>
 
     <TripDetailsHero :coverPosition="'center_20%'" :trip="trip" />
 
-    <TripDetailsHeader :trip="trip" @delete="openDelete()" @edit="openEdit()" />
+    <TripDetailsHeader
+      :trip="trip"
+      @delete="openDelete()"
+      @edit="openEdit()"
+      @show-comparisons="activeTab = 'comparisons'"
+    />
 
     <div class="space-y-3">
       <UTabs v-model="activeTab" :items="tabItems" />
@@ -35,6 +39,11 @@
         @refresh="refresh"
       />
       <TripMap v-else-if="activeTab === 'map' && trip" :trip="trip" />
+      <ComparisonsSection
+        v-else-if="activeTab === 'comparisons'"
+        :trip="trip"
+        @refresh="refresh"
+      />
     </div>
 
     <CrudModal
@@ -94,6 +103,7 @@ import FlightsSection from "~/components/sections/FlightsSection.vue";
 import CarRentalsSection from "~/components/sections/CarRentalsSection.vue";
 import ItinerarySection from "~/components/sections/ItinerarySection.vue";
 import TripMap from "~/components/trips/TripMap.vue";
+import ComparisonsSection from "~/components/sections/ComparisonsSection.vue";
 
 const route = useRoute();
 const tripId = computed(() => String(route.params.id || ""));
@@ -107,6 +117,7 @@ const tabItems = [
   { label: "Car Rentals", icon: "i-lucide-car", value: "cars" },
   { label: "Itinerary", icon: "i-lucide-map-pin", value: "itinerary" },
   { label: "Map", icon: "i-lucide-map", value: "map" },
+  { label: "Comparisons", icon: "i-lucide-layers", value: "comparisons" },
 ];
 const activeTab = ref<string>("flights");
 

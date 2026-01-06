@@ -35,11 +35,24 @@
         <UTooltip
           :content="{ align: 'center', side: 'top', sideOffset: 8 }"
           arrow
+          text="Comparisons"
+        >
+          <UButton
+            color="neutral"
+            icon="i-lucide-layers"
+            variant="outline"
+            @click="emit('show-comparisons')"
+          />
+        </UTooltip>
+
+        <UTooltip
+          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+          arrow
           text="Edit"
         >
           <UButton
+            color="neutral"
             icon="i-lucide-edit"
-            size="sm"
             variant="outline"
             @click="emit('edit')"
           />
@@ -52,8 +65,7 @@
         >
           <UButton
             color="error"
-            icon="lucide:trash"
-            size="sm"
+            icon="i-lucide-trash"
             variant="outline"
             @click="emit('delete')"
           />
@@ -91,6 +103,7 @@ const props = defineProps<{ trip: Trip }>();
 const emit = defineEmits<{
   (e: "edit"): void;
   (e: "delete"): void;
+  (e: "show-comparisons"): void;
 }>();
 
 const { formatDate } = useDateUtils();

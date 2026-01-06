@@ -1,10 +1,10 @@
 <template>
   <NuxtLink
     :class="[
-      'relative pb-1 text-sm font-semibold no-underline',
+      'relative pb-1 text-sm font-semibold no-underline border-b-2 transition-colors duration-200',
       isActive
-        ? 'text-primary border-b-2 border-primary'
-        : 'text-gray-600 hover:text-gray-900 hover:border-b hover:border-gray-300',
+        ? 'text-primary border-primary'
+        : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300',
     ]"
     :to="to"
   >
@@ -21,5 +21,10 @@ const props = defineProps<{
 }>();
 
 const route = useRoute();
-const isActive = computed(() => route.path === props.to);
+const isActive = computed(() => {
+  if (props.to === "/") {
+    return route.path === "/" || route.path.startsWith("/trips");
+  }
+  return route.path === props.to;
+});
 </script>

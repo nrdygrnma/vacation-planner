@@ -8,12 +8,11 @@
         id="add-flight-btn"
         color="primary"
         data-testid="add-flight-btn"
+        icon="i-lucide-plus"
+        label="Add flight"
         size="sm"
         @click="openAdd"
-      >
-        <UIcon class="size-4" name="i-lucide-plus" />
-        <span class="ms-1">Add flight</span>
-      </UButton>
+      />
     </div>
 
     <div v-if="pending && !flights.length" class="text-sm text-muted">
@@ -214,12 +213,15 @@ const confirmDelete = async () => {
 
 const onSelect = async (f: FlightOption) => {
   try {
-    await flightsStore.selectFinal(props.trip.id, f.id);
-    toast.success("Flight selected for trip");
+    const isSelected = props.trip.selectedFlightId === f.id;
+    await flightsStore.selectFinal(props.trip.id, isSelected ? null : f.id);
+    toast.success(
+      isSelected ? "Flight deselected" : "Flight selected for trip",
+    );
     emit("refresh");
   } catch (e) {
     console.error(e);
-    toast.error("Failed to select flight");
+    toast.error("Failed to select/deselect flight");
   }
 };
 </script>
