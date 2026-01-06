@@ -1,5 +1,5 @@
 <template>
-  <section v-if="trip" class="space-y-2">
+  <section v-if="trip" class="space-y-1">
     <div>
       <UButton
         color="neutral"

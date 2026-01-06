@@ -22,19 +22,12 @@ export default defineConfig({
         },
       },
     ],
-    [
-      "@qanary/playwright-reporter",
-      {
-        apiUrl: "http://localhost:5121/api/runs/push",
-        project: "vacation-planner",
-      },
-    ],
   ],
 
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
-    screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    screenshot: "off",
+    video: "off",
   },
 });

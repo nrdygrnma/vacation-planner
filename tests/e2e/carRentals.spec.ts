@@ -12,7 +12,8 @@ export async function openAddCarRentalModal(page: Page): Promise<Locator> {
   await page.waitForLoadState("networkidle");
 
   const addBtn = page
-    .getByTestId("add-car-rental-btn")
+    .locator("#add-car-rental-btn")
+    .or(page.getByTestId("add-car-rental-btn"))
     .or(page.getByRole("button", { name: /add car rental/i }))
     .first();
 
@@ -53,8 +54,23 @@ test.describe("Car Rentals", () => {
 
   async function openTripAndCarsTab(page: Page) {
     await page.goto(`/trips/${tripId}`);
-    await page.getByRole("tab", { name: /car rentals/i }).click();
-    await expect(page.getByTestId("add-car-rental-btn")).toBeVisible();
+    // Wait for trip to load
+    await expect(page.getByText(/Loading/i)).not.toBeVisible({
+      timeout: 20_000,
+    });
+
+    const carsTab = page.getByRole("tab", { name: /car rentals/i }).first();
+    await expect(carsTab).toBeVisible({ timeout: 20_000 });
+    await carsTab.click();
+
+    // Explicitly wait for the tab panel to be selected and the button to be in DOM
+    const addBtn = page
+      .getByTestId("add-car-rental-btn")
+      .or(page.getByRole("button", { name: /add car rental/i }))
+      .first();
+    await expect(addBtn).toBeVisible({
+      timeout: 20_000,
+    });
   }
 
   test("can add car rental", async ({ page }) => {
@@ -64,11 +80,20 @@ test.describe("Car Rentals", () => {
     await dialog.getByLabel(/company/i).fill("Hertz");
 
     // Select car type
-    await dialog.getByLabel(/car type/i).click();
+    const carTypeField = dialog
+      .locator("button")
+      .filter({ hasText: /Select car type/i })
+      .first();
+    await carTypeField.click();
     await page.locator('[role="option"]').first().click();
 
     // Select currency
-    await dialog.getByLabel(/currency/i).click();
+    const currencyField = dialog
+      .locator("button")
+      .filter({ hasText: /€/i })
+      .or(dialog.locator("button").filter({ hasText: /Select currency/i }))
+      .first();
+    await currencyField.click();
     await page.locator('[role="option"]').first().click();
 
     await dialog

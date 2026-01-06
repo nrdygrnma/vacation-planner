@@ -4,9 +4,15 @@
       <h3 class="text-base font-medium flex items-center gap-2">
         <UIcon class="size-4" name="i-lucide-plane" /> Flights
       </h3>
-      <UButton color="primary" size="sm" @click="openAdd">
+      <UButton
+        id="add-flight-btn"
+        color="primary"
+        data-testid="add-flight-btn"
+        size="sm"
+        @click="openAdd"
+      >
         <UIcon class="size-4" name="i-lucide-plus" />
-        <span class="ms-1" data-testid="add-flight-btn">Add flight</span>
+        <span class="ms-1">Add flight</span>
       </UButton>
     </div>
 

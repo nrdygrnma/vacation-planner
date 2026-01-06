@@ -1,8 +1,10 @@
 <template>
-  <div class="p-3 border border-gray-300 rounded-lg bg-gray-50/50 space-y-3 relative"
+  <div
+    class="p-3 border border-gray-300 rounded-lg bg-gray-50/50 space-y-3 relative"
     data-testid="flight-segment"
   >
-    <UButton v-if="removable"
+    <UButton
+      v-if="removable"
       class="absolute -top-2 -right-2 rounded-full"
       color="error"
       data-testid="remove-segment"
@@ -65,10 +67,18 @@
           label="Departure Date"
           required
         >
-          <UInput v-model="modelValue.departureDate" class="w-full" type="date"/>
+          <UInput
+            v-model="modelValue.departureDate"
+            class="w-full"
+            type="date"
+          />
         </UFormField>
         <UFormField :name="`${namePrefix}.departureTime`" label="Time" required>
-          <UInput v-model="modelValue.departureTime" class="w-full" type="time" />
+          <UInput
+            v-model="modelValue.departureTime"
+            class="w-full"
+            type="time"
+          />
         </UFormField>
       </div>
 
@@ -101,8 +111,9 @@ export interface FormSegment {
   isReturn: boolean;
 }
 
+const modelValue = defineModel<FormSegment>({ required: true });
+
 defineProps<{
-  modelValue: FormSegment;
   namePrefix: string;
   timezoneOptions: { label: string; value: string }[];
   removable?: boolean;

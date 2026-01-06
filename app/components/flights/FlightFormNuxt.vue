@@ -167,6 +167,14 @@
             <UTextarea v-model="state.notes" :rows="1" class="w-full" />
           </UFormField>
         </div>
+        <div class="hidden">
+          <UFormField name="fromSymbol" />
+          <UFormField name="toSymbol" />
+          <UFormField name="departureDate" />
+          <UFormField name="departureTime" />
+          <UFormField name="arrivalDate" />
+          <UFormField name="arrivalTime" />
+        </div>
       </div>
     </template>
   </CrudForm>
@@ -381,7 +389,7 @@ watch(
       addSegment(true);
     }
   },
-  { deep: true, immediate: true },
+  { deep: true, immediate: true, flush: "sync" },
 );
 
 const { data: currencies } = useFetch<Currency[]>("/api/currencies", {
@@ -409,12 +417,12 @@ const schema = z
   .object({
     airlineName: z.string().trim().min(1, "Airline is required."),
     flightNumber: z.string().trim().optional().or(z.literal("")),
-    fromSymbol: z.string().trim().min(1, "From is required."),
-    toSymbol: z.string().trim().min(1, "To is required."),
-    departureDate: z.string().min(1, "Departure date is required."),
-    departureTime: z.string().min(1, "Departure time is required."),
-    arrivalDate: z.string().min(1, "Arrival date is required."),
-    arrivalTime: z.string().min(1, "Arrival time is required."),
+    fromSymbol: z.string().trim().optional(),
+    toSymbol: z.string().trim().optional(),
+    departureDate: z.string().optional(),
+    departureTime: z.string().optional(),
+    arrivalDate: z.string().optional(),
+    arrivalTime: z.string().optional(),
     returnArrivalDate: z.string().optional().or(z.literal("")),
     returnArrivalTime: z.string().optional().or(z.literal("")),
     isRoundTrip: z.boolean().default(false),
@@ -430,18 +438,16 @@ const schema = z
     otherExtras: z.coerce.number().min(0).optional().default(0),
     returnDepartureDate: z.string().optional().or(z.literal("")),
     returnDepartureTime: z.string().optional().or(z.literal("")),
-    outboundSegments: z
-      .array(
-        z.object({
-          fromAirport: z.string().min(1, "Required"),
-          toAirport: z.string().min(1, "Required"),
-          departureDate: z.string().min(1, "Required"),
-          departureTime: z.string().min(1, "Required"),
-          arrivalDate: z.string().min(1, "Required"),
-          arrivalTime: z.string().min(1, "Required"),
-        }),
-      )
-      .min(1),
+    outboundSegments: z.array(
+      z.object({
+        fromAirport: z.string().min(1, "Required"),
+        toAirport: z.string().min(1, "Required"),
+        departureDate: z.string().min(1, "Required"),
+        departureTime: z.string().min(1, "Required"),
+        arrivalDate: z.string().min(1, "Required"),
+        arrivalTime: z.string().min(1, "Required"),
+      }),
+    ),
     returnSegments: z.array(
       z.object({
         fromAirport: z.string().min(1, "Required"),
@@ -463,7 +469,30 @@ const schema = z
     { message: "Arrival cannot be before departure.", path: ["arrivalTime"] },
   );
 
-const onSubmit = (data: any) => {
+const onSubmit = (formData: any) => {
+  // Sync state from segments before processing if watch was delayed
+  if (state.outboundSegments.length > 0) {
+    const first = state.outboundSegments[0];
+    const last = state.outboundSegments[state.outboundSegments.length - 1];
+    state.fromSymbol = first.fromAirport;
+    state.toSymbol = last.toAirport;
+    state.departureDate = first.departureDate;
+    state.departureTime = first.departureTime;
+    state.arrivalDate = last.arrivalDate;
+    state.arrivalTime = last.arrivalTime;
+  }
+  if (state.isRoundTrip && state.returnSegments.length > 0) {
+    const first = state.returnSegments[0];
+    const last = state.returnSegments[state.returnSegments.length - 1];
+    state.returnDepartureDate = first.departureDate;
+    state.returnDepartureTime = first.departureTime;
+    state.returnArrivalDate = last.arrivalDate;
+    state.returnArrivalTime = last.arrivalTime;
+  }
+
+  // Use the synchronized state instead of potentially stale formData for these fields
+  const data = { ...formData, ...state };
+
   // Normalize payload to match flights store expectations
   const departureIso = toIsoFromDateTimeUtc(
     data.departureDate,

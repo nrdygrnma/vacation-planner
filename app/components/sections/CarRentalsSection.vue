@@ -4,11 +4,15 @@
       <h3 class="text-base font-medium flex items-center gap-2">
         <UIcon class="size-4" name="i-lucide-car" /> Car Rentals
       </h3>
-      <UButton color="primary" size="sm" @click="openAdd">
+      <UButton
+        id="add-car-rental-btn"
+        color="primary"
+        data-testid="add-car-rental-btn"
+        size="sm"
+        @click="openAdd"
+      >
         <UIcon class="size-4" name="i-lucide-plus" />
-        <span class="ms-1" data-testid="add-car-rental-btn"
-          >Add car rental</span
-        >
+        <span class="ms-1">Add car rental</span>
       </UButton>
     </div>
 

@@ -2,7 +2,8 @@
   <BaseItemCard
     :selectable="!selected"
     :selected="selected"
-    class="relative overflow-hidden group"
+    class="relative overflow-hidden group flight-card"
+    data-testid="flight-card"
     @click="$emit('select')"
   >
     <template #title>

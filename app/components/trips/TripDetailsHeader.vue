@@ -1,12 +1,12 @@
 <template>
-  <header class="space-y-2">
+  <header class="space-y-3 pt-1">
     <div
       class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
     >
       <div class="min-w-0">
         <h1
           :title="trip.title"
-          class="truncate text-2xl md:text-3xl font-light text-primary"
+          class="truncate text-2xl md:text-3xl font-light text-primary leading-[1.2] overflow-visible"
         >
           {{ trip.title }}
         </h1>
