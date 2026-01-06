@@ -129,6 +129,7 @@ export const useFlightsStore = defineStore("flights", () => {
       currencyId: data.currencyId || defaults?.currencyId || "",
       totalCostEUR: Number(data.totalCostEUR) || 0,
       bookingUrl: data.bookingUrl || null,
+      airlineLogoUrl: data.airlineLogoUrl || null,
       notes: data.notes || null,
       extras: hasExtras ? JSON.stringify(extras) : null,
       stopOverDurationMinutes:

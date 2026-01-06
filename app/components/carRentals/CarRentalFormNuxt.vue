@@ -43,7 +43,7 @@
           </UFormField>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-6">
           <div class="space-y-4">
             <h5
               class="text-sm font-semibold uppercase tracking-wider text-gray-500"
@@ -57,7 +57,7 @@
                 placeholder="Airport, City, etc."
               />
             </UFormField>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-4">
               <UFormField label="Date" name="pickupDate" required>
                 <UInput v-model="state.pickupDate" class="w-full" type="date" />
               </UFormField>
@@ -80,7 +80,7 @@
                 placeholder="Airport, City, etc."
               />
             </UFormField>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-4">
               <UFormField label="Date" name="dropoffDate" required>
                 <UInput
                   v-model="state.dropoffDate"

@@ -55,6 +55,7 @@
             <TripStopCard
               :is-expanded="expandedStopId === stop.id"
               :stop="stop"
+              :trip-currency="trip.currency"
               @delete="onDelete"
               @edit="onEdit"
               @refresh="onStopRefresh"
@@ -161,7 +162,7 @@ const onDragChange = async () => {
   for (let i = 1; i < stopsList.value.length; i++) {
     const prev = stopsList.value[i - 1];
     const curr = stopsList.value[i];
-    if (new Date(curr.startDate) < new Date(prev.endDate)) {
+    if (new Date(curr!.startDate) < new Date(prev!.endDate)) {
       hasConflict = true;
       break;
     }
@@ -204,11 +205,15 @@ const applyOrderUpdate = async () => {
 };
 
 const applyDateShiftUpdate = async () => {
+  if (stopsList.value.length === 0) return;
+
   const updatedStops: any[] = [];
-  let currentRefDate = new Date(stopsList.value[0].startDate);
+  let currentRefDate = new Date(stopsList.value[0]!.startDate);
 
   for (let i = 0; i < stopsList.value.length; i++) {
     const stop = stopsList.value[i];
+    if (!stop) continue;
+
     const start = new Date(stop.startDate);
     const end = new Date(stop.endDate);
     const duration = end.getTime() - start.getTime();
@@ -271,9 +276,12 @@ const openAdd = () => {
   aeMode.value = "add";
 
   // Suggest start date based on last stop
-  let suggestedStart = props.trip.startDate;
-  if (stops.value.length > 0) {
-    suggestedStart = stops.value[stops.value.length - 1].endDate;
+  let suggestedStart = props.trip.startDate || new Date().toISOString();
+  if (stops.value && stops.value.length > 0) {
+    const lastStop = stops.value[stops.value.length - 1];
+    if (lastStop) {
+      suggestedStart = lastStop.endDate;
+    }
   }
 
   aeInitial.value = {
@@ -338,17 +346,19 @@ const confirmDelete = async () => {
 };
 
 // Gap Logic
-const hasGap = (s1: TripStop, s2: TripStop) => {
+const hasGap = (s1: TripStop, s2: TripStop | undefined) => {
+  if (!s2) return false;
   const end1 = new Date(s1.endDate).getTime();
   const start2 = new Date(s2.startDate).getTime();
   return start2 > end1;
 };
 
-const gapDuration = (s1: TripStop, s2: TripStop) => {
+const gapDuration = (s1: TripStop, s2: TripStop | undefined) => {
+  if (!s2) return "";
   const end1 = new Date(s1.endDate).getTime();
   const start2 = new Date(s2.startDate).getTime();
   const diffDays = Math.floor((start2 - end1) / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) return "";
+  if (diffDays <= 0) return "";
   return `${diffDays} ${diffDays === 1 ? "day" : "days"}`;
 };
 </script>

@@ -225,13 +225,13 @@ const stopsWithCoords = computed(() => {
         stop.lng !== null &&
         !(stop.lat === 0 && stop.lng === 0),
     )
-    .sort(
-      (a, b) =>
-        a.order - b.order ||
-        (a.startDate && b.startDate
-          ? new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-          : 0),
-    );
+    .sort((a, b) => {
+      const dateA = new Date(a.startDate).getTime();
+      const dateB = new Date(b.startDate).getTime();
+      if (dateA !== dateB) return dateA - dateB;
+      if (a.type !== b.type) return a.type.localeCompare(b.type);
+      return a.order - b.order;
+    });
 });
 
 const isStartAndEndSame = computed(() => {

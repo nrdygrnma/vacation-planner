@@ -45,13 +45,13 @@ export const useTripStopsStore = defineStore("tripStops", () => {
     const bucket = ensure(tripId);
     // Use spread to trigger reactivity by replacing the array reference
     const newItems = [...bucket.items, created];
-    // Sort items by order, then startDate
+    // Sort items by startDate, then type, then order
     newItems.sort((a, b) => {
-      if (a.order !== b.order) return a.order - b.order;
       const dateA = new Date(a.startDate).getTime();
       const dateB = new Date(b.startDate).getTime();
       if (dateA !== dateB) return dateA - dateB;
-      return a.type.localeCompare(b.type); // HUB before STOP
+      if (a.type !== b.type) return a.type.localeCompare(b.type); // HUB before STOP
+      return a.order - b.order;
     });
     bucket.items = newItems;
     return created;
@@ -71,11 +71,11 @@ export const useTripStopsStore = defineStore("tripStops", () => {
       const newItems = [...bucket.items];
       newItems[index] = { ...newItems[index], ...updated };
       newItems.sort((a, b) => {
-        if (a.order !== b.order) return a.order - b.order;
         const dateA = new Date(a.startDate).getTime();
         const dateB = new Date(b.startDate).getTime();
         if (dateA !== dateB) return dateA - dateB;
-        return a.type.localeCompare(b.type); // HUB before STOP
+        if (a.type !== b.type) return a.type.localeCompare(b.type); // HUB before STOP
+        return a.order - b.order;
       });
       bucket.items = newItems;
     }

@@ -76,6 +76,32 @@
           </UFormField>
         </div>
 
+        <div
+          v-if="state.people > 1"
+          class="border-t border-gray-100 pt-4 space-y-3"
+        >
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">
+            Cost Splitting (Per Person)
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <UCheckbox
+              v-model="state.splitFlightCost"
+              label="Split Flights"
+              name="splitFlightCost"
+            />
+            <UCheckbox
+              v-model="state.splitCarRentalCost"
+              label="Split Car Rentals"
+              name="splitCarRentalCost"
+            />
+            <UCheckbox
+              v-model="state.splitAccommodationCost"
+              label="Split Stays"
+              name="splitAccommodationCost"
+            />
+          </div>
+        </div>
+
         <div class="border-t border-gray-100 pt-4 space-y-4">
           <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">
             Route (Optional)
@@ -154,6 +180,9 @@ const props = withDefaults(
       endLocationName: string | null;
       endLat: number | null;
       endLng: number | null;
+      splitFlightCost: boolean;
+      splitCarRentalCost: boolean;
+      splitAccommodationCost: boolean;
     }>;
     submitLabel?: string;
     cancelLabel?: string;
@@ -202,6 +231,9 @@ const state = reactive({
   endLocationName: props.initialValues?.endLocationName ?? "",
   endLat: props.initialValues?.endLat ?? null,
   endLng: props.initialValues?.endLng ?? null,
+  splitFlightCost: props.initialValues?.splitFlightCost ?? false,
+  splitCarRentalCost: props.initialValues?.splitCarRentalCost ?? true,
+  splitAccommodationCost: props.initialValues?.splitAccommodationCost ?? true,
 });
 
 const { data: currencies } = useFetch<Currency[]>("/api/currencies", {
@@ -230,6 +262,9 @@ const schema = z
     endLocationName: z.string().optional().or(z.literal("")),
     endLat: z.coerce.number().optional().nullable(),
     endLng: z.coerce.number().optional().nullable(),
+    splitFlightCost: z.boolean().optional(),
+    splitCarRentalCost: z.boolean().optional(),
+    splitAccommodationCost: z.boolean().optional(),
   })
   .refine(
     (data) => {

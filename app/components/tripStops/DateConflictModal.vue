@@ -1,5 +1,10 @@
 <template>
-  <UModal v-model:open="isOpen" :description="description" :title="title">
+  <UModal
+    v-model:open="isOpen"
+    :description="description"
+    :title="title"
+    :ui="{ footer: 'justify-end' }"
+  >
     <template #body>
       <div class="space-y-4">
         <p class="text-sm text-gray-600">
@@ -42,7 +47,7 @@
       </div>
     </template>
     <template #footer>
-      <div class="flex justify-end gap-2">
+      <div class="w-full flex justify-end gap-2">
         <UButton
           color="neutral"
           label="Cancel Drag"

@@ -180,6 +180,9 @@ export interface Trip {
   endLocationName?: string | null;
   endLat?: number | null;
   endLng?: number | null;
+  splitFlightCost: boolean;
+  splitCarRentalCost: boolean;
+  splitAccommodationCost: boolean;
   selectedFlightId?: string;
   selectedFlight?: FlightOption; // optional loaded relation
   selectedCarRentalId?: string;

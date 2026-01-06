@@ -43,6 +43,9 @@ model Trip {
   endLocationName     String?
   endLat              Float?
   endLng              Float?
+  splitFlightCost     Boolean              @default(false)
+  splitCarRentalCost  Boolean              @default(true)
+  splitAccommodationCost Boolean           @default(true)
   carRentals          CarRental[]          @relation("TripCarRentals")
   flights             Flight[]             @relation("TripFlights")
   selectedCarRental   CarRental?           @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])

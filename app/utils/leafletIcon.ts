@@ -1,7 +1,11 @@
 /**
  * Icon helper for Leaflet HTML strings (Nuxt UI / Iconify compatible)
  */
-export function leafletIcon(name: string, size = 16, color = "currentColor") {
+export const leafletIcon = (
+  name: string,
+  size = 16,
+  color = "currentColor",
+) => {
   const encoded = encodeURIComponent(color);
 
   return `
@@ -12,4 +16,4 @@ export function leafletIcon(name: string, size = 16, color = "currentColor") {
       style="display:block"
     />
   `;
-}
+};

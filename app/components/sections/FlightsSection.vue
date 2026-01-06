@@ -39,7 +39,9 @@
         v-for="f in flights"
         :key="f.id"
         :flight="f"
+        :people="trip.people"
         :selected="trip.selectedFlightId === f.id"
+        :split-cost="trip.splitFlightCost"
         @delete="onDelete(f)"
         @edit="onEdit(f)"
         @select="onSelect(f)"
@@ -158,9 +160,13 @@ const onEdit = (f: FlightOption) => {
     baseFare: Number(f.baseFare) || 0,
     currencyId: f.currencyId,
     bookingUrl: f.bookingUrl ?? "",
+    airlineLogoUrl: f.airlineLogoUrl ?? "",
     notes: f.notes ?? "",
     extras,
     id: f.id,
+    totalCostEUR: f.totalCostEUR,
+    stopOverAirports: f.stopOverAirports,
+    stopOverDurationMinutes: f.stopOverDurationMinutes,
   };
   aeOpen.value = true;
 };

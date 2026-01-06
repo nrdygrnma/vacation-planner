@@ -6,7 +6,7 @@ export const useAccommodationsStore = defineStore("accommodations", () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  async function add(tripId: string, stopId: string, payload: any) {
+  const add = async (tripId: string, stopId: string, payload: any) => {
     loading.value = true;
     error.value = null;
     try {
@@ -24,14 +24,14 @@ export const useAccommodationsStore = defineStore("accommodations", () => {
     } finally {
       loading.value = false;
     }
-  }
+  };
 
-  async function update(
+  const update = async (
     tripId: string,
     stopId: string,
     accommodationId: string,
     payload: any,
-  ) {
+  ) => {
     loading.value = true;
     error.value = null;
     try {
@@ -49,13 +49,13 @@ export const useAccommodationsStore = defineStore("accommodations", () => {
     } finally {
       loading.value = false;
     }
-  }
+  };
 
-  async function remove(
+  const remove = async (
     tripId: string,
     stopId: string,
     accommodationId: string,
-  ) {
+  ) => {
     loading.value = true;
     error.value = null;
     try {
@@ -71,13 +71,13 @@ export const useAccommodationsStore = defineStore("accommodations", () => {
     } finally {
       loading.value = false;
     }
-  }
+  };
 
-  async function selectFinal(
+  const selectFinal = async (
     tripId: string,
     stopId: string,
     accommodationId: string | null,
-  ) {
+  ) => {
     loading.value = true;
     error.value = null;
     try {
@@ -92,7 +92,7 @@ export const useAccommodationsStore = defineStore("accommodations", () => {
     } finally {
       loading.value = false;
     }
-  }
+  };
 
   return {
     loading,

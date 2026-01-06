@@ -38,12 +38,13 @@
         :trip="trip"
         @refresh="refresh"
       />
-      <TripMap v-else-if="activeTab === 'map' && trip" :trip="trip" />
+
       <ComparisonsSection
         v-else-if="activeTab === 'comparisons'"
         :trip="trip"
         @refresh="refresh"
       />
+      <TripMap v-else-if="activeTab === 'map' && trip" :trip="trip" />
     </div>
 
     <CrudModal
@@ -116,8 +117,8 @@ const tabItems = [
   { label: "Flights", icon: "i-lucide-plane", value: "flights" },
   { label: "Car Rentals", icon: "i-lucide-car", value: "cars" },
   { label: "Itinerary", icon: "i-lucide-map-pin", value: "itinerary" },
-  { label: "Map", icon: "i-lucide-map", value: "map" },
   { label: "Comparisons", icon: "i-lucide-layers", value: "comparisons" },
+  { label: "Map", icon: "i-lucide-map", value: "map" },
 ];
 const activeTab = ref<string>("flights");
 
@@ -193,6 +194,9 @@ const editInitialValues = computed(() => {
     endLocationName: (t as any).endLocationName ?? "",
     endLat: (t as any).endLat ?? null,
     endLng: (t as any).endLng ?? null,
+    splitFlightCost: (t as any).splitFlightCost ?? false,
+    splitCarRentalCost: (t as any).splitCarRentalCost ?? true,
+    splitAccommodationCost: (t as any).splitAccommodationCost ?? true,
   };
 });
 

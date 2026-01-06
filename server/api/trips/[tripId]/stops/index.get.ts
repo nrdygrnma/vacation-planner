@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
   return prisma.tripStop.findMany({
     where: { tripId },
-    orderBy: [{ order: "asc" }, { startDate: "asc" }, { type: "asc" }],
+    orderBy: [{ startDate: "asc" }, { type: "asc" }, { order: "asc" }],
     include: {
       accommodations: {
         include: {

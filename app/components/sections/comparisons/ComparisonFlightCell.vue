@@ -21,6 +21,20 @@
       >
         {{ airlineName }}
       </div>
+      <UPopover v-if="flight.notes" mode="hover">
+        <UIcon
+          :class="[
+            'size-3.5 cursor-help shrink-0',
+            isCurrent ? 'text-primary-500' : 'text-gray-400',
+          ]"
+          name="i-lucide-info"
+        />
+        <template #content>
+          <div class="p-2 text-xs max-w-xs whitespace-pre-wrap italic">
+            {{ flight.notes }}
+          </div>
+        </template>
+      </UPopover>
     </div>
     <div class="ml-10 space-y-1">
       <div
@@ -53,8 +67,8 @@
           <span v-if="flight.stopOverDurationMinutes">
             ({{ formattedStopover }})
           </span>
-          <div v-if="flight.stopOverAirports?.length" class="text-[9px]">
-            via {{ flight.stopOverAirports.join(", ") }}
+          <div v-if="safeStopOverAirports.length" class="text-[9px]">
+            via {{ safeStopOverAirports.join(", ") }}
           </div>
         </div>
         <div v-else class="text-green-600 mt-0.5">Non-stop</div>
@@ -105,6 +119,25 @@ const formattedDuration = computed(() => formatMin(props.flight?.durationMin));
 const formattedStopover = computed(() =>
   formatMin(props.flight?.stopOverDurationMinutes),
 );
+
+const safeStopOverAirports = computed(() => {
+  const val = props.flight?.stopOverAirports;
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  if (typeof val === "string") {
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed : [val];
+    } catch {
+      // If it's not JSON, might be a comma-separated string or just a single airport name
+      return val
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+  }
+  return [];
+});
 
 const formatMin = (m: number | undefined | null) => {
   if (m === undefined || m === null || m <= 0) return "";

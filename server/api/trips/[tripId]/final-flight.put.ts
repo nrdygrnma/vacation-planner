@@ -56,6 +56,35 @@ export default defineEventHandler(async (event) => {
         },
       },
     });
+
+    if (updated.selectedFlight) {
+      const f = updated.selectedFlight;
+      (updated as any).selectedFlight = {
+        ...f,
+        stopOverAirports: (() => {
+          try {
+            return f.stopOverAirports ? JSON.parse(f.stopOverAirports) : null;
+          } catch {
+            return null;
+          }
+        })(),
+        segments: (() => {
+          try {
+            return f.segments ? JSON.parse(f.segments) : null;
+          } catch {
+            return null;
+          }
+        })(),
+        extras: (() => {
+          try {
+            return f.extras ? JSON.parse(f.extras) : null;
+          } catch {
+            return null;
+          }
+        })(),
+      };
+    }
+
     return updated;
   } catch (e: any) {
     throw createError({

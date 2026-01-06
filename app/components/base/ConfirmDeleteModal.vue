@@ -3,10 +3,10 @@
     v-model:open="internalOpen"
     :description="description"
     :title="title"
-    :ui="{ body: 'sm:max-w-md' }"
+    :ui="{ body: 'sm:max-w-md', footer: 'justify-end' }"
   >
     <template #footer>
-      <div class="flex items-center justify-end gap-2">
+      <div class="w-full flex items-center justify-end gap-2">
         <UButton
           :disabled="loading"
           :label="cancelLabel"

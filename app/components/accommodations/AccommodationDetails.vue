@@ -1,43 +1,3 @@
-<script lang="ts" setup>
-import type { AccommodationOption } from "~/types/tripTypes";
-
-defineProps<{
-  accommodation: AccommodationOption;
-  dateRange: string;
-  nights: number;
-}>();
-
-const getDisplayPrice = (acc: AccommodationOption, nightsCount: number) => {
-  if (acc.totalPrice) return { value: acc.totalPrice, label: "total" };
-  if (acc.nightlyRate) {
-    const total = Number(acc.nightlyRate) * (nightsCount || 0);
-    return { value: total, label: "total est." };
-  }
-  return { value: 0, label: "total" };
-};
-
-const getSecondaryPrice = (acc: AccommodationOption, nightsCount: number) => {
-  if (acc.totalPrice && nightsCount > 0) {
-    return { value: Number(acc.totalPrice) / nightsCount, label: "/ night" };
-  }
-  if (acc.nightlyRate) {
-    return { value: acc.nightlyRate, label: "/ night" };
-  }
-  return null;
-};
-
-const formatCurrency = (
-  amount: number | string | null | undefined,
-  acc: AccommodationOption,
-) => {
-  const value = Number(amount) || 0;
-  if (acc.currency?.symbol) {
-    return `${acc.currency.symbol}${value.toFixed(2)}`;
-  }
-  return `€${value.toFixed(2)}`;
-};
-</script>
-
 <template>
   <div
     class="overflow-hidden rounded-lg bg-white shadow-xl ring-1 ring-gray-200 w-72"
@@ -91,29 +51,17 @@ const formatCurrency = (
           </span>
           <div class="space-y-0.5">
             <p class="text-sm font-bold text-gray-700 leading-none">
-              {{
-                formatCurrency(
-                  getDisplayPrice(accommodation, nights).value,
-                  accommodation,
-                )
-              }}
+              {{ formatCurrency(displayPrice.value, accommodation) }}
             </p>
             <p
               class="text-[10px] text-gray-500 font-medium flex items-center gap-1"
             >
               <span class="uppercase tracking-tighter">{{
-                getDisplayPrice(accommodation, nights).label
+                displayPrice.label
               }}</span>
-              <span
-                v-if="getSecondaryPrice(accommodation, nights)"
-                class="italic opacity-70"
-              >
-                ({{
-                  formatCurrency(
-                    getSecondaryPrice(accommodation, nights).value,
-                    accommodation,
-                  )
-                }}{{ getSecondaryPrice(accommodation, nights).label }})
+              <span v-if="secondaryPrice" class="italic opacity-70">
+                ({{ formatCurrency(secondaryPrice.value, accommodation)
+                }}{{ secondaryPrice.label }})
               </span>
             </p>
           </div>
@@ -154,3 +102,51 @@ const formatCurrency = (
     </div>
   </div>
 </template>
+
+<script lang="ts" setup>
+import { computed } from "vue";
+import type { AccommodationOption } from "~/types/tripTypes";
+
+const props = defineProps<{
+  accommodation: AccommodationOption;
+  dateRange: string;
+  nights: number;
+}>();
+
+const displayPrice = computed(() =>
+  getDisplayPrice(props.accommodation, props.nights),
+);
+const secondaryPrice = computed(() =>
+  getSecondaryPrice(props.accommodation, props.nights),
+);
+
+const getDisplayPrice = (acc: AccommodationOption, nightsCount: number) => {
+  if (acc.totalPrice) return { value: acc.totalPrice, label: "total" };
+  if (acc.nightlyRate) {
+    const total = Number(acc.nightlyRate) * (nightsCount || 0);
+    return { value: total, label: "total est." };
+  }
+  return { value: 0, label: "total" };
+};
+
+const getSecondaryPrice = (acc: AccommodationOption, nightsCount: number) => {
+  if (acc.totalPrice && nightsCount > 0) {
+    return { value: Number(acc.totalPrice) / nightsCount, label: "/ night" };
+  }
+  if (acc.nightlyRate) {
+    return { value: acc.nightlyRate, label: "/ night" };
+  }
+  return null;
+};
+
+const formatCurrency = (
+  amount: number | string | null | undefined,
+  acc: AccommodationOption,
+) => {
+  const value = Number(amount) || 0;
+  if (acc.currency?.symbol) {
+    return `${acc.currency.symbol}${value.toFixed(2)}`;
+  }
+  return `€${value.toFixed(2)}`;
+};
+</script>

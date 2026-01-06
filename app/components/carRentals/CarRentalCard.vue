@@ -35,6 +35,20 @@
             >
               {{ rental.provider || "Unknown Provider" }}
             </span>
+            <UTooltip
+              v-if="(people || 0) > 1"
+              :text="
+                splitCost
+                  ? 'Shared cost (split per person)'
+                  : 'Individual cost (full price per person)'
+              "
+            >
+              <UIcon
+                :class="splitCost ? 'text-primary-500' : 'text-orange-500'"
+                :name="splitCost ? 'i-lucide-users' : 'i-lucide-user'"
+                class="size-3.5"
+              />
+            </UTooltip>
             <span class="text-muted shrink-0 text-xs">·</span>
             <span class="truncate text-gray-500 text-xs">{{
               rental.carType?.name || "Car"
@@ -68,12 +82,20 @@
         <div
           class="text-xs text-gray-500 pt-1 flex items-center flex-wrap gap-x-3 gap-y-1"
         >
-          <span
-            v-if="totalPriceDisplay"
-            class="font-bold text-gray-900 text-sm"
-          >
-            {{ totalPriceDisplay }}
-          </span>
+          <div class="flex items-center gap-1.5">
+            <span
+              v-if="totalPriceDisplay"
+              class="font-bold text-gray-900 text-sm"
+            >
+              {{ totalPriceDisplay }}
+            </span>
+            <span
+              v-if="totalPriceInTripCurrencyDisplay"
+              class="text-gray-500 text-[11px]"
+            >
+              ({{ totalPriceInTripCurrencyDisplay }})
+            </span>
+          </div>
           <div class="flex items-center gap-1">
             <UPopover mode="hover">
               <UButton
@@ -304,12 +326,18 @@
 
 <script lang="ts" setup>
 import BaseItemCard from "~/components/base/BaseItemCard.vue";
-import type { CarRentalOption } from "~/types/tripTypes";
+import type { CarRentalOption, Currency } from "~/types/tripTypes";
+import { useCurrencyUtils } from "~/composables/useCurrencyUtils";
 
 const props = defineProps<{
   rental: CarRentalOption;
   selected?: boolean;
+  tripCurrency?: Currency;
+  people?: number;
+  splitCost?: boolean;
 }>();
+
+const { convertToEUR } = useCurrencyUtils();
 
 defineEmits<{
   (e: "edit"): void;
@@ -332,12 +360,6 @@ const formatCurrency = (val: number | string | undefined | null) => {
 };
 
 const totalPriceDisplay = computed(() => {
-  // Logic should match server-side total calculation if possible, or just display stored total
-  if (props.rental.totalCostEUR) {
-    // If we have totalCostEUR, we might want to show it in user's currency if available
-    // For now, let's calculate from components for consistency with FlightCard
-  }
-
   const base = Number(props.rental.baseRate) || 0;
   const fees = Number(props.rental.fees) || 0;
 
@@ -355,5 +377,36 @@ const totalPriceDisplay = computed(() => {
 
   if (total <= 0) return "";
   return formatCurrency(total);
+});
+
+const totalPriceInTripCurrencyDisplay = computed(() => {
+  if (!props.tripCurrency || props.tripCurrency.id === props.rental.currencyId)
+    return "";
+
+  const base = Number(props.rental.baseRate) || 0;
+  const fees = Number(props.rental.fees) || 0;
+
+  const start = new Date(props.rental.pickupDate);
+  const end = new Date(
+    props.rental.dropoffDate || (props.rental as any).dropoffDate,
+  );
+  const diffDays = Math.max(
+    1,
+    Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)),
+  );
+
+  const insurance = (Number(props.rental.insurancePerDay) || 0) * diffDays;
+  const total = base + fees + insurance;
+
+  if (total <= 0) return "";
+
+  // Convert rental total to EUR first
+  const totalEUR = convertToEUR(total, props.rental.currencyId);
+
+  // Then convert EUR to trip currency
+  const rateToEUR = Number(props.tripCurrency.rateToEUR) || 1;
+  const totalInTripCurrency = totalEUR / rateToEUR;
+
+  return `${props.tripCurrency.symbol}${totalInTripCurrency.toFixed(2)}`;
 });
 </script>

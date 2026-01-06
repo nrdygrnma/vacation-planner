@@ -1,6 +1,6 @@
 import type { Trip } from "@/types/tripTypes";
 
-export function useTrip(tripId: string) {
+export const useTrip = (tripId: string) => {
   const { data, refresh, pending, error } = useFetch<Trip>(
     () => `/api/trips/${tripId}`,
     {

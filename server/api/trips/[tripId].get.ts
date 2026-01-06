@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
       },
       carRentals: true,
       tripStops: {
-        orderBy: [{ order: "asc" }, { startDate: "asc" }, { type: "asc" }],
+        orderBy: [{ startDate: "asc" }, { type: "asc" }, { order: "asc" }],
         include: {
           accommodations: {
             include: {
@@ -44,6 +44,43 @@ export default defineEventHandler(async (event) => {
 
   if (!trip) {
     throw createError({ statusCode: 404, statusMessage: "Trip not found" });
+  }
+
+  // Parse JSON fields for flights
+  const parseFlight = (f: any) => {
+    if (!f) return f;
+    return {
+      ...f,
+      stopOverAirports: (() => {
+        try {
+          return f.stopOverAirports ? JSON.parse(f.stopOverAirports) : null;
+        } catch {
+          return null;
+        }
+      })(),
+      segments: (() => {
+        try {
+          return f.segments ? JSON.parse(f.segments) : null;
+        } catch {
+          return null;
+        }
+      })(),
+      extras: (() => {
+        try {
+          return f.extras ? JSON.parse(f.extras) : null;
+        } catch {
+          return null;
+        }
+      })(),
+    };
+  };
+
+  if (trip.selectedFlight) {
+    (trip as any).selectedFlight = parseFlight(trip.selectedFlight);
+  }
+
+  if (trip.flights) {
+    (trip as any).flights = trip.flights.map(parseFlight);
   }
 
   return trip;

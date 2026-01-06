@@ -23,7 +23,7 @@ export const useTripsStore = defineStore("trips", () => {
   // ------------------------
   // Actions
   // ------------------------
-  async function fetchTrips() {
+  const fetchTrips = async () => {
     try {
       pending.value = true;
       error.value = null;
@@ -34,18 +34,18 @@ export const useTripsStore = defineStore("trips", () => {
     } finally {
       pending.value = false;
     }
-  }
+  };
 
-  async function createTrip(body: Partial<Trip>) {
+  const createTrip = async (body: Partial<Trip>) => {
     const created = await $fetch<Trip>("/api/trips", {
       method: "POST",
       body,
     });
     items.value.unshift(created);
     return created;
-  }
+  };
 
-  async function updateTrip(id: string, body: Partial<Trip>) {
+  const updateTrip = async (id: string, body: Partial<Trip>) => {
     const updated = await $fetch<Trip>(`/api/trips/${id}`, {
       method: "PUT",
       body,
@@ -57,15 +57,15 @@ export const useTripsStore = defineStore("trips", () => {
     }
 
     return updated;
-  }
+  };
 
-  async function deleteTrip(id: string) {
+  const deleteTrip = async (id: string) => {
     await $fetch(`/api/trips/${id}`, {
       method: "DELETE",
     });
 
     items.value = items.value.filter((t) => t.id !== id);
-  }
+  };
 
   return {
     items,

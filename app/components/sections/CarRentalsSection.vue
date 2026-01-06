@@ -38,8 +38,11 @@
       <CarRentalCard
         v-for="r in rentals"
         :key="r.id"
+        :people="trip.people"
         :rental="r"
         :selected="trip.selectedCarRentalId === r.id"
+        :split-cost="trip.splitCarRentalCost"
+        :trip-currency="trip.currency"
         @delete="onDelete(r)"
         @edit="onEdit(r)"
         @select="onSelect(r)"

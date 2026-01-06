@@ -10,36 +10,46 @@
       >
         <img :src="rental.imageUrl" class="size-full object-cover" />
       </div>
-      <div
-        :class="[
-          'font-medium truncate',
-          isCurrent ? 'text-gray-900' : 'text-gray-700',
-        ]"
-      >
-        {{ rental.provider }}
-      </div>
-      <UPopover v-if="rental.notes" mode="hover">
-        <UIcon
-          :class="[
-            'size-3.5 cursor-help shrink-0',
-            isCurrent ? 'text-primary-500' : 'text-gray-400',
-          ]"
-          name="i-lucide-info"
-        />
-        <template #content>
-          <div class="p-2 text-xs max-w-xs whitespace-pre-wrap italic">
-            {{ rental.notes }}
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <div
+            :class="[
+              'font-medium truncate',
+              isCurrent ? 'text-gray-900' : 'text-gray-700',
+            ]"
+          >
+            {{ rental.provider }}
           </div>
-        </template>
-      </UPopover>
-    </div>
-    <div
-      :class="[
-        'text-[11px] font-bold ml-10',
-        isCurrent ? 'text-primary-600' : 'text-gray-500',
-      ]"
-    >
-      {{ formatEUR(price) }}
+          <UPopover v-if="rental.notes" mode="hover">
+            <UIcon
+              :class="[
+                'size-3.5 cursor-help shrink-0',
+                isCurrent ? 'text-primary-500' : 'text-gray-400',
+              ]"
+              name="i-lucide-info"
+            />
+            <template #content>
+              <div class="p-2 text-xs max-w-xs whitespace-pre-wrap italic">
+                {{ rental.notes }}
+              </div>
+            </template>
+          </UPopover>
+        </div>
+        <div
+          v-if="rental.carType?.name"
+          class="text-[9px] text-gray-400 font-bold uppercase tracking-tight"
+        >
+          {{ rental.carType.name }}
+        </div>
+        <div
+          :class="[
+            'text-[11px] font-bold mt-0.5',
+            isCurrent ? 'text-primary-600' : 'text-gray-500',
+          ]"
+        >
+          {{ formatEUR(price) }}
+        </div>
+      </div>
     </div>
   </div>
   <div v-else class="text-gray-400 italic text-xs">—</div>

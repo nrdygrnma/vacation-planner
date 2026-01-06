@@ -52,7 +52,10 @@
             isCurrent ? 'text-primary-600' : 'text-gray-500',
           ]"
         >
-          {{ formatEUR(price) }}
+          <span>{{ formatEUR(price) }}</span>
+          <span v-if="tripCurrencyPrice" class="ml-1 text-[10px] opacity-80">
+            ({{ tripCurrencyPrice }})
+          </span>
         </div>
       </div>
     </div>
@@ -68,14 +71,26 @@
 </template>
 
 <script lang="ts" setup>
+import type { Currency } from "~/types/tripTypes";
 import { useCurrencyUtils } from "@/composables/useCurrencyUtils";
 
-defineProps<{
+const props = defineProps<{
   accommodation: any;
   price: number;
   isCurrent?: boolean;
   isHub?: boolean;
+  tripCurrency?: Currency;
 }>();
 
 const { formatEUR } = useCurrencyUtils();
+
+const tripCurrencyPrice = computed(() => {
+  if (!props.tripCurrency || !props.price) return null;
+  if (props.tripCurrency.symbol === "€") return null;
+
+  const rateToEUR = Number(props.tripCurrency.rateToEUR) || 1;
+  const totalInTripCurrency = props.price / rateToEUR;
+
+  return `${props.tripCurrency.symbol}${totalInTripCurrency.toFixed(2)}`;
+});
 </script>

@@ -36,6 +36,20 @@
             >
               {{ airline }}
             </span>
+            <UTooltip
+              v-if="(people || 0) > 1"
+              :text="
+                splitCost
+                  ? 'Shared cost (split per person)'
+                  : 'Individual cost (full price per person)'
+              "
+            >
+              <UIcon
+                :class="splitCost ? 'text-primary-500' : 'text-orange-500'"
+                :name="splitCost ? 'i-lucide-users' : 'i-lucide-user'"
+                class="size-3.5"
+              />
+            </UTooltip>
             <span class="text-muted shrink-0 text-xs">·</span>
             <span class="truncate text-gray-500 text-xs"
               >{{ fromLabel }} → {{ toLabel }}</span
@@ -93,6 +107,11 @@
         <div
           class="text-xs text-gray-500 pt-1 flex items-center flex-wrap gap-x-3 gap-y-1"
         >
+          <div class="flex items-center gap-1.5">
+            <UIcon class="size-3 text-gray-400" name="i-lucide-armchair" />
+            <span>{{ travelClassLabel }}</span>
+          </div>
+
           <div class="flex items-center gap-1.5">
             <UIcon class="size-3 text-gray-400" name="i-lucide-list" />
             <span v-if="stops !== undefined">Stops: {{ stops }}</span>
@@ -339,6 +358,8 @@ import type { FlightOption } from "~/types/tripTypes";
 const props = defineProps<{
   flight: FlightOption;
   selected?: boolean;
+  people?: number;
+  splitCost?: boolean;
 }>();
 
 const showDetails = ref(false);

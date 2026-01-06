@@ -19,6 +19,9 @@ export default defineEventHandler(async (event) => {
     endLocationName?: string | null;
     endLat?: number | null;
     endLng?: number | null;
+    splitFlightCost?: boolean;
+    splitCarRentalCost?: boolean;
+    splitAccommodationCost?: boolean;
   }>(event);
 
   const data: any = {};
@@ -33,6 +36,12 @@ export default defineEventHandler(async (event) => {
     data.endLocationName = body.endLocationName;
   if (body.endLat !== undefined) data.endLat = body.endLat;
   if (body.endLng !== undefined) data.endLng = body.endLng;
+  if (body.splitFlightCost !== undefined)
+    data.splitFlightCost = body.splitFlightCost;
+  if (body.splitCarRentalCost !== undefined)
+    data.splitCarRentalCost = body.splitCarRentalCost;
+  if (body.splitAccommodationCost !== undefined)
+    data.splitAccommodationCost = body.splitAccommodationCost;
 
   if (body.startDate !== undefined) {
     data.startDate = body.startDate ? new Date(body.startDate) : null;

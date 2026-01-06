@@ -49,6 +49,9 @@ export default defineEventHandler(async (event) => {
       endLocationName: body.endLocationName ?? null,
       endLat: body.endLat ?? null,
       endLng: body.endLng ?? null,
+      splitFlightCost: body.splitFlightCost ?? false,
+      splitCarRentalCost: body.splitCarRentalCost ?? true,
+      splitAccommodationCost: body.splitAccommodationCost ?? true,
     },
   });
 });

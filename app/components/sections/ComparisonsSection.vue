@@ -8,18 +8,26 @@
       <div class="flex items-center gap-2">
         <UButton
           v-if="snapshots?.length"
-          color="neutral"
+          color="info"
           icon="i-lucide-brain-circuit"
           label="Analyze"
           size="sm"
-          variant="outline"
+          variant="solid"
           @click="showReasoning = true"
+        />
+        <UButton
+          color="neutral"
+          icon="i-lucide-share"
+          label="Export Selection"
+          size="sm"
+          variant="outline"
+          @click="exportSelectionToPDF"
         />
         <UButton
           v-if="snapshots?.length"
           color="neutral"
           icon="i-lucide-file-text"
-          label="Export PDF"
+          label="Export Comparison"
           size="sm"
           variant="outline"
           @click="exportToPDF"
@@ -80,7 +88,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Trip } from "@/types/tripTypes";
+import type { AccommodationOption, Trip } from "@/types/tripTypes";
 import { useCurrencyUtils } from "@/composables/useCurrencyUtils";
 import { useTripStopsStore } from "~/stores/tripStops";
 import { toast } from "vue-sonner";
@@ -112,6 +120,314 @@ const isDeleteOpen = ref(false);
 const deleting = ref(false);
 const snapshotToDeleteId = ref<string | null>(null);
 
+const exportSelectionToPDF = async () => {
+  const doc = new jsPDF("p", "mm", "a4");
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 14;
+  const contentWidth = pageWidth - margin * 2;
+
+  const addHeader = (doc: any, title: string) => {
+    doc.setFontSize(18);
+    doc.setTextColor(51, 122, 183);
+    doc.setFont("helvetica", "bold");
+    doc.text(title, margin, 15);
+    doc.setDrawColor(51, 122, 183);
+    doc.setLineWidth(0.5);
+    doc.line(margin, 18, pageWidth - margin, 18);
+  };
+
+  const addFooter = (doc: any) => {
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        `Generated on ${new Date().toLocaleString()} - Page ${i} of ${pageCount}`,
+        margin,
+        pageHeight - 10,
+      );
+    }
+  };
+
+  const addImageToDoc = async (
+    url: string,
+    x: number,
+    y: number,
+    maxW = 60,
+    maxH = 40,
+  ) => {
+    try {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = url;
+      });
+
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(img, 0, 0);
+      const dataUrl = canvas.toDataURL("image/jpeg");
+
+      const ratio = img.width / img.height;
+      let imgWidth = maxW;
+      let imgHeight = imgWidth / ratio;
+
+      if (imgHeight > maxH) {
+        imgHeight = maxH;
+        imgWidth = imgHeight * ratio;
+      }
+
+      doc.addImage(dataUrl, "JPEG", x, y, imgWidth, imgHeight);
+      return imgHeight;
+    } catch (e) {
+      console.error("Failed to load image for PDF", e);
+      return 0;
+    }
+  };
+
+  addHeader(doc, props.trip.title);
+  let currentY = 25;
+
+  // 1. Flight
+  if (props.trip.selectedFlight) {
+    const f = props.trip.selectedFlight;
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    doc.setFont("helvetica", "bold");
+    doc.text("Transportation: Flight", margin, currentY);
+    currentY += 7;
+
+    const airline = f.airline?.name || f.airline || "Flight";
+    const from =
+      f.fromAirport?.symbol || f.fromAirport?.name || f.fromAirport || "—";
+    const to = f.toAirport?.symbol || f.toAirport?.name || f.toAirport || "—";
+    const stops = f.stops === 0 ? "Non-stop" : `${f.stops} stop(s)`;
+    const price = formatEUR(
+      getFlightPrice(props.trip.selectedFlightId || null),
+    );
+    const depDate = f.departureDate
+      ? new Date(f.departureDate).toLocaleString()
+      : "—";
+    const arrDate = f.arrivalDate
+      ? new Date(f.arrivalDate).toLocaleString()
+      : "—";
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${airline}: ${from} -> ${to}`, margin, currentY);
+    currentY += 5;
+    doc.text(`Departure: ${depDate}`, margin, currentY);
+    currentY += 5;
+    doc.text(`Arrival: ${arrDate} (${stops})`, margin, currentY);
+    currentY += 5;
+    doc.text(
+      `Price: ${price}${props.trip.people > 1 ? (props.trip.splitFlightCost ? " (Shared)" : " (Individual)") : ""}`,
+      margin,
+      currentY,
+    );
+    currentY += 12;
+  }
+
+  // 2. Car Rental
+  if (props.trip.selectedCarRental) {
+    const r = props.trip.selectedCarRental;
+    if (currentY > 220) {
+      doc.addPage();
+      addHeader(doc, props.trip.title);
+      currentY = 25;
+    }
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Transportation: Car Rental", margin, currentY);
+    currentY += 7;
+
+    const imageColWidth = 65;
+    const detailsX = margin + imageColWidth;
+    let imageH = 0;
+
+    if (r.imageUrl) {
+      imageH = await addImageToDoc(r.imageUrl, margin, currentY, 60, 40);
+    }
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text(r.provider, detailsX, currentY + 4);
+    doc.setFont("helvetica", "normal");
+    doc.text(r.carType?.name || "Car", detailsX, currentY + 9);
+
+    const pickDate = r.pickupDate
+      ? new Date(r.pickupDate).toLocaleString()
+      : "—";
+    const dropDate = r.dropoffDate
+      ? new Date(r.dropoffDate).toLocaleString()
+      : "—";
+
+    doc.text(
+      `Pick-up: ${pickDate} (${r.pickupLocation})`,
+      detailsX,
+      currentY + 14,
+    );
+    doc.text(
+      `Drop-off: ${dropDate} (${r.dropoffLocation})`,
+      detailsX,
+      currentY + 19,
+    );
+
+    const price = formatEUR(
+      getCarPrice(props.trip.selectedCarRentalId || null),
+    );
+    doc.text(
+      `Price: ${price}${props.trip.people > 1 ? (props.trip.splitCarRentalCost ? " (Shared)" : " (Individual)") : ""}`,
+      detailsX,
+      currentY + 24,
+    );
+
+    if (r.notes) {
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      const notesLines = doc.splitTextToSize(
+        r.notes,
+        contentWidth - imageColWidth,
+      );
+      doc.text(notesLines, detailsX, currentY + 29);
+    }
+
+    currentY += Math.max(imageH, r.notes ? 35 : 25) + 10;
+    doc.setTextColor(0);
+  }
+
+  // 3. Stays
+  if (currentY > 240) {
+    doc.addPage();
+    addHeader(doc, props.trip.title);
+    currentY = 25;
+  }
+
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Itinerary & Stays", margin, currentY);
+  currentY += 10;
+
+  for (const stop of tripStops.value) {
+    if (currentY > 230) {
+      doc.addPage();
+      addHeader(doc, props.trip.title);
+      currentY = 25;
+    }
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(51, 122, 183);
+    doc.text(stop.name, margin, currentY);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    const stopDates = `${new Date(stop.startDate).toLocaleDateString()} - ${new Date(stop.endDate).toLocaleDateString()}`;
+    doc.text(stopDates, pageWidth - margin, currentY, { align: "right" });
+    currentY += 6;
+    doc.setTextColor(0);
+
+    const acc = stop.selectedAccommodation;
+    if (acc) {
+      const imageColWidth = 65;
+      const detailsX = margin + imageColWidth;
+      let imageH = 0;
+
+      if (acc.images?.[0]?.url) {
+        imageH = await addImageToDoc(
+          acc.images[0].url,
+          margin,
+          currentY,
+          60,
+          40,
+        );
+      }
+
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text(acc.name, detailsX, currentY + 4);
+      doc.setFont("helvetica", "normal");
+      doc.text(acc.roomType?.name || "Standard", detailsX, currentY + 9);
+
+      const price = formatEUR(
+        getAccommodationPrice(
+          { stopSelections: { [stop.id]: stop.selectedAccommodationId } },
+          stop.id,
+        ),
+      );
+      doc.text(
+        `Price: ${price}${props.trip.people > 1 ? (props.trip.splitAccommodationCost ? " (Shared)" : " (Individual)") : ""}`,
+        detailsX,
+        currentY + 14,
+      );
+
+      if (acc.notes) {
+        doc.setFontSize(9);
+        doc.setTextColor(100);
+        const notesLines = doc.splitTextToSize(
+          acc.notes,
+          contentWidth - imageColWidth,
+        );
+        doc.text(notesLines, detailsX, currentY + 19);
+      }
+      currentY += Math.max(imageH, acc.notes ? 30 : 20) + 10;
+    } else {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150);
+      doc.text(
+        stop.type === "HUB" ? "Transit Point" : "No accommodation selected",
+        margin,
+        currentY,
+      );
+      currentY += 10;
+    }
+    doc.setTextColor(0);
+  }
+
+  // Summary
+  if (currentY > 240) {
+    doc.addPage();
+    addHeader(doc, props.trip.title);
+    currentY = 25;
+  }
+  doc.setDrawColor(200);
+  doc.setLineWidth(0.1);
+  doc.line(margin, currentY, pageWidth - margin, currentY);
+  currentY += 10;
+
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Financial Summary", margin, currentY);
+  currentY += 8;
+
+  const totalPerPerson = calculateCurrentTotal();
+  doc.setFontSize(12);
+  doc.text(`Total Per Person: ${formatEUR(totalPerPerson)}`, margin, currentY);
+  currentY += 6;
+
+  if (props.trip.people > 1) {
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100);
+    doc.text(
+      `Grand Total (${props.trip.people} travelers): ${formatEUR(totalPerPerson * props.trip.people)}`,
+      margin,
+      currentY,
+    );
+  }
+
+  addFooter(doc);
+  doc.save(`Trip_Selection_${props.trip.title.replace(/\s+/g, "_")}.pdf`);
+  toast.success("Current selection exported successfully");
+};
+
 const exportToPDF = () => {
   const doc = new jsPDF("landscape");
   const title = `Trip Comparison: ${props.trip.title}`;
@@ -139,34 +455,81 @@ const exportToPDF = () => {
   ]);
 
   // Flight Row
-  const flightRow = ["Flight"];
-  flightRow.push(
-    props.trip.selectedFlight
-      ? `${props.trip.selectedFlight.airline?.name || props.trip.selectedFlight.airline} (${formatEUR(getFlightPrice(props.trip.selectedFlightId || null))})`
-      : "—",
-  );
+  const flightSplitLabel =
+    props.trip.people > 1
+      ? props.trip.splitFlightCost
+        ? "\n(Shared)"
+        : "\n(Individual)"
+      : "";
+  const flightRow = [`Flight${flightSplitLabel}`];
+  if (props.trip.selectedFlight) {
+    const f = props.trip.selectedFlight;
+    const airline = f.airline?.name || f.airline || "Flight";
+    const from =
+      f.fromAirport?.symbol || f.fromAirport?.name || f.fromAirport || "—";
+    const to = f.toAirport?.symbol || f.toAirport?.name || f.toAirport || "—";
+    const price = formatEUR(
+      getFlightPrice(props.trip.selectedFlightId || null),
+    );
+    const stops = f.stops === 0 ? "Non-stop" : `${f.stops} stop(s)`;
+    flightRow.push(`${airline}\n${from} -> ${to}\n${stops}\n${price}`);
+  } else {
+    flightRow.push("—");
+  }
+
   snapshots.value?.forEach((s) => {
     const flight = allFlights.value?.find((f) => f.id === s.flightId);
-    flightRow.push(
-      flight
-        ? `${flight.airline?.name || flight.airline} (${formatEUR(getFlightPrice(s.flightId))})`
-        : "—",
-    );
+    if (flight) {
+      const airline = flight.airline?.name || flight.airline || "Flight";
+      const from =
+        flight.fromAirport?.symbol ||
+        flight.fromAirport?.name ||
+        flight.fromAirport ||
+        "—";
+      const to =
+        flight.toAirport?.symbol ||
+        flight.toAirport?.name ||
+        flight.toAirport ||
+        "—";
+      const price = formatEUR(getFlightPrice(s.flightId));
+      const stops = flight.stops === 0 ? "Non-stop" : `${flight.stops} stop(s)`;
+      flightRow.push(`${airline}\n${from} -> ${to}\n${stops}\n${price}`);
+    } else {
+      flightRow.push("—");
+    }
   });
   rows.push(flightRow);
 
   // Car Rental Row
-  const carRow = ["Car Rental"];
-  carRow.push(
-    props.trip.selectedCarRental
-      ? `${props.trip.selectedCarRental.provider} (${formatEUR(getCarPrice(props.trip.selectedCarRentalId || null))})`
-      : "—",
-  );
+  const carSplitLabel =
+    props.trip.people > 1
+      ? props.trip.splitCarRentalCost
+        ? "\n(Shared)"
+        : "\n(Individual)"
+      : "";
+  const carRow = [`Car Rental${carSplitLabel}`];
+  if (props.trip.selectedCarRental) {
+    const r = props.trip.selectedCarRental;
+    const price = formatEUR(
+      getCarPrice(props.trip.selectedCarRentalId || null),
+    );
+    carRow.push(
+      `${r.provider}\n${price}${r.notes ? `\nNote: ${r.notes}` : ""}`,
+    );
+  } else {
+    carRow.push("—");
+  }
+
   snapshots.value?.forEach((s) => {
     const car = allCars.value?.find((c) => c.id === s.carRentalId);
-    carRow.push(
-      car ? `${car.provider} (${formatEUR(getCarPrice(s.carRentalId))})` : "—",
-    );
+    if (car) {
+      const price = formatEUR(getCarPrice(s.carRentalId));
+      carRow.push(
+        `${car.provider}\n${price}${car.notes ? `\nNote: ${car.notes}` : ""}`,
+      );
+    } else {
+      carRow.push("—");
+    }
   });
   rows.push(carRow);
 
@@ -179,18 +542,34 @@ const exportToPDF = () => {
     },
   ]);
 
+  const staySplitLabel =
+    props.trip.people > 1
+      ? props.trip.splitAccommodationCost
+        ? "\n(Shared)"
+        : "\n(Individual)"
+      : "";
+
   tripStops.value.forEach((stop) => {
-    const stopRow = [stop.name];
+    const stopRow = [
+      `${stop.name}${stop.type !== "HUB" ? staySplitLabel : ""}`,
+    ];
 
     // Current
     const currentAcc = stop.selectedAccommodation;
-    stopRow.push(
-      currentAcc
-        ? `${currentAcc.name} (${formatEUR(getAccommodationPrice({ stopSelections: { [stop.id]: stop.selectedAccommodationId } }, stop.id))})`
-        : stop.type === "HUB"
-          ? "Transit Point"
-          : "—",
-    );
+    if (currentAcc) {
+      const roomType = currentAcc.roomType?.name || "";
+      const price = formatEUR(
+        getAccommodationPrice(
+          { stopSelections: { [stop.id]: stop.selectedAccommodationId } },
+          stop.id,
+        ),
+      );
+      stopRow.push(
+        `${currentAcc.name}${roomType ? `\n${roomType}` : ""}\n${price}${currentAcc.notes ? `\nNote: ${currentAcc.notes}` : ""}`,
+      );
+    } else {
+      stopRow.push(stop.type === "HUB" ? "Transit Point" : "—");
+    }
 
     // Snapshots
     snapshots.value?.forEach((s) => {
@@ -200,14 +579,18 @@ const exportToPDF = () => {
           : s.stopSelections;
       const accId = selections[stop.id];
       const stopData = allStops.value?.find((as) => as.id === stop.id);
-      const acc = stopData?.accommodations?.find((a) => a.id === accId);
-      stopRow.push(
-        acc
-          ? `${acc.name} (${formatEUR(getAccommodationPrice(s, stop.id))})`
-          : stop.type === "HUB"
-            ? "Transit Point"
-            : "—",
+      const acc = stopData?.accommodations?.find(
+        (a: AccommodationOption) => a.id === accId,
       );
+      if (acc) {
+        const roomType = acc.roomType?.name || "";
+        const price = formatEUR(getAccommodationPrice(s, stop.id));
+        stopRow.push(
+          `${acc.name}${roomType ? `\n${roomType}` : ""}\n${price}${acc.notes ? `\nNote: ${acc.notes}` : ""}`,
+        );
+      } else {
+        stopRow.push(stop.type === "HUB" ? "Transit Point" : "—");
+      }
     });
     rows.push(stopRow);
   });
@@ -355,7 +738,8 @@ const getFlightPrice = (flightId: string | null) => {
   if (!flightId) return 0;
   const f = allFlights.value?.find((f: any) => f.id === flightId);
   if (!f) return 0;
-  return convertToEUR(calculateFlightTotal(f), f.currencyId);
+  const total = convertToEUR(calculateFlightTotal(f), f.currencyId);
+  return props.trip.splitFlightCost ? total / (props.trip.people || 1) : total;
 };
 
 const calculateCarTotal = (car: any) => {
@@ -378,9 +762,10 @@ const getCarPrice = (carId: string | null) => {
   if (!carId) return 0;
   const c = allCars.value?.find((c: any) => c.id === carId);
   if (!c) return 0;
-  return (
-    convertToEUR(calculateCarTotal(c), c.currencyId) / (props.trip.people || 1)
-  );
+  const total = convertToEUR(calculateCarTotal(c), c.currencyId);
+  return props.trip.splitCarRentalCost
+    ? total / (props.trip.people || 1)
+    : total;
 };
 
 const getAccommodationPrice = (snapshot: any, stopId: string) => {
@@ -407,7 +792,10 @@ const getAccommodationPrice = (snapshot: any, stopId: string) => {
       total = Number(acc.nightlyRate) * nights;
     }
 
-    return convertToEUR(total, acc.currencyId) / (props.trip.people || 1);
+    const totalEUR = convertToEUR(total, acc.currencyId);
+    return props.trip.splitAccommodationCost
+      ? totalEUR / (props.trip.people || 1)
+      : totalEUR;
   } catch {
     return 0;
   }

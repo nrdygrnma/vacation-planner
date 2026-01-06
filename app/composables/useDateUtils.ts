@@ -1,4 +1,4 @@
-export function useDateUtils() {
+export const useDateUtils = () => {
   // Use a deterministic locale/timezone to avoid SSR/CSR hydration mismatches.
   // en-GB => dd/MM/yyyy, rendered in UTC to avoid off-by-one issues.
   const dtf = new Intl.DateTimeFormat("en-GB", {
