@@ -1,1 +1,0 @@
-{"id":"fb2b74999c3407b8b8149c5deea1d6ce","fullName":"tests/api/flights.test.ts#Flights API GET /api/trips/:tripId/flights should return list of flights for a trip","name":"should return list of flights for a trip","status":"passed","testResultsByEnv":{"default":"bf60fed2855ce6f0b778bd4fc28eee4d"}}

@@ -1,1 +1,0 @@
-{"id":"c5cd95f057db9b4d83277653a3c8405e","fullName":"tests/api/trips.test.ts#Trips API GET /api/trips/:tripId should return trip details by ID","name":"should return trip details by ID","status":"passed","testResultsByEnv":{"default":"04784cd8de79e52a59b3eff5eec5e688"}}

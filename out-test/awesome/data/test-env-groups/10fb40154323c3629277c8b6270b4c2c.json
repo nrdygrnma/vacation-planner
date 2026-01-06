@@ -1,1 +1,0 @@
-{"id":"10fb40154323c3629277c8b6270b4c2c","fullName":"tests/api/flights.test.ts#Flights API GET /api/trips/:tripId/flights should return flights with currency information","name":"should return flights with currency information","status":"passed","testResultsByEnv":{"default":"6fb43add80462ec0e093d7e942ad9dd2"}}

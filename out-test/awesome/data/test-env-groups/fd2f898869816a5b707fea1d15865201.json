@@ -1,1 +1,0 @@
-{"id":"fd2f898869816a5b707fea1d15865201","fullName":"tests/api/trips.test.ts#Trips API PUT /api/trips/:tripId should return 404 for non-existent trip","name":"should return 404 for non-existent trip","status":"passed","testResultsByEnv":{"default":"41d4161c493634492c8eaab75fd6ecc4"}}

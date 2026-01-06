@@ -54,7 +54,7 @@
               :stop="stop"
               @delete="onDelete"
               @edit="onEdit"
-              @refresh="stopsStore.fetchByTrip(trip.id)"
+              @refresh="onStopRefresh"
               @toggle-expand="toggleStopExpand(stop.id)"
             />
 
@@ -125,6 +125,10 @@ const props = defineProps<{
   trip: Trip;
 }>();
 
+const emit = defineEmits<{
+  (e: "refresh"): void;
+}>();
+
 const stopsStore = useTripStopsStore();
 
 const stops = computed(() => stopsStore.byTrip[props.trip.id]?.items ?? []);
@@ -142,6 +146,11 @@ watch(
 );
 
 const isConflictOpen = ref(false);
+
+const onStopRefresh = () => {
+  stopsStore.fetchByTrip(props.trip.id);
+  emit("refresh");
+};
 
 const onDragChange = async () => {
   // Check for chronological conflicts
@@ -184,6 +193,7 @@ const applyOrderUpdate = async () => {
   try {
     await stopsStore.reorder(props.trip.id, orders);
     toast.success("Order updated");
+    emit("refresh");
   } catch (e) {
     toast.error("Failed to update order");
     stopsList.value = [...stops.value];
@@ -227,6 +237,7 @@ const applyDateShiftUpdate = async () => {
   try {
     await stopsStore.batchUpdate(props.trip.id, updatedStops);
     toast.success("Order and dates updated");
+    emit("refresh");
   } catch (e) {
     toast.error("Failed to update itinerary");
     stopsList.value = [...stops.value];
@@ -289,6 +300,7 @@ const save = async (payload: any) => {
       toast.success("Stop added");
     }
     aeOpen.value = false;
+    emit("refresh");
   } catch (e) {
     console.error(e);
     toast.error("Failed to save stop");
@@ -312,6 +324,7 @@ const confirmDelete = async () => {
     await stopsStore.remove(props.trip.id, stopToDelete.value.id);
     toast.success("Stop removed");
     isDeleteOpen.value = false;
+    emit("refresh");
   } catch (e) {
     console.error(e);
     toast.error("Failed to remove stop");

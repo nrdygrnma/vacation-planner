@@ -1,1 +1,0 @@
-{"id":"0a5f60b86373acbdba072040930c0ebb","fullName":"tests/api/airlines.test.ts#Airlines API GET /api/airlines should handle case-insensitive search","name":"should handle case-insensitive search","status":"passed","testResultsByEnv":{"default":"3a21ae06eebbfa822ad9c9e0d7828dab"}}

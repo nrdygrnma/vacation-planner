@@ -144,11 +144,17 @@ model TripStop {
   trip                    Trip            @relation(fields: [tripId], references: [id])
 }
 
+model RoomType {
+  id             String          @id @default(cuid())
+  name           String          @unique
+  accommodations Accommodation[]
+}
+
 model Accommodation {
   id             String               @id @default(cuid())
   name           String
   provider       String?
-  roomType       String?
+  roomTypeId     String?
   nightlyRate    Decimal?
   totalPrice     Decimal?
   totalCostEUR   Decimal?
@@ -158,6 +164,7 @@ model Accommodation {
   updatedAt      DateTime             @updatedAt
   notes          String?
   url            String?
+  roomType       RoomType?            @relation(fields: [roomTypeId], references: [id])
   currency       Currency             @relation(fields: [currencyId], references: [id])
   tripStop       TripStop?            @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
   selectedOnStop TripStop?            @relation("SelectedAccommodationOnStop")

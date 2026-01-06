@@ -29,7 +29,11 @@
         :trip="trip"
         @refresh="refresh"
       />
-      <ItinerarySection v-else-if="activeTab === 'itinerary'" :trip="trip" />
+      <ItinerarySection
+        v-else-if="activeTab === 'itinerary'"
+        :trip="trip"
+        @refresh="refresh"
+      />
       <TripMap v-else-if="activeTab === 'map' && trip" :trip="trip" />
     </div>
 

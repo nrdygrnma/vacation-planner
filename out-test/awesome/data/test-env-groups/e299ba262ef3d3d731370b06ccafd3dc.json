@@ -1,1 +1,0 @@
-{"id":"e299ba262ef3d3d731370b06ccafd3dc","fullName":"tests/api/smoke.test.ts#API Smoke Tests Error Handling should return 404 for non-existent resources","name":"should return 404 for non-existent resources","status":"passed","testResultsByEnv":{"default":"a6090378a9287e2e73bc37dcea2dd73d"}}

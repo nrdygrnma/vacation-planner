@@ -1,1 +1,0 @@
-{"id":"b7668b0e289280cd1bb84108aa11ff68","fullName":"tests/api/airlines.test.ts#Airlines API GET /api/airlines should limit results to default 50","name":"should limit results to default 50","status":"passed","testResultsByEnv":{"default":"50e128c7fea9a5d57f98b7d640407c13"}}

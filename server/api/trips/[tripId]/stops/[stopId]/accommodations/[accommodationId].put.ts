@@ -13,8 +13,8 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const data: any = {};
   if (body.name !== undefined) data.name = body.name;
-  if (body.provider !== undefined) data.provider = body.provider;
-  if (body.roomType !== undefined) data.roomType = body.roomType;
+  if (body.provider !== undefined) data.provider = body.provider || null;
+  if (body.roomTypeId !== undefined) data.roomTypeId = body.roomTypeId || null;
   if (body.nightlyRate !== undefined)
     data.nightlyRate = body.nightlyRate ? Number(body.nightlyRate) : null;
   if (body.totalPrice !== undefined)
@@ -64,6 +64,7 @@ export default defineEventHandler(async (event) => {
       include: {
         currency: true,
         images: true,
+        roomType: true,
       },
     });
     return updated;

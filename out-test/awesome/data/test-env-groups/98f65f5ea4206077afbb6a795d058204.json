@@ -1,1 +1,0 @@
-{"id":"98f65f5ea4206077afbb6a795d058204","fullName":"tests/api/flights.test.ts#Flights API GET /api/trips/:tripId/flights should return 400 for missing trip ID","name":"should return 400 for missing trip ID","status":"passed","testResultsByEnv":{"default":"1938518e516f48a8a9a11083b4d355c8"}}

@@ -17,4 +17,13 @@ module.exports = {
   forceExit: false,
   silent: false,
   setupFilesAfterEnv: [],
+  reporters: [
+    "default",
+    [
+      "@qanary/jest-reporter",
+      {
+        endpoint: "http://localhost:5121/api/runs/push",
+      },
+    ],
+  ],
 };

@@ -1,1 +1,0 @@
-{"id":"c46155abe712eca482e6c633f7537a84","fullName":"tests/api/airlines.test.ts#Airlines API GET /api/airlines should return airlines sorted alphabetically by name","name":"should return airlines sorted alphabetically by name","status":"passed","testResultsByEnv":{"default":"dae5dcb1b956d9ccb0974f8f2e1fc994"}}

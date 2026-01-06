@@ -27,12 +27,14 @@ export default defineEventHandler(async (event) => {
             include: {
               currency: true,
               images: true,
+              roomType: true,
             },
           },
           selectedAccommodation: {
             include: {
               currency: true,
               images: true,
+              roomType: true,
             },
           },
         },

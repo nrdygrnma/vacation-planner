@@ -1,1 +1,0 @@
-{"id":"9a421b70fa3fb70e625c2eab53a77546","fullName":"tests/api/flights.test.ts#Flights API PUT /api/trips/:tripId/flights/:flightId should update flight details","name":"should update flight details","status":"passed","testResultsByEnv":{"default":"74c8d51cb02984e0405d0da13d3732cd"}}

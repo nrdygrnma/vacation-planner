@@ -1,1 +1,0 @@
-{"id":"8d0caed8f9ed1cb50b1a8beaef371de6","fullName":"tests/api/flights.test.ts#Flights API POST /api/trips/:tripId/flights should fail without baseFare","name":"should fail without baseFare","status":"passed","testResultsByEnv":{"default":"bbfc138be5c87b9e5a6b9fa3977a3e53"}}

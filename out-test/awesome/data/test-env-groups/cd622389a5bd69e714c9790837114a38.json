@@ -1,1 +1,0 @@
-{"id":"cd622389a5bd69e714c9790837114a38","fullName":"tests/api/flights.test.ts#Flights API POST /api/trips/:tripId/flights should fail without fromAirport","name":"should fail without fromAirport","status":"passed","testResultsByEnv":{"default":"285a2ce4454c4c6abe4fb8652f797fc2"}}

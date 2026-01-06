@@ -1,1 +1,0 @@
-{"id":"5c39a064762511f9b075837acf5c792f","fullName":"tests/api/flights.test.ts#Flights API DELETE /api/trips/:tripId/flights/:flightId should return 404 when deleting non-existent flight","name":"should return 404 when deleting non-existent flight","status":"passed","testResultsByEnv":{"default":"df1049caa335135a2a466118c9cf18b0"}}

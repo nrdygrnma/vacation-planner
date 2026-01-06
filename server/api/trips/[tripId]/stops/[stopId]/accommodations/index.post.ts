@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
       data: {
         name: body.name,
         provider: body.provider || null,
-        roomType: body.roomType || null,
+        roomTypeId: body.roomTypeId || null,
         nightlyRate: body.nightlyRate ? Number(body.nightlyRate) : null,
         totalPrice: body.totalPrice ? Number(body.totalPrice) : null,
         currencyId: body.currencyId,
@@ -65,6 +65,7 @@ export default defineEventHandler(async (event) => {
       include: {
         currency: true,
         images: true,
+        roomType: true,
       },
     });
     return accommodation;

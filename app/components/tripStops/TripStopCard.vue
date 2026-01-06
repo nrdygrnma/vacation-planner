@@ -84,10 +84,16 @@
               <UIcon class="size-5 text-primary-600" name="i-lucide-bed" />
             </div>
             <div class="min-w-0 flex-1 py-1">
-              <p class="text-xs font-semibold text-primary-900 truncate">
-                {{ stop.selectedAccommodation.name }}
-              </p>
-              <div class="flex items-baseline gap-1.5 mt-0.5">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <UIcon
+                  class="size-3 text-primary-600 shrink-0"
+                  name="i-lucide-bed"
+                />
+                <p class="text-xs font-semibold text-primary-900 truncate">
+                  {{ stop.selectedAccommodation.name }}
+                </p>
+              </div>
+              <div class="flex items-baseline gap-1.5 mt-0.5 ml-4">
                 <span class="text-sm font-bold text-primary-700">
                   {{
                     formatCurrency(
@@ -267,13 +273,41 @@
                     />
                   </div>
                   <div class="min-w-0 py-0.5">
-                    <p class="text-xs font-semibold text-gray-900 truncate">
-                      {{ acc.name }}
-                    </p>
-                    <p class="text-[10px] text-gray-500 truncate">
-                      {{ acc.roomType || "Standard" }} ·
-                      {{ acc.provider || "Direct" }}
-                    </p>
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      <UIcon
+                        :class="
+                          stop.selectedAccommodationId === acc.id
+                            ? 'text-primary-600'
+                            : 'text-gray-400'
+                        "
+                        class="size-3 shrink-0"
+                        name="i-lucide-bed"
+                      />
+                      <p class="text-xs font-semibold text-gray-900 truncate">
+                        {{ acc.name }}
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-2 ml-4">
+                      <p
+                        class="text-[10px] text-gray-500 truncate flex items-center gap-1"
+                      >
+                        <UIcon
+                          class="size-2.5 opacity-70"
+                          name="i-lucide-info"
+                        />
+                        {{ acc.roomType?.name || "Standard" }}
+                      </p>
+                      <span class="text-[8px] text-gray-300">|</span>
+                      <p
+                        class="text-[10px] text-gray-500 truncate flex items-center gap-1"
+                      >
+                        <UIcon
+                          class="size-2.5 opacity-70"
+                          name="i-lucide-building"
+                        />
+                        {{ acc.provider || "Direct" }}
+                      </p>
+                    </div>
                   </div>
                 </div>
 

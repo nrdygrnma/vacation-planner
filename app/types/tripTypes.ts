@@ -24,6 +24,14 @@ export interface CarType {
 }
 
 // ------------------
+// RoomType
+// ------------------
+export interface RoomType {
+  id: string;
+  name: string;
+}
+
+// ------------------
 // FlightExtras
 // ------------------
 export interface FlightExtras {
@@ -119,7 +127,8 @@ export interface AccommodationOption {
   id: string;
   name: string;
   provider?: string;
-  roomType?: string;
+  roomTypeId?: string;
+  roomType?: RoomType;
   nightlyRate?: number;
   totalPrice?: number;
   currencyId: string;

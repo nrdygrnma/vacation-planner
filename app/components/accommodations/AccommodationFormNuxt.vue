@@ -31,11 +31,14 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <UFormField label="Room Type" name="roomType">
-            <UInput
-              v-model="state.roomType"
+          <UFormField label="Room Type" name="roomTypeId">
+            <USelectMenu
+              v-model="state.roomTypeId"
+              :items="roomTypeOptions"
               class="w-full"
-              placeholder="Double Room, Apartment, etc."
+              option-attribute="label"
+              placeholder="Select Room Type"
+              value-key="value"
             />
           </UFormField>
           <UFormField label="URL" name="url">
@@ -133,7 +136,7 @@ const emit = defineEmits<{
 const state = reactive({
   name: "",
   provider: "",
-  roomType: "",
+  roomTypeId: "",
   url: "",
   nightlyRate: undefined as number | undefined,
   totalPrice: undefined as number | undefined,
@@ -149,7 +152,7 @@ watch(
     if (newVal) {
       state.name = newVal.name || (newVal as any).name || "";
       state.provider = newVal.provider || "";
-      state.roomType = newVal.roomType || "";
+      state.roomTypeId = newVal.roomTypeId || "";
       state.url = newVal.url || "";
       state.nightlyRate =
         newVal.nightlyRate !== undefined && newVal.nightlyRate !== null
@@ -175,6 +178,20 @@ const currencyOptions = computed(() =>
   (currencies.value || []).map((c) => ({
     label: `${c.symbol} — ${c.name}`,
     value: c.id,
+  })),
+);
+
+const { data: roomTypes } = useFetch<{ id: string; name: string }[]>(
+  "/api/room-types",
+  {
+    key: "room-types-list",
+    server: false,
+  },
+);
+const roomTypeOptions = computed(() =>
+  (roomTypes.value || []).map((rt) => ({
+    label: rt.name,
+    value: rt.id,
   })),
 );
 
@@ -208,7 +225,7 @@ const providerOptions = computed(() => {
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
   provider: z.string().optional(),
-  roomType: z.string().optional(),
+  roomTypeId: z.string().optional(),
   url: z.string().url("Invalid URL").optional().or(z.literal("")),
   nightlyRate: z.number().min(0).optional(),
   totalPrice: z.number().min(0).optional(),

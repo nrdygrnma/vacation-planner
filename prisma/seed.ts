@@ -23,6 +23,20 @@ const carTypes = [
   { id: "10", name: "Other" },
 ];
 
+const roomTypes = [
+  { name: "House" },
+  { name: "Cabin" },
+  { name: "Apartment" },
+  { name: "Room" },
+  { name: "Hotel" },
+  { name: "Villa" },
+  { name: "Resort" },
+  { name: "Hostel" },
+  { name: "Cottage" },
+  { name: "Glamping" },
+  { name: "Other" },
+];
+
 async function main() {
   for (const c of currencies) {
     await prisma.currency.upsert({
@@ -37,6 +51,14 @@ async function main() {
       where: { name: ct.name },
       update: { id: ct.id },
       create: ct,
+    });
+  }
+
+  for (const rt of roomTypes) {
+    await prisma.roomType.upsert({
+      where: { name: rt.name },
+      update: {},
+      create: rt,
     });
   }
 }

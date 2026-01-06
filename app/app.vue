@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <TooltipProvider>
-      <UApp>
-        <NuxtLayout>
-          <NuxtPage />
-        </NuxtLayout>
-      </UApp>
-    </TooltipProvider>
-  </div>
+  <TooltipProvider>
+    <UApp>
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+
+      <div id="teleports" class="relative z-[100]" />
+    </UApp>
+  </TooltipProvider>
 </template>
 
 <script lang="ts" setup>

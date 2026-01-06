@@ -1,1 +1,0 @@
-{"id":"1153b94c628d1b49586832a311bf24cc","fullName":"tests/api/trips.test.ts#Trips API GET /api/trips should return trips ordered by start date","name":"should return trips ordered by start date","status":"passed","testResultsByEnv":{"default":"55acb273d13f74cc9059975e1c34f078"}}

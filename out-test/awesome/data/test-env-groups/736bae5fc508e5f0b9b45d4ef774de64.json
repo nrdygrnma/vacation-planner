@@ -1,1 +1,0 @@
-{"id":"736bae5fc508e5f0b9b45d4ef774de64","fullName":"tests/api/currencies.test.ts#Currencies API GET /api/currencies should return consistent data on multiple requests","name":"should return consistent data on multiple requests","status":"passed","testResultsByEnv":{"default":"8f3003c68ce14347a873275645850ec4"}}

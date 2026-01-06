@@ -1,1 +1,0 @@
-{"id":"485e3f88a1b2301dd29a5a22a2db70e2","fullName":"tests/api/trips.test.ts#Trips API GET /api/trips/:tripId should include related entities","name":"should include related entities","status":"passed","testResultsByEnv":{"default":"4f9e2add301ca29e21b22931ff3b3817"}}

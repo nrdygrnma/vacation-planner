@@ -56,14 +56,16 @@ const formatCurrency = (
     <div class="p-4 space-y-4 text-sm">
       <div>
         <span
-          class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-0.5"
-          >Accommodation</span
+          class="text-[10px] text-gray-400 uppercase font-bold tracking-wider flex items-center gap-1 mb-0.5"
         >
+          <UIcon class="size-3" name="i-lucide-bed" />
+          Accommodation
+        </span>
         <p class="font-semibold text-gray-900 leading-tight">
           {{ accommodation.name }}
         </p>
         <p class="text-[11px] text-gray-500 font-medium">
-          {{ accommodation.roomType || "Standard" }} ·
+          {{ accommodation.roomType?.name || "Standard" }} ·
           {{ accommodation.provider || "Direct" }}
         </p>
       </div>
@@ -71,18 +73,22 @@ const formatCurrency = (
       <div class="grid grid-cols-2 gap-4 border-t pt-3">
         <div>
           <span
-            class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-0.5"
-            >Dates</span
+            class="text-[10px] text-gray-400 uppercase font-bold tracking-wider flex items-center gap-1 mb-0.5"
           >
+            <UIcon class="size-3" name="i-lucide-calendar" />
+            Dates
+          </span>
           <p class="text-[11px] text-gray-700 font-medium">
             {{ dateRange }}
           </p>
         </div>
         <div>
           <span
-            class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-0.5"
-            >Price</span
+            class="text-[10px] text-gray-400 uppercase font-bold tracking-wider flex items-center gap-1 mb-0.5"
           >
+            <UIcon class="size-3" name="i-lucide-circle-dollar-sign" />
+            Price
+          </span>
           <div class="space-y-0.5">
             <p class="text-sm font-bold text-gray-700 leading-none">
               {{
@@ -134,9 +140,11 @@ const formatCurrency = (
         class="bg-gray-50 p-2.5 rounded-md border border-gray-100"
       >
         <span
-          class="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1"
-          >Notes</span
+          class="text-[10px] text-gray-400 uppercase font-bold tracking-wider flex items-center gap-1 mb-1"
         >
+          <UIcon class="size-3" name="i-lucide-sticky-note" />
+          Notes
+        </span>
         <p
           class="text-[11px] leading-relaxed text-gray-600 italic whitespace-pre-wrap"
         >
