@@ -1,61 +1,95 @@
 <template>
-  <article
-    class="group card card-compact border shadow-sm hover:shadow-md hover:border-accent-300/30 hover:bg-accent/10 transition-all duration-300 overflow-hidden text-xs cursor-pointer"
+  <UCard
+    :ui="{
+      root: '',
+      header: '!p-0 sm:!p-0 md:!p-0 lg:!p-0',
+      footer: '!px-4 sm:!px-4 sm:!py-2',
+      body: 'p-4 sm:!p-4',
+    }"
+    class="group cursor-pointer transition-all duration-300 hover:shadow-md p-0 [&>[data-slot=header]]:!p-0 [&>[data-slot=header]]:sm:!p-0"
     role="region"
     tabindex="0"
     @click="handleClick"
     @keyup.enter="handleEnter"
   >
-    <figure class="relative aspect-[16/9] bg-base-200">
-      <img
-        :src="trip.imageUrl || defaultImage"
-        alt="Trip cover"
-        class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-        decoding="async"
-        loading="lazy"
-        @error="onImgError"
-      />
+    <template #header>
       <div
-        class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent"
-      ></div>
-      <div class="absolute left-3 top-3 flex items-center gap-2">
-        <span class="badge badge-soft badge-primary">{{
-          trip.currency?.symbol || "¤"
-        }}</span>
-      </div>
-    </figure>
-
-    <div class="card-body p-3">
-      <div class="flex items-start justify-between gap-2">
-        <h2 class="font-semibold leading-snug line-clamp-2 text-sm">
-          {{ trip.title }}
-        </h2>
-      </div>
-
-      <p class="text-xs text-base-content/70">
-        {{ formatDate(trip.startDate) }} → {{ formatDate(trip.endDate) }}
-      </p>
-
-      <div class="mt-1.5 flex items-center justify-between">
+        class="relative w-full aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-gray-800 p-0"
+      >
+        <img
+          :src="trip.imageUrl || defaultImage"
+          alt="Trip cover"
+          class="block h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          decoding="async"
+          loading="lazy"
+          @error="onImgError"
+        />
         <div
-          class="inline-flex items-center gap-1.5 text-xs text-base-content/80"
-        >
-          <Icon class="size-3.5" name="lucide:users" />
-          <span>{{ trip.people }}</span>
+          class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent"
+        />
+        <div class="absolute left-3 top-3 flex items-center gap-2">
+          <UBadge color="neutral" variant="soft">
+            {{ trip.currency?.symbol || "¤" }}
+          </UBadge>
         </div>
+      </div>
+    </template>
 
-        <div class="inline-flex items-center gap-1">
-          <TripEditModal :trip="trip" @saved="$emit('changed')" />
-          <TripDeleteModal :trip="trip" @deleted="$emit('changed')" />
-        </div>
+    <div class="flex items-start justify-between gap-2">
+      <h2
+        class="text-sm text-primary-500 font-semibold leading-snug line-clamp-2"
+      >
+        {{ trip.title }}
+      </h2>
+    </div>
+
+    <p class="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
+      {{ formatDate(trip.startDate) }} → {{ formatDate(trip.endDate) }}
+    </p>
+
+    <div class="mt-2 flex items-center justify-between">
+      <div
+        class="inline-flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300"
+      >
+        <Icon class="size-4" name="lucide:users" />
+        <span>{{ trip.people }}</span>
       </div>
     </div>
-  </article>
+
+    <template #footer>
+      <div
+        class="flex items-center gap-1 justify-end relative z-10 overflow-visible"
+      >
+        <UTooltip
+          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+          arrow
+          text="Edit"
+        >
+          <UButton
+            icon="i-lucide-edit"
+            variant="outline"
+            @click="emit('edit', trip)"
+          />
+        </UTooltip>
+
+        <UTooltip
+          :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+          arrow
+          text="Delete"
+        >
+          <UButton
+            color="error"
+            icon="i-lucide-trash"
+            variant="outline"
+            @click="emit('delete', trip)"
+          />
+        </UTooltip>
+      </div>
+    </template>
+  </UCard>
 </template>
 
 <script lang="ts" setup>
-import TripEditModal from "./modals/TripEditModal.vue";
-import TripDeleteModal from "./modals/TripDeleteModal.vue";
 import { useDateUtils } from "@/composables/useDateUtils";
 import type { Trip } from "@/types/tripTypes";
 
@@ -63,6 +97,8 @@ const props = defineProps<{ trip: Trip }>();
 const emit = defineEmits<{
   (e: "open", trip: Trip): void;
   (e: "changed"): void;
+  (e: "delete", trip: Trip): void;
+  (e: "edit", trip: Trip): void;
 }>();
 
 const { formatDate } = useDateUtils();
@@ -80,7 +116,7 @@ const onImgError = (ev: Event) => {
 const isInteractiveTarget = (el: HTMLElement | null): boolean => {
   if (!el) return false;
   return !!el.closest(
-    'button, a, input, textarea, select, [role="button"], .btn, [data-overlay]',
+    'button, a, input, textarea, select, [role="button"], [data-command]',
   );
 };
 

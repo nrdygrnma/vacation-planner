@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
       currencyId: string;
       totalCostEUR: number;
       bookingUrl?: string | null;
+      airlineLogoUrl?: string | null;
       notes?: string | null;
       stopOverDurationMinutes?: number | null;
       stopOverAirports?: any[] | null;
@@ -67,7 +68,14 @@ export default defineEventHandler(async (event) => {
   if (body.currencyId !== undefined) data.currencyId = body.currencyId;
   if (body.totalCostEUR !== undefined) data.totalCostEUR = body.totalCostEUR;
   if (body.bookingUrl !== undefined) data.bookingUrl = body.bookingUrl;
+  if (body.airlineLogoUrl !== undefined)
+    data.airlineLogoUrl = body.airlineLogoUrl;
   if (body.notes !== undefined) data.notes = body.notes;
+  if (body.segments !== undefined) {
+    data.segments = Array.isArray(body.segments)
+      ? JSON.stringify(body.segments)
+      : (body.segments as any);
+  }
   if (body.stopOverDurationMinutes !== undefined)
     data.stopOverDurationMinutes = body.stopOverDurationMinutes;
   if (body.stopOverAirports !== undefined) {
@@ -77,67 +85,116 @@ export default defineEventHandler(async (event) => {
   }
 
   // If segments provided, derive dates/durations/stops/stopovers
-  let derived: {
-    departureDate: Date | null;
-    arrivalDate: Date | null;
-    durationMin: number | null;
-    stops: number;
-    stopOverDurationMinutes: number | null;
-    stopOverAirports: string[] | null;
-  } | null = null;
+  let outboundInfo: any = null;
+  let returnInfo: any = null;
   const hasSegments = Array.isArray(body.segments) && body.segments.length > 0;
+
   if (hasSegments) {
-    try {
-      const segs = [...(body.segments as any[])];
-      segs.sort((a, b) => +new Date(a.departureDate) - +new Date(b.departureDate));
-      const flightMinutes = segs.reduce((sum, s) => {
-        const d = +new Date(s.departureDate);
-        const a = +new Date(s.arrivalDate);
+    const calcLeg = (segs: any[]) => {
+      if (segs.length === 0) return null;
+      segs.sort(
+        (a: any, b: any) =>
+          +new Date(a.departureDate) - +new Date(b.departureDate),
+      );
+
+      const parseInTz = (dateStr: string, tz?: string) => {
+        if (!tz || tz === "UTC") return new Date(dateStr);
+        const localStr = dateStr.replace("Z", "");
+        const date = new Date(localStr + "Z");
+        const utcDate = new Date(
+          date.toLocaleString("en-US", { timeZone: "UTC" }),
+        );
+        const tzDate = new Date(date.toLocaleString("en-US", { timeZone: tz }));
+        const offset = utcDate.getTime() - tzDate.getTime();
+        return new Date(date.getTime() + offset);
+      };
+
+      const firstDep = parseInTz(
+        segs[0].departureDate,
+        segs[0].fromAirportTimezone,
+      );
+      const lastArr = parseInTz(
+        segs[segs.length - 1].arrivalDate,
+        segs[segs.length - 1].toAirportTimezone,
+      );
+
+      const totalGross = Math.max(
+        0,
+        Math.round((lastArr.getTime() - firstDep.getTime()) / 60000),
+      );
+      const netFlight = segs.reduce((sum: number, s: any) => {
+        const d = parseInTz(s.departureDate, s.fromAirportTimezone).getTime();
+        const a = parseInTz(s.arrivalDate, s.toAirportTimezone).getTime();
         return sum + Math.max(0, Math.round((a - d) / 60000));
       }, 0);
-      const stopMinutes = segs.length > 1
-        ? segs.slice(0, -1).reduce((sum, _s, i) => {
-            const arrive = +new Date(segs[i].arrivalDate);
-            const nextDepart = +new Date(segs[i + 1].departureDate);
-            return sum + Math.max(0, Math.round((nextDepart - arrive) / 60000));
-          }, 0)
-        : 0;
-      const stopAirports = segs.length > 1 ? segs.slice(0, -1).map((s: any) => s.toAirport).filter(Boolean) : [];
-      derived = {
-        departureDate: segs[0]?.departureDate ? new Date(segs[0].departureDate) : null,
-        arrivalDate: segs[segs.length - 1]?.arrivalDate ? new Date(segs[segs.length - 1].arrivalDate) : null,
-        durationMin: flightMinutes,
-        stops: Math.max(0, segs.length - 1),
-        stopOverDurationMinutes: stopMinutes,
-        stopOverAirports: stopAirports.length ? stopAirports : null,
+      const stopover = Math.max(0, totalGross - netFlight);
+      const stopAirports = segs
+        .slice(0, -1)
+        .map((s: any) => s.toAirport)
+        .filter(Boolean);
+
+      return {
+        firstDep,
+        lastArr,
+        totalGross,
+        netFlight,
+        stopover,
+        stopAirports,
+        stops: segs.length - 1,
       };
-      data.segments = body.segments as any;
-      data.stops = derived.stops;
-      data.durationMin = derived.durationMin;
-      data.departureDate = derived.departureDate;
-      data.arrivalDate = derived.arrivalDate;
-      data.stopOverDurationMinutes = derived.stopOverDurationMinutes;
-      data.stopOverAirports = derived.stopOverAirports
-        ? JSON.stringify(derived.stopOverAirports)
-        : null;
-    } catch {
-      // ignore segment errors
+    };
+
+    try {
+      outboundInfo = calcLeg(body.segments!.filter((s: any) => !s.isReturn));
+      returnInfo = calcLeg(body.segments!.filter((s: any) => s.isReturn));
+
+      data.isRoundTrip = !!body.isRoundTrip || !!returnInfo;
+      data.segments = JSON.stringify(body.segments);
+
+      if (outboundInfo) {
+        data.departureDate = outboundInfo.firstDep;
+        data.arrivalDate = outboundInfo.lastArr;
+        data.stops = outboundInfo.stops;
+        data.durationMin = outboundInfo.totalGross;
+        data.outboundDurationMin = outboundInfo.totalGross;
+        data.outboundNetDurationMin = outboundInfo.netFlight;
+        data.outboundStopoverMin = outboundInfo.stopover;
+      }
+      if (returnInfo) {
+        data.returnDepartureDate = returnInfo.firstDep;
+        data.returnArrivalDate = returnInfo.lastArr;
+        data.returnDurationMin = returnInfo.totalGross;
+        data.returnNetDurationMin = returnInfo.netFlight;
+        data.returnStopoverMin = returnInfo.stopover;
+      }
+
+      data.stopOverDurationMinutes =
+        (outboundInfo?.stopover ?? 0) + (returnInfo?.stopover ?? 0) || null;
+      data.stopOverAirports = JSON.stringify([
+        ...(outboundInfo?.stopAirports ?? []),
+        ...(returnInfo?.stopAirports ?? []),
+      ]);
+    } catch (e) {
+      console.error("Segment calculation failed", e);
     }
   }
 
   let nextDeparture: Date | null | undefined = undefined;
   let nextArrival: Date | null | undefined = undefined;
 
-  if (body.departureDate !== undefined) {
+  if (body.departureDate !== undefined && !outboundInfo) {
     nextDeparture = body.departureDate ? new Date(body.departureDate) : null;
     data.departureDate = nextDeparture;
   }
-  if (body.arrivalDate !== undefined) {
+  if (body.arrivalDate !== undefined && !outboundInfo) {
     nextArrival = body.arrivalDate ? new Date(body.arrivalDate) : null;
     data.arrivalDate = nextArrival;
   }
 
-  if (body.departureDate !== undefined || body.arrivalDate !== undefined) {
+  if (
+    (body.departureDate !== undefined || body.arrivalDate !== undefined) &&
+    !outboundInfo
+  ) {
     const depart =
       nextDeparture !== undefined ? nextDeparture : existing.departureDate;
     const arrive =
@@ -146,9 +203,25 @@ export default defineEventHandler(async (event) => {
     if (depart && arrive) {
       const minutes = Math.max(0, Math.round((+arrive - +depart) / 60000));
       data.durationMin = minutes;
+      data.outboundDurationMin = minutes;
     } else {
       data.durationMin = null;
+      data.outboundDurationMin = null;
     }
+  }
+
+  if (body.returnDepartureDate !== undefined && !returnInfo) {
+    data.returnDepartureDate = body.returnDepartureDate
+      ? new Date(body.returnDepartureDate)
+      : null;
+  }
+  if (body.returnArrivalDate !== undefined && !returnInfo) {
+    data.returnArrivalDate = body.returnArrivalDate
+      ? new Date(body.returnArrivalDate)
+      : null;
+  }
+  if (body.isRoundTrip !== undefined) {
+    data.isRoundTrip = body.isRoundTrip;
   }
 
   if (data.currencyId) {
@@ -163,13 +236,37 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const updated = await prisma.flight.update({ where: { id: flightId }, data });
+  const updated = await prisma.flight.update({
+    where: { id: flightId },
+    data,
+    include: {
+      currency: true,
+    },
+  });
   return {
     ...updated,
     stopOverAirports: (() => {
       try {
         return (updated as any).stopOverAirports
           ? JSON.parse((updated as any).stopOverAirports as any)
+          : null;
+      } catch {
+        return null;
+      }
+    })(),
+    segments: (() => {
+      try {
+        return (updated as any).segments
+          ? JSON.parse((updated as any).segments as any)
+          : null;
+      } catch {
+        return null;
+      }
+    })(),
+    extras: (() => {
+      try {
+        return (updated as any).extras
+          ? JSON.parse((updated as any).extras as any)
           : null;
       } catch {
         return null;

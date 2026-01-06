@@ -1,6 +1,6 @@
 generator client {
-  provider   = "prisma-client-js"
-  engineType = "binary"
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -36,6 +36,12 @@ model Trip {
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
   imageUrl            String?
+  startLocationName   String?
+  startLat            Float?
+  startLng            Float?
+  endLocationName     String?
+  endLat              Float?
+  endLng              Float?
   carRentals          CarRental[] @relation("TripCarRentals")
   flights             Flight[]    @relation("TripFlights")
   selectedCarRental   CarRental?  @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
@@ -63,12 +69,23 @@ model Flight {
   flightNumber            String?
   stops                   Int?      @default(0)
   bookingUrl              String?
+  airlineLogoUrl          String?
   notes                   String?
   durationMin             Int?
+  outboundDurationMin     Int?
+  outboundStopoverMin     Int?
+  returnDurationMin       Int?
+  returnStopoverMin       Int?
+  isRoundTrip             Boolean   @default(false)
+  returnDepartureDate     DateTime?
+  returnArrivalDate       DateTime?
+  outboundNetDurationMin  Int?
+  returnNetDurationMin    Int?
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
   stopOverAirports        String?
   stopOverDurationMinutes Int?
+  segments                String?
   currency                Currency  @relation(fields: [currencyId], references: [id])
   trip                    Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
   selectedOnTrip          Trip?     @relation("SelectedFlightOnTrip")
@@ -80,7 +97,7 @@ model Flight {
 
 model CarType {
   id      String      @id @default(cuid())
-  name    String
+  name    String      @unique
   rentals CarRental[]
 }
 
@@ -97,6 +114,9 @@ model CarRental {
   insurancePerDay Decimal?
   currencyId      String
   totalCostEUR    Decimal?
+  notes           String?
+  url             String?
+  imageUrl        String?
   tripId          String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -113,6 +133,8 @@ model TripStop {
   endDate                 DateTime
   lat                     Float?
   lng                     Float?
+  order                   Int             @default(0)
+  type                    String          @default("STOP") // STOP, HUB
   selectedAccommodationId String?         @unique
   tripId                  String
   createdAt               DateTime        @default(now())
@@ -122,18 +144,36 @@ model TripStop {
   trip                    Trip            @relation(fields: [tripId], references: [id])
 }
 
+model RoomType {
+  id             String          @id @default(cuid())
+  name           String          @unique
+  accommodations Accommodation[]
+}
+
 model Accommodation {
-  id             String    @id @default(cuid())
+  id             String               @id @default(cuid())
   name           String
   provider       String?
-  roomType       String?
+  roomTypeId     String?
   nightlyRate    Decimal?
+  totalPrice     Decimal?
   totalCostEUR   Decimal?
   currencyId     String
   tripStopId     String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  currency       Currency  @relation(fields: [currencyId], references: [id])
-  tripStop       TripStop? @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
-  selectedOnStop TripStop? @relation("SelectedAccommodationOnStop")
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  notes          String?
+  url            String?
+  roomType       RoomType?            @relation(fields: [roomTypeId], references: [id])
+  currency       Currency             @relation(fields: [currencyId], references: [id])
+  tripStop       TripStop?            @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
+  selectedOnStop TripStop?            @relation("SelectedAccommodationOnStop")
+  images         AccommodationImage[]
+}
+
+model AccommodationImage {
+  id              String        @id @default(cuid())
+  url             String
+  accommodationId String
+  accommodation   Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
 }

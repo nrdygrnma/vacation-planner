@@ -1,8 +1,8 @@
 <template>
-  <div class="container mx-auto pt-4 pb-16">
+  <div class="max-w-5xl mx-auto px-4 pt-4 pb-16">
     <NavBar />
 
-    <div class="mt-8">
+    <div class="mt-4">
       <slot />
     </div>
 

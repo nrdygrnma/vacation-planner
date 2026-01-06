@@ -1,13 +1,12 @@
 <template>
   <NuxtLink
-    :class="{
-      'text-primary after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-full after:bg-primary':
-        isActive,
-      'hover:after:absolute hover:after:-bottom-1.5 hover:after:left-0 hover:after:h-0.5 hover:after:w-full hover:after:bg-base-content/50':
-        !isActive,
-    }"
+    :class="[
+      'relative pb-1 text-sm font-semibold no-underline',
+      isActive
+        ? 'text-primary border-b-2 border-primary'
+        : 'text-gray-600 hover:text-gray-900 hover:border-b hover:border-gray-300',
+    ]"
     :to="to"
-    class="tab relative pb-1 text-sm font-semibold"
   >
     <slot />
   </NuxtLink>

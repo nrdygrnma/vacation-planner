@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import type { Trip } from "@/types/tripTypes";
-import { toast } from "vue-sonner";
 
 export const useTripsStore = defineStore("trips", () => {
   // ------------------------
@@ -28,8 +27,7 @@ export const useTripsStore = defineStore("trips", () => {
     try {
       pending.value = true;
       error.value = null;
-      const data = await $fetch<Trip[]>("/api/trips");
-      items.value = data;
+      items.value = await $fetch<Trip[]>("/api/trips");
     } catch (e: any) {
       console.error(e);
       error.value = e?.statusMessage || "Failed to load trips";
@@ -44,7 +42,6 @@ export const useTripsStore = defineStore("trips", () => {
       body,
     });
     items.value.unshift(created);
-    toast.success("Trip created");
     return created;
   }
 
@@ -59,7 +56,6 @@ export const useTripsStore = defineStore("trips", () => {
       items.value[idx] = { ...items.value[idx], ...updated };
     }
 
-    toast.success("Trip updated");
     return updated;
   }
 
@@ -69,7 +65,6 @@ export const useTripsStore = defineStore("trips", () => {
     });
 
     items.value = items.value.filter((t) => t.id !== id);
-    toast.success("Trip deleted");
   }
 
   return {

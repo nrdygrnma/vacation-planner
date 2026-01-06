@@ -13,12 +13,26 @@ export default defineEventHandler(async (event) => {
     people?: number;
     currencyId?: string;
     imageUrl?: string | null;
+    startLocationName?: string | null;
+    startLat?: number | null;
+    startLng?: number | null;
+    endLocationName?: string | null;
+    endLat?: number | null;
+    endLng?: number | null;
   }>(event);
 
   const data: any = {};
   if (body.title !== undefined) data.title = body.title;
   if (body.people !== undefined) data.people = body.people;
   if (body.currencyId !== undefined) data.currencyId = body.currencyId;
+  if (body.startLocationName !== undefined)
+    data.startLocationName = body.startLocationName;
+  if (body.startLat !== undefined) data.startLat = body.startLat;
+  if (body.startLng !== undefined) data.startLng = body.startLng;
+  if (body.endLocationName !== undefined)
+    data.endLocationName = body.endLocationName;
+  if (body.endLat !== undefined) data.endLat = body.endLat;
+  if (body.endLng !== undefined) data.endLng = body.endLng;
 
   if (body.startDate !== undefined) {
     data.startDate = body.startDate ? new Date(body.startDate) : null;

@@ -30,8 +30,7 @@ export default defineEventHandler(async (event) => {
 
       await tx.trip.delete({ where: { id } });
     });
-    setResponseStatus(event, 204);
-    return null;
+    return { message: "Trip deleted successfully" };
   } catch (e: any) {
     if (e.code === "P2025") {
       throw createError({ statusCode: 404, statusMessage: "Trip not found" });

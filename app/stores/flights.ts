@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { FlightOption } from "@/types/tripTypes";
-import { toast } from "vue-sonner";
+import type { Airline, FlightOption } from "@/types/tripTypes";
 
 interface FlightBucket {
   items: FlightOption[];
@@ -14,6 +13,24 @@ export const useFlightsStore = defineStore("flights", () => {
   // State
   // -----------------------------------
   const byTrip = ref<Record<string, FlightBucket>>({});
+  const airlines = ref<Airline[]>([]);
+  const airlinesLoading = ref(false);
+
+  // -----------------------------------
+  // Actions
+  // -----------------------------------
+  async function fetchAirlines() {
+    if (airlines.value.length > 0) return;
+    airlinesLoading.value = true;
+    try {
+      const data = await $fetch<Airline[]>("/api/airlines");
+      airlines.value = data || [];
+    } catch (err) {
+      console.error("Failed to fetch airlines:", err);
+    } finally {
+      airlinesLoading.value = false;
+    }
+  }
 
   // -----------------------------------
   // Helpers
@@ -30,6 +47,29 @@ export const useFlightsStore = defineStore("flights", () => {
   }
 
   function mapFormToApi(data: any, defaults?: { currencyId?: string }) {
+    // If the data is already in the API shape (nested objects), we can largely pass it through
+    // or perform final normalization.
+    const isNewForm = data && typeof data.airline === "object";
+
+    if (isNewForm) {
+      return {
+        ...data,
+        airline: data.airline?.name?.trim() || "",
+        flightNumber: data.flightNumber || data.airline?.symbol?.trim() || null,
+        fromAirport:
+          data.fromAirport?.symbol?.trim() ||
+          data.fromAirport?.name?.trim() ||
+          "",
+        toAirport:
+          data.toAirport?.symbol?.trim() || data.toAirport?.name?.trim() || "",
+        extras:
+          data.extras && typeof data.extras === "object"
+            ? JSON.stringify(data.extras)
+            : data.extras || null,
+        currencyId: data.currencyId || defaults?.currencyId || "",
+      };
+    }
+
     const combine = (dateStr?: string | null, timeStr?: string | null) => {
       if (!dateStr) return null;
       const d = String(dateStr).trim();
@@ -92,7 +132,8 @@ export const useFlightsStore = defineStore("flights", () => {
       notes: data.notes || null,
       extras: hasExtras ? JSON.stringify(extras) : null,
       stopOverDurationMinutes:
-        data.stopOverDurationMinutes != null && data.stopOverDurationMinutes !== ""
+        data.stopOverDurationMinutes != null &&
+        data.stopOverDurationMinutes !== ""
           ? Number(data.stopOverDurationMinutes)
           : null,
       stopOverAirports:
@@ -131,16 +172,12 @@ export const useFlightsStore = defineStore("flights", () => {
     });
 
     ensure(tripId).items.unshift(created);
-    toast.success("Flight added");
-
     return created;
   }
 
   async function update(tripId: string, flightId: string, body: any) {
-    // Support being called with raw API shape OR with form payload shape.
-    const maybeForm =
-      body && (body.airlineName !== undefined || body.departureTime !== undefined);
-    const payload = maybeForm ? mapFormToApi(body) : body;
+    // Flatten payload if it's coming from the Nuxt form
+    const payload = mapFormToApi(body);
 
     const updated = await $fetch<FlightOption>(
       `/api/trips/${tripId}/flights/${flightId}`,
@@ -154,7 +191,6 @@ export const useFlightsStore = defineStore("flights", () => {
       bucket.items[index] = { ...bucket.items[index], ...updated };
     }
 
-    toast.success("Flight updated");
     return updated;
   }
 
@@ -165,8 +201,6 @@ export const useFlightsStore = defineStore("flights", () => {
 
     const bucket = ensure(tripId);
     bucket.items = bucket.items.filter((f) => f.id !== flightId);
-
-    toast.success("Flight deleted");
   }
 
   async function selectFinal(tripId: string, flightId: string) {
@@ -174,17 +208,19 @@ export const useFlightsStore = defineStore("flights", () => {
       method: "PUT",
       body: { flightId },
     });
-
-    toast.success("Selected flight updated");
   }
 
   return {
     byTrip,
+    airlines,
+    airlinesLoading,
+    fetchAirlines,
     ensure,
     fetchByTrip,
     add,
     update,
     remove,
     selectFinal,
+    mapFormToApi,
   };
 });

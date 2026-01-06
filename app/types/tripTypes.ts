@@ -24,6 +24,14 @@ export interface CarType {
 }
 
 // ------------------
+// RoomType
+// ------------------
+export interface RoomType {
+  id: string;
+  name: string;
+}
+
+// ------------------
 // FlightExtras
 // ------------------
 export interface FlightExtras {
@@ -37,9 +45,12 @@ export interface FlightExtras {
 // ------------------
 export interface FlightSegment {
   fromAirport: string;
+  fromAirportTimezone?: string;
   toAirport: string;
+  toAirportTimezone?: string;
   departureDate: string; // ISO string
   arrivalDate: string; // ISO string
+  isReturn?: boolean;
 }
 
 export interface FlightOption {
@@ -50,17 +61,27 @@ export interface FlightOption {
   flightNumber: string;
   departureDate: string;
   arrivalDate: string;
+  returnDepartureDate?: string;
+  returnArrivalDate?: string;
+  isRoundTrip: boolean;
   stops: number;
   travelClass: "economy" | "premium_economy" | "business";
   baseFare: number;
   extras?: FlightExtras;
   bookingUrl?: string;
+  airlineLogoUrl?: string;
   notes?: string;
   durationMin?: number;
+  outboundDurationMin?: number;
+  outboundStopoverMin?: number;
+  returnDurationMin?: number;
+  returnStopoverMin?: number;
   // New fields for calculating stopovers and refined timing
-  stopOverDurationMinutes?: number; // total stopover time in minutes
+  stopOverDurationMinutes?: number; // total stopover time in minutes (both legs combined if applicable)
   stopOverAirports?: string[]; // list of IATA codes or airport names
   segments?: FlightSegment[]; // optional detailed legs
+  outboundNetDurationMin?: number;
+  returnNetDurationMin?: number;
   currencyId: string;
   currency?: Currency;
   totalCostEUR: number;
@@ -73,19 +94,22 @@ export interface FlightOption {
 // ------------------
 export interface CarRentalOption {
   id: string;
-  company: string;
+  provider: string;
   carTypeId: string;
   carType?: CarType;
   pickupDate: string;
-  dropOffDate: string;
+  dropoffDate: string;
   pickupLocation: string;
-  dropOffLocation: string;
+  dropoffLocation: string;
   baseRate: number;
   fees?: number;
   insurancePerDay?: number;
   currencyId: string;
   currency?: Currency;
   totalCostEUR?: number;
+  notes?: string;
+  url?: string;
+  imageUrl?: string;
   tripId: string;
   trip?: Trip;
 }
@@ -93,16 +117,26 @@ export interface CarRentalOption {
 // ------------------
 // AccommodationOption
 // ------------------
+export interface AccommodationImage {
+  id: string;
+  url: string;
+  accommodationId: string;
+}
+
 export interface AccommodationOption {
   id: string;
-  title: string;
+  name: string;
   provider?: string;
-  roomType?: string;
-  nightlyRate: number;
+  roomTypeId?: string;
+  roomType?: RoomType;
+  nightlyRate?: number;
+  totalPrice?: number;
   currencyId: string;
   currency?: Currency; // loaded relation
   totalCostEUR?: number;
   url?: string;
+  notes?: string;
+  images?: AccommodationImage[];
   tripStopId?: string;
   tripStop?: TripStop; // optional loaded relation
 }
@@ -117,6 +151,8 @@ export interface TripStop {
   endDate: string;
   lat?: number;
   lng?: number;
+  order: number;
+  type: "STOP" | "HUB";
   selectedAccommodationId?: string;
   selectedAccommodation?: AccommodationOption; // optional loaded relation
   tripId: string;
@@ -137,6 +173,12 @@ export interface Trip {
   people: number;
   totalCostEUR: number;
   imageUrl?: string | null;
+  startLocationName?: string | null;
+  startLat?: number | null;
+  startLng?: number | null;
+  endLocationName?: string | null;
+  endLat?: number | null;
+  endLng?: number | null;
   selectedFlightId?: string;
   selectedFlight?: FlightOption; // optional loaded relation
   selectedCarRentalId?: string;
