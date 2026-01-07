@@ -353,7 +353,7 @@
 
 <script lang="ts" setup>
 import BaseItemCard from "~/components/base/BaseItemCard.vue";
-import type { FlightOption } from "~/types/tripTypes";
+import { type FlightOption, travelClassLabels } from "~/types/tripTypes";
 
 const props = defineProps<{
   flight: FlightOption;
@@ -366,26 +366,31 @@ const showDetails = ref(false);
 
 const airline = computed(() => {
   const f = props.flight as any;
-  return f.airline?.name || f.airline || "—";
+  return f.airline?.name || (typeof f.airline === "string" ? f.airline : "—");
 });
 
 const fullFromAirport = computed(() => {
   const f = props.flight as any;
-  return f.fromAirport?.name || f.fromAirport?.symbol || f.fromAirport || "—";
+  return (
+    f.fromAirport?.name ||
+    f.fromAirport?.symbol ||
+    (typeof f.fromAirport === "string" ? f.fromAirport : "—")
+  );
 });
 
 const fullToAirport = computed(() => {
   const f = props.flight as any;
-  return f.toAirport?.name || f.toAirport?.symbol || f.toAirport || "—";
+  return (
+    f.toAirport?.name ||
+    f.toAirport?.symbol ||
+    (typeof f.toAirport === "string" ? f.toAirport : "—")
+  );
 });
 
 const travelClassLabel = computed(() => {
-  const labels: Record<string, string> = {
-    economy: "Economy",
-    premium_economy: "Premium Economy",
-    business: "Business",
-  };
-  return labels[props.flight.travelClass] || props.flight.travelClass;
+  return (
+    travelClassLabels[props.flight.travelClass] || props.flight.travelClass
+  );
 });
 
 const formatDate = (date: string | null | undefined) => {
@@ -408,12 +413,20 @@ const formatDateTime = (date: string | null | undefined) => {
 
 const fromLabel = computed(() => {
   const f = props.flight as any;
-  return f.fromAirport?.symbol || f.fromAirport?.name || f.fromAirport || "—";
+  return (
+    f.fromAirport?.symbol ||
+    f.fromAirport?.name ||
+    (typeof f.fromAirport === "string" ? f.fromAirport : "—")
+  );
 });
 
 const toLabel = computed(() => {
   const f = props.flight as any;
-  return f.toAirport?.symbol || f.toAirport?.name || f.toAirport || "—";
+  return (
+    f.toAirport?.symbol ||
+    f.toAirport?.name ||
+    (typeof f.toAirport === "string" ? f.toAirport : "—")
+  );
 });
 
 const formatMin = (m: number | undefined | null) => {

@@ -309,15 +309,51 @@ const exportToPDF = async () => {
   const { jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF();
-  const title = `Trip Itinerary: ${props.trip.title}`;
+  const doc = new jsPDF("p", "mm", "a4");
+  const margin = 14;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
 
-  doc.setFontSize(18);
-  doc.text(title, 14, 22);
+  const addHeader = (
+    doc: any,
+    title: string,
+    subtitle = "Trip Route Details",
+  ) => {
+    const primaryColor = [51, 122, 183]; // #337ab7
+    doc.setFontSize(22);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setFont("helvetica", "bold");
+    doc.text(title, margin, 20);
 
-  doc.setFontSize(11);
-  doc.setTextColor(100);
-  doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 30);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.setFont("helvetica", "normal");
+    doc.text(subtitle, margin, 26);
+
+    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setLineWidth(0.8);
+    doc.line(margin, 28, pageWidth - margin, 28);
+  };
+
+  const addFooter = (doc: any) => {
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        `Generated on ${new Date().toLocaleString()} - Page ${i} of ${pageCount}`,
+        margin,
+        pageHeight - 10,
+      );
+      doc.text("Vacation Planner", pageWidth - margin, pageHeight - 10, {
+        align: "right",
+      });
+    }
+  };
+
+  addHeader(doc, props.trip.title);
 
   const tableData: any[][] = [];
 
@@ -384,7 +420,7 @@ const exportToPDF = async () => {
   }
 
   autoTable(doc, {
-    startY: 40,
+    startY: 30,
     head: [
       [
         "#",
@@ -396,7 +432,7 @@ const exportToPDF = async () => {
     ],
     body: tableData,
     theme: "striped",
-    headStyles: { fillColor: [59, 130, 246] }, // primary-500 approx
+    headStyles: { fillColor: [51, 122, 183] }, // primary-500 approx
     didParseCell: (data) => {
       if (data.row.cells[1].text[0] === "Drive") {
         data.cell.styles.fontStyle = "italic";
@@ -407,11 +443,14 @@ const exportToPDF = async () => {
   });
 
   if (totalRouteSummary.value.distance > 0) {
-    const finalY = (doc as any).lastAutoTable.finalY || 40;
+    const finalY = (doc as any).lastAutoTable.finalY || 30;
     doc.setFontSize(12);
-    doc.setTextColor(0);
+    doc.setTextColor(51, 122, 183);
+    doc.setFont("helvetica", "bold");
     doc.text("Route Totals", 14, finalY + 15);
     doc.setFontSize(10);
+    doc.setTextColor(0);
+    doc.setFont("helvetica", "normal");
     doc.text(
       `Total Distance: ${formatDistance(totalRouteSummary.value.distance)}`,
       14,
@@ -424,6 +463,7 @@ const exportToPDF = async () => {
     );
   }
 
+  addFooter(doc);
   doc.save(`trip-itinerary-${props.trip.id}.pdf`);
 };
 </script>

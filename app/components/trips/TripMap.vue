@@ -132,8 +132,11 @@ import type { Trip } from "~/types/tripTypes";
 import { renderToString } from "@vue/server-renderer";
 import MapPopup from "~/components/trips/MapPopup.vue";
 import TripRouteDetailModal from "~/components/trips/TripRouteDetailModal.vue";
-import "leaflet/dist/leaflet.css";
-import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+
+if (import.meta.client) {
+  import("leaflet/dist/leaflet.css");
+  import("leaflet-routing-machine/dist/leaflet-routing-machine.css");
+}
 
 const props = defineProps<{ trip: Trip }>();
 
@@ -195,7 +198,9 @@ const initMap = async () => {
   if (!mapContainer.value) return;
 
   L = (await import("leaflet")).default;
-  await import("leaflet-routing-machine");
+  const { default: routingMachine } = await import(
+    "leaflet-routing-machine" as any
+  );
 
   // Custom styles
   const style = document.createElement("style");

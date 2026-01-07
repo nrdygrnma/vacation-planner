@@ -183,10 +183,9 @@
 <script lang="ts" setup>
 import CrudForm from "~/components/base/CrudForm.vue";
 import AirlineSelect from "~/components/flights/AirlineSelect.vue";
-import type { FormSegment } from "~/components/flights/FlightSegmentForm.vue";
-import FlightSegmentForm from "~/components/flights/FlightSegmentForm.vue";
-import type { Currency, FlightOption } from "@/types/tripTypes";
+import { type Currency, type FlightOption, travelClassLabels } from "@/types/tripTypes";
 import { z } from "zod";
+import FlightSegmentForm, { type FormSegment } from "~/components/flights/FlightSegmentForm.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -407,11 +406,12 @@ const timezoneOptions = Intl.supportedValuesOf("timeZone").map((tz) => ({
   value: tz,
 }));
 
-const classOptions = [
-  { label: "Economy", value: "economy" },
-  { label: "Premium Economy", value: "premium_economy" },
-  { label: "Business", value: "business" },
-];
+const classOptions = Object.entries(travelClassLabels).map(
+  ([value, label]) => ({
+    label,
+    value,
+  }),
+);
 
 const schema = z
   .object({
@@ -474,20 +474,24 @@ const onSubmit = (formData: any) => {
   if (state.outboundSegments.length > 0) {
     const first = state.outboundSegments[0];
     const last = state.outboundSegments[state.outboundSegments.length - 1];
-    state.fromSymbol = first.fromAirport;
-    state.toSymbol = last.toAirport;
-    state.departureDate = first.departureDate;
-    state.departureTime = first.departureTime;
-    state.arrivalDate = last.arrivalDate;
-    state.arrivalTime = last.arrivalTime;
+    if (first && last) {
+      state.fromSymbol = first.fromAirport;
+      state.toSymbol = last.toAirport;
+      state.departureDate = first.departureDate;
+      state.departureTime = first.departureTime;
+      state.arrivalDate = last.arrivalDate;
+      state.arrivalTime = last.arrivalTime;
+    }
   }
   if (state.isRoundTrip && state.returnSegments.length > 0) {
     const first = state.returnSegments[0];
     const last = state.returnSegments[state.returnSegments.length - 1];
-    state.returnDepartureDate = first.departureDate;
-    state.returnDepartureTime = first.departureTime;
-    state.returnArrivalDate = last.arrivalDate;
-    state.returnArrivalTime = last.arrivalTime;
+    if (first && last) {
+      state.returnDepartureDate = first.departureDate;
+      state.returnDepartureTime = first.departureTime;
+      state.returnArrivalDate = last.arrivalDate;
+      state.returnArrivalTime = last.arrivalTime;
+    }
   }
 
   // Use the synchronized state instead of potentially stale formData for these fields

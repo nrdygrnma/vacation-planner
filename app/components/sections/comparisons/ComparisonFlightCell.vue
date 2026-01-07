@@ -80,6 +80,7 @@
 
 <script lang="ts" setup>
 import { useCurrencyUtils } from "@/composables/useCurrencyUtils";
+import { travelClassLabels } from "~/types/tripTypes";
 
 const props = defineProps<{
   flight: any;
@@ -107,12 +108,7 @@ const getAirportCode = (airport: any) => {
 const travelClassLabel = computed(() => {
   const val = props.flight?.travelClass;
   if (!val) return "";
-  const labels: Record<string, string> = {
-    economy: "Economy",
-    premium_economy: "Prem. Econ.",
-    business: "Business",
-  };
-  return labels[val] || val;
+  return travelClassLabels[val] || val;
 });
 
 const formattedDuration = computed(() => formatMin(props.flight?.durationMin));

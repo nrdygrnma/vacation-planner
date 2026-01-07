@@ -1,63 +1,57 @@
 <template>
-  <div class="container mx-auto p-4 space-y-6">
-    <div class="flex items-center gap-2">
-      <UButton
-        color="neutral"
-        icon="i-lucide-arrow-left"
-        label="Back"
-        size="xs"
-        variant="ghost"
-        @click="navigateTo('/')"
-      />
-      <h1 class="text-2xl font-bold">Currency Management</h1>
+  <div class="flex flex-col justify-between gap-4">
+    <h1 class="text-3xl text-primary font-light">Currency Management</h1>
+
+    <div class="mt-2">
+      <UCard class="w-full">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold">
+            Exchange Rates (Relative to EUR)
+          </h2>
+          <UButton
+            color="primary"
+            icon="i-lucide-plus"
+            label="Add Currency"
+            @click="openAddModal"
+          />
+        </div>
+
+        <UTable :columns="columns" :data="tableData">
+          <template #rateToEUR-cell="{ row }">
+            {{ Number((row.original as Currency).rateToEUR).toFixed(4) }} EUR
+          </template>
+          <template #actions-cell="{ row }">
+            <div class="flex gap-2">
+              <UTooltip
+                :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+                arrow
+                text="Edit"
+              >
+                <UButton
+                  color="neutral"
+                  icon="i-lucide-pencil"
+                  variant="outline"
+                  @click="openEditModal(row.original as Currency)"
+                />
+              </UTooltip>
+
+              <UTooltip
+                :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+                arrow
+                text="Delete"
+              >
+                <UButton
+                  color="error"
+                  icon="i-lucide-trash"
+                  variant="outline"
+                  @click="onDelete(row.original as Currency)"
+                />
+              </UTooltip>
+            </div>
+          </template>
+        </UTable>
+      </UCard>
     </div>
-
-    <UCard>
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold">Exchange Rates (Relative to EUR)</h2>
-        <UButton
-          color="primary"
-          icon="i-lucide-plus"
-          label="Add Currency"
-          @click="openAddModal"
-        />
-      </div>
-
-      <UTable :columns="columns" :data="tableData">
-        <template #rateToEUR-cell="{ row }">
-          {{ Number((row.original as Currency).rateToEUR).toFixed(4) }} EUR
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex gap-2">
-            <UTooltip
-              :content="{ align: 'center', side: 'top', sideOffset: 8 }"
-              arrow
-              text="Edit"
-            >
-              <UButton
-                color="neutral"
-                icon="i-lucide-pencil"
-                variant="outline"
-                @click="openEditModal(row.original as Currency)"
-              />
-            </UTooltip>
-
-            <UTooltip
-              :content="{ align: 'center', side: 'top', sideOffset: 8 }"
-              arrow
-              text="Delete"
-            >
-              <UButton
-                color="error"
-                icon="i-lucide-trash"
-                variant="outline"
-                @click="onDelete(row.original as Currency)"
-              />
-            </UTooltip>
-          </div>
-        </template>
-      </UTable>
-    </UCard>
 
     <CrudModal
       v-model:open="isModalOpen"

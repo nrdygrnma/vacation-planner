@@ -54,6 +54,12 @@ export interface FlightSegment {
   isReturn?: boolean;
 }
 
+export const travelClassLabels: Record<string, string> = {
+  economy: "Economy",
+  premium_economy: "Premium Economy",
+  business: "Business",
+};
+
 export interface FlightOption {
   id: string;
   airline: { name: string; symbol: string };
