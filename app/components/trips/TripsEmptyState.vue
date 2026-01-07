@@ -23,13 +23,13 @@
 
     <!-- Gradient Overlay -->
     <div
-      class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent z-[1]"
+      class="absolute inset-0 bg-linear-to-t from-5% from-gray-900/80 to-75% to-transparent z-[1]"
     ></div>
 
     <!-- Image Credit -->
     <NuxtLink
       :to="images[currentIndex]?.unsplashUrl"
-      class="absolute bottom-4 right-6 z-[2] text-[10px] text-white/40 hover:text-white/60 transition-colors font-medium tracking-wider uppercase no-underline"
+      class="saturate-200 contrast-200 absolute bottom-4 right-6 z-[2] text-[10px] text-white/40 hover:text-white/60 transition-colors font-medium tracking-wider uppercase no-underline"
       target="_blank"
     >
       Photo by {{ images[currentIndex]?.credit }}
@@ -88,39 +88,50 @@ defineEmits<{
 
 const images = [
   {
-    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop",
-    credit: "Sean Oulashin",
-    unsplashUrl: "https://unsplash.com/photos/KMn4VEeEPR8",
+    url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?q=80&w=626&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    credit: "Shifaaz shamoon",
+    unsplashUrl:
+      "https://unsplash.com/photos/aerial-photo-of-seashore-sLAk1guBG90",
   },
   {
-    url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1200&auto=format&fit=crop",
-    credit: "Harvey Rodgers",
-    unsplashUrl: "https://unsplash.com/photos/8S_97SAn9zI",
+    url: "https://images.unsplash.com/photo-1501854140801-50d01698950b?q=80&w=1575&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    credit: "Qingbao Meng",
+    unsplashUrl:
+      "https://unsplash.com/photos/birds-eye-view-photograph-of-green-mountains-01_igFr7hd4",
   },
   {
-    url: "https://images.unsplash.com/photo-1611223157502-18a03c59a4d9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    credit: "Fabio Fistarol",
-    unsplashUrl: "https://unsplash.com/photos/SInqK85uXwM",
+    url: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    credit: "Mark Basarab",
+    unsplashUrl: "https://unsplash.com/photos/blue-starry-night-1OtUkD_8svc",
   },
   {
-    url: "https://images.unsplash.com/photo-1507941097613-9f2157b69235?q=80&w=1243&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    credit: "Florian Wehde",
-    unsplashUrl: "https://unsplash.com/photos/S9h3901nKqY",
+    url: "https://images.unsplash.com/photo-1499980762202-04245017d5bf?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    credit: "Linus Nylund",
+    unsplashUrl:
+      "https://unsplash.com/photos/white-starfish-on-sand-underwater-during-daytime-UCIZh0-OYPw",
   },
   {
-    url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&auto=format&fit=crop",
-    credit: "Pietro De Grandi",
-    unsplashUrl: "https://unsplash.com/photos/T7K4aEGaSzQ",
+    url: "https://images.unsplash.com/photo-1444464666168-49d633b86797?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    credit: "Vincent van Zalinge",
+    unsplashUrl:
+      "https://unsplash.com/photos/selective-focus-photography-of-blue-kingfisher-vUNQaTtZeOo",
   },
   {
-    url: "https://images.unsplash.com/photo-1592261201285-5b49215bc2e1?q=80&w=1185&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    credit: "Delphine Beausoleil",
-    unsplashUrl: "https://unsplash.com/photos/C4TbeKqS0f0",
+    url: "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    credit: "Andreas Glücklhorn",
+    unsplashUrl:
+      "https://unsplash.com/photos/birds-eye-view-photography-of-trees-and-body-of-water-mawU2PoJWfU",
   },
   {
     url: "https://images.unsplash.com/photo-1533050487297-09b450131914?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     credit: "Alex Knight",
     unsplashUrl: "https://unsplash.com/photos/2269y26vM3Y",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1474710820418-dd5406ee35d5?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    credit: "Davide Cantelli",
+    unsplashUrl:
+      "https://unsplash.com/photos/person-standing-in-ice-cave-at-daytime-r0q06hjTgOc",
   },
 ];
 
