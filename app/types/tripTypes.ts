@@ -196,4 +196,25 @@ export interface Trip {
   flights: FlightOption[];
   carRentals: CarRentalOption[];
   tripStops: TripStop[];
+  journalEntries: JournalEntry[];
+}
+
+// ------------------
+// Journal
+// ------------------
+export interface JournalEntry {
+  id: string;
+  tripId: string;
+  date: string;
+  content: string;
+  photos: JournalPhoto[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface JournalPhoto {
+  id: string;
+  url: string;
+  caption?: string | null;
+  journalEntryId: string;
 }

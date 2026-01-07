@@ -7,6 +7,19 @@ export default defineEventHandler(async () => {
     );
     const rates = response.rates || {};
 
+    const baseCurrencies = [
+      { name: "Euro", symbol: "EUR" },
+      { name: "US Dollar", symbol: "USD" },
+    ];
+
+    for (const bc of baseCurrencies) {
+      await prisma.currency.upsert({
+        where: { symbol: bc.symbol },
+        update: {},
+        create: bc,
+      });
+    }
+
     const dbCurrencies = await prisma.currency.findMany();
 
     for (const c of dbCurrencies) {

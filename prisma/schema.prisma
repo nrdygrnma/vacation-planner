@@ -25,50 +25,70 @@ model Currency {
 }
 
 model Trip {
-  id                  String               @id @default(cuid())
-  title               String
-  startDate           DateTime?
-  endDate             DateTime?
-  people              Int                  @default(1)
-  totalCostEUR        Decimal
-  currencyId          String
-  selectedFlightId    String?              @unique
-  selectedCarRentalId String?              @unique
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  imageUrl            String?
-  startLocationName   String?
-  startLat            Float?
-  startLng            Float?
-  endLocationName     String?
-  endLat              Float?
-  endLng              Float?
-  splitFlightCost     Boolean              @default(false)
-  splitCarRentalCost  Boolean              @default(true)
-  splitAccommodationCost Boolean           @default(true)
-  carRentals          CarRental[]          @relation("TripCarRentals")
-  flights             Flight[]             @relation("TripFlights")
-  selectedCarRental   CarRental?           @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
-  selectedFlight      Flight?              @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
-  currency            Currency             @relation(fields: [currencyId], references: [id])
-  tripStops           TripStop[]
-  snapshots           ComparisonSnapshot[]
+  id                     String               @id @default(cuid())
+  title                  String
+  startDate              DateTime?
+  endDate                DateTime?
+  people                 Int                  @default(1)
+  totalCostEUR           Decimal
+  currencyId             String
+  selectedFlightId       String?              @unique
+  selectedCarRentalId    String?              @unique
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  imageUrl               String?
+  startLocationName      String?
+  startLat               Float?
+  startLng               Float?
+  endLocationName        String?
+  endLat                 Float?
+  endLng                 Float?
+  splitFlightCost        Boolean              @default(false)
+  splitCarRentalCost     Boolean              @default(true)
+  splitAccommodationCost Boolean              @default(true)
+  carRentals             CarRental[]          @relation("TripCarRentals")
+  snapshots              ComparisonSnapshot[]
+  flights                Flight[]             @relation("TripFlights")
+  journalEntries         JournalEntry[]
+  currency               Currency             @relation(fields: [currencyId], references: [id])
+  selectedFlight         Flight?              @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
+  selectedCarRental      CarRental?           @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
+  tripStops              TripStop[]
 
   @@index([startDate])
   @@index([endDate])
 }
 
+model JournalEntry {
+  id        String         @id @default(cuid())
+  tripId    String
+  date      DateTime
+  content   String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  trip      Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  photos    JournalPhoto[]
+}
+
+model JournalPhoto {
+  id             String       @id @default(cuid())
+  url            String
+  caption        String?
+  journalEntryId String
+  entry          JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+}
+
 model ComparisonSnapshot {
-  id           String   @id @default(cuid())
-  tripId       String
-  name         String
-  flightId     String?
-  carRentalId  String?
-  stopSelections String // JSON string for { stopId: accommodationId }
-  totalCostEUR Decimal
-  reasoning    String?
-  createdAt    DateTime @default(now())
-  trip         Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  id             String   @id @default(cuid())
+  tripId         String
+  name           String
+  flightId       String?
+  carRentalId    String?
+  stopSelections String
+  totalCostEUR   Decimal
+  reasoning      String?
+  createdAt      DateTime @default(now())
+  trip           Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
 }
 
 model Flight {
@@ -104,8 +124,8 @@ model Flight {
   stopOverAirports        String?
   stopOverDurationMinutes Int?
   segments                String?
-  currency                Currency  @relation(fields: [currencyId], references: [id])
   trip                    Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
+  currency                Currency  @relation(fields: [currencyId], references: [id])
   selectedOnTrip          Trip?     @relation("SelectedFlightOnTrip")
 
   @@index([tripId])
@@ -132,12 +152,12 @@ model CarRental {
   insurancePerDay Decimal?
   currencyId      String
   totalCostEUR    Decimal?
-  notes           String?
-  url             String?
-  imageUrl        String?
   tripId          String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  imageUrl        String?
+  notes           String?
+  url             String?
   carType         CarType?  @relation(fields: [carTypeId], references: [id])
   currency        Currency  @relation(fields: [currencyId], references: [id])
   trip            Trip      @relation("TripCarRentals", fields: [tripId], references: [id], onDelete: Cascade)
@@ -152,14 +172,14 @@ model TripStop {
   lat                     Float?
   lng                     Float?
   order                   Int             @default(0)
-  type                    String          @default("STOP") // STOP, HUB
+  type                    String          @default("STOP")
   selectedAccommodationId String?         @unique
   tripId                  String
   createdAt               DateTime        @default(now())
   updatedAt               DateTime        @updatedAt
   accommodations          Accommodation[] @relation("TripStopAccommodation")
-  selectedAccommodation   Accommodation?  @relation("SelectedAccommodationOnStop", fields: [selectedAccommodationId], references: [id])
   trip                    Trip            @relation(fields: [tripId], references: [id])
+  selectedAccommodation   Accommodation?  @relation("SelectedAccommodationOnStop", fields: [selectedAccommodationId], references: [id])
 }
 
 model RoomType {
@@ -182,11 +202,11 @@ model Accommodation {
   updatedAt      DateTime             @updatedAt
   notes          String?
   url            String?
-  roomType       RoomType?            @relation(fields: [roomTypeId], references: [id])
-  currency       Currency             @relation(fields: [currencyId], references: [id])
   tripStop       TripStop?            @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
-  selectedOnStop TripStop?            @relation("SelectedAccommodationOnStop")
+  currency       Currency             @relation(fields: [currencyId], references: [id])
+  roomType       RoomType?            @relation(fields: [roomTypeId], references: [id])
   images         AccommodationImage[]
+  selectedOnStop TripStop?            @relation("SelectedAccommodationOnStop")
 }
 
 model AccommodationImage {

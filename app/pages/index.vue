@@ -11,7 +11,11 @@
       @open="onCardOpen"
     />
 
-    <TripsEmptyState v-else :total="items?.length || 0" />
+    <TripsEmptyState
+      v-else
+      :total="items?.length || 0"
+      @open-create="onOpenCreate"
+    />
 
     <CrudModal
       v-model:open="isFormOpen"

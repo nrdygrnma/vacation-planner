@@ -220,6 +220,7 @@ const sections: DocSection[] = [
       <p><strong>Export Options (found in Comparisons and Map tabs):</strong></p>
       <ul class="list-disc ml-5 space-y-2">
         <li><strong>Trip Info Sheet:</strong> In the "Comparisons" tab, click <span class="font-bold">"Export Selection"</span>. This generates a portrait PDF with all booking links, notes, images, and a trip map.</li>
+        <li><strong>Journal Export:</strong> In the "Journal" tab, click <span class="font-bold">"Export Journal"</span> to get a beautiful narrative PDF of your trip memories.</li>
         <li><strong>Comparison Table:</strong> Click <span class="font-bold">"Export Comparison"</span> to get a landscape PDF showing all your saved snapshots side-by-side.</li>
         <li><strong>Route Details:</strong> In the "Map" tab, click the list icon to open "Route Details", then click <span class="font-bold">"Export PDF"</span>. This focuses on driving distances and travel times.</li>
       </ul>
@@ -230,6 +231,29 @@ const sections: DocSection[] = [
         icon: "i-lucide-mouse-pointer-click",
         content:
           "All PDF exports include clickable booking links. If you added a URL for a flight or hotel, you can tap it directly in the PDF to open the booking page.",
+      },
+    ],
+  },
+  {
+    id: "journal",
+    title: "Trip Journal",
+    icon: "i-lucide-book-marked",
+    content: `
+      <p>Keep a daily diary of your adventures. The Trip Journal allows you to write notes and attach photos for every day of your journey.</p>
+      <p><strong>How to use the Journal:</strong></p>
+      <ul class="list-disc ml-5 space-y-2">
+        <li><strong>Open Journal:</strong> Select the <span class="text-primary font-bold">"Journal"</span> tab in the trip planning view.</li>
+        <li><strong>Add Entry:</strong> Click "Add Entry". Choose a date, write your thoughts, and optionally add URLs for photos you've taken.</li>
+        <li><strong>Timeline View:</strong> Your entries are automatically sorted chronologically in a beautiful timeline.</li>
+        <li><strong>Export:</strong> Click "Export Journal" to generate a narrative PDF of your diary.</li>
+      </ul>
+    `,
+    subsections: [
+      {
+        label: "Photo Captions",
+        icon: "i-lucide-type",
+        content:
+          "You can add optional captions to each photo to remember specific details about the moment.",
       },
     ],
   },
