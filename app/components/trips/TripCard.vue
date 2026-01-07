@@ -28,7 +28,11 @@
           class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent"
         />
         <div class="absolute left-3 top-3 flex items-center gap-2">
-          <UBadge color="neutral" variant="soft">
+          <UBadge
+            class="bg-white/20 text-white/70"
+            color="neutral"
+            variant="soft"
+          >
             {{ trip.currency?.symbol || "¤" }}
           </UBadge>
         </div>
@@ -37,7 +41,7 @@
 
     <div class="flex items-start justify-between gap-2">
       <h2
-        class="text-sm text-primary-500 font-semibold leading-snug line-clamp-2"
+        class="text-md text-primary-500 font-semibold leading-snug line-clamp-2"
       >
         {{ trip.title }}
       </h2>
@@ -68,7 +72,7 @@
           <UButton
             color="neutral"
             icon="i-lucide-edit"
-            variant="outline"
+            variant="soft"
             @click="emit('edit', trip)"
           />
         </UTooltip>
@@ -81,7 +85,7 @@
           <UButton
             color="error"
             icon="i-lucide-trash"
-            variant="outline"
+            variant="soft"
             @click="emit('delete', trip)"
           />
         </UTooltip>

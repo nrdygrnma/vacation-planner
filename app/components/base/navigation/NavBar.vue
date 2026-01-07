@@ -2,15 +2,13 @@
   <header class="px-6 py-4 pb-3 border border-gray-100 rounded-md shadow-sm">
     <div class="flex items-center justify-between gap-4">
       <NuxtLink
-        aria-label="Tripé Vacation Planner home"
+        aria-label="Trippy Vacation Planner home"
         class="inline-flex items-center gap-2 no-underline"
         to="/"
       >
-        <img
-          alt="Tripé Vacation Planner"
-          class="h-6 w-auto"
-          src="/images/tripe_logo.png"
-        />
+        <span class="text-2xl font-black tracking-tighter text-primary -mt-2">
+          Trippy
+        </span>
       </NuxtLink>
 
       <!-- Desktop navigation using custom TabLink -->
