@@ -1,24 +1,32 @@
 <template>
-  <section v-if="trip" class="space-y-1">
-    <div>
-      <UButton
-        color="neutral"
-        icon="i-lucide-arrow-left"
-        label="Back"
-        size="xs"
-        variant="ghost"
-        @click="navigateTo('/')"
-      />
-    </div>
+  <section v-if="trip" class="space-y-1.5">
+    <TripDetailsHero :coverPosition="'center_20%'" :trip="trip">
+      <div class="h-full flex flex-col justify-between">
+        <div>
+          <UButton
+            class="backdrop-blur-md bg-white/20 hover:bg-white/30 text-white/50 hover:text-white/70"
+            color="neutral"
+            icon="i-lucide-arrow-left"
+            label="Back"
+            size="xs"
+            variant="soft"
+            @click="navigateTo('/')"
+          />
+        </div>
 
-    <TripDetailsHero :coverPosition="'center_20%'" :trip="trip" />
-
-    <TripDetailsHeader
-      :trip="trip"
-      @delete="openDelete()"
-      @edit="openEdit()"
-      @show-comparisons="activeTab = 'comparisons'"
-    />
+        <div
+          class="bg-gray-900/40 backdrop-blur-md p-3 md:p-4 -mx-4 md:-mx-6 -mb-4 md:-mb-6 border-t border-white/10"
+        >
+          <TripDetailsHeader
+            :trip="trip"
+            is-overlay
+            @delete="openDelete()"
+            @edit="openEdit()"
+            @show-comparisons="activeTab = 'comparisons'"
+          />
+        </div>
+      </div>
+    </TripDetailsHero>
 
     <div class="space-y-3">
       <UTabs v-model="activeTab" :items="tabItems" />

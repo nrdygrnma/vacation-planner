@@ -1,7 +1,13 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-button {
-    cursor: pointer;
-}
+@layer base {
+    h1 {
+        @apply text-4xl! font-normal! text-primary tracking-tight;
+    }
 
+    button {
+        cursor: pointer;
+    }
+
+}

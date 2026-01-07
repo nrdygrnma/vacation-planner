@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-between gap-4">
-    <h1 class="text-3xl text-primary font-light">Trip Overview</h1>
+    <h1 class="text-3xl text-primary font-bold">Trip Overview</h1>
     <div class="flex items-center gap-2">
       <UInput
         :value="modelValue"

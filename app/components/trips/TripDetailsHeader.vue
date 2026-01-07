@@ -1,20 +1,26 @@
 <template>
-  <header class="space-y-3 pt-1">
+  <header :class="['space-y-0.5 pt-0.5', isOverlay ? 'text-white' : '']">
     <div
       class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
     >
-      <div class="min-w-0">
+      <div class="min-w-0 px-4">
         <h1
+          :class="[
+            'truncate text-3xl md:text-4xl font-light leading-tight overflow-visible',
+            isOverlay ? 'text-white' : 'text-primary',
+          ]"
           :title="trip.title"
-          class="truncate text-2xl md:text-3xl font-light text-primary leading-[1.2] overflow-visible"
         >
           {{ trip.title }}
         </h1>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 px-4">
         <div
-          class="hidden md:flex items-center gap-4 text-sm text-gray-600 mr-2"
+          :class="[
+            'hidden md:flex items-center gap-4 text-sm mr-2',
+            isOverlay ? 'text-white/90' : 'text-gray-600',
+          ]"
         >
           <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
             <UIcon class="size-4" name="i-lucide-calendar" />
@@ -26,9 +32,20 @@
           </span>
           <span class="inline-flex items-center gap-1.5">
             <UIcon class="size-4" name="i-lucide-banknote" />
-            <UBadge color="neutral" size="sm" variant="soft">
-              {{ trip.currency?.symbol || "¤" }}
-            </UBadge>
+            <UTooltip
+              :content="{ align: 'center', side: 'top', sideOffset: 8 }"
+              :text="`${trip.currency!.name}`"
+              arrow
+            >
+              <UBadge
+                class="cursor-help bg-white/10 text-white/90"
+                color="neutral"
+                size="sm"
+                variant="soft"
+              >
+                {{ trip.currency?.symbol || "¤" }}
+              </UBadge>
+            </UTooltip>
           </span>
         </div>
 
@@ -38,9 +55,10 @@
           text="Comparisons"
         >
           <UButton
+            class="bg-white/10 hover:bg-white/20 text-white/90 hover:text-white/95"
             color="neutral"
             icon="i-lucide-layers"
-            variant="outline"
+            variant="soft"
             @click="emit('show-comparisons')"
           />
         </UTooltip>
@@ -51,9 +69,9 @@
           text="Edit"
         >
           <UButton
-            color="neutral"
+            class="bg-white/10 hover:bg-white/20 text-white/90 hover:text-white/95"
             icon="i-lucide-edit"
-            variant="outline"
+            variant="soft"
             @click="emit('edit')"
           />
         </UTooltip>
@@ -64,9 +82,10 @@
           text="Delete"
         >
           <UButton
+            class="backdrop-blur-sm"
             color="error"
             icon="i-lucide-trash"
-            variant="outline"
+            variant="subtle"
             @click="emit('delete')"
           />
         </UTooltip>
@@ -75,7 +94,10 @@
 
     <!-- Mobile/Tablet meta below name -->
     <div
-      class="md:hidden flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600"
+      :class="[
+        'md:hidden flex flex-wrap items-center gap-x-4 gap-y-1 text-sm px-4',
+        isOverlay ? 'text-white/90' : 'text-gray-600',
+      ]"
     >
       <span class="inline-flex items-center gap-1.5">
         <UIcon class="size-4" name="i-lucide-calendar" />
@@ -87,7 +109,7 @@
       </span>
       <span class="inline-flex items-center gap-1.5">
         <UIcon class="size-4" name="i-lucide-banknote" />
-        <UBadge color="neutral" variant="soft">
+        <UBadge :color="isOverlay ? 'neutral' : 'neutral'" variant="soft">
           {{ trip.currency?.symbol || "¤" }}
         </UBadge>
       </span>
@@ -99,7 +121,10 @@
 import type { Trip } from "@/types/tripTypes";
 import { useDateUtils } from "@/composables/useDateUtils";
 
-const props = defineProps<{ trip: Trip }>();
+const props = defineProps<{
+  trip: Trip;
+  isOverlay?: boolean;
+}>();
 const emit = defineEmits<{
   (e: "edit"): void;
   (e: "delete"): void;

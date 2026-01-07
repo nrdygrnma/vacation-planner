@@ -58,6 +58,7 @@ import TabLink from "~/components/base/navigation/TabLink.vue";
 const links = [
   { label: "Trips", to: "/" },
   { label: "Currencies", to: "/currencies" },
+  { label: "Docs", to: "/docs" },
 ];
 
 const isOpen = ref(false);

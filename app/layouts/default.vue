@@ -2,7 +2,7 @@
   <div class="max-w-5xl mx-auto px-4 pt-4 pb-16">
     <NavBar />
 
-    <div class="mt-4">
+    <div class="mt-10">
       <slot />
     </div>
 
