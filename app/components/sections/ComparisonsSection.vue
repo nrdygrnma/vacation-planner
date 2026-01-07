@@ -88,11 +88,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  type AccommodationOption,
-  travelClassLabels,
-  type Trip,
-} from "@/types/tripTypes";
+import { type AccommodationOption, travelClassLabels, type Trip } from "@/types/tripTypes";
 import { useCurrencyUtils } from "@/composables/useCurrencyUtils";
 import { useTripStopsStore } from "~/stores/tripStops";
 import { toast } from "vue-sonner";
@@ -233,12 +229,15 @@ const exportSelectionToPDF = async () => {
     mode: "cover" | "contain" = "cover",
   ) => {
     try {
+      // Use proxy to avoid CORS issues for external images
+      const proxyUrl = `/api/proxy/image?url=${encodeURIComponent(url)}`;
+
       const img = new Image();
       img.crossOrigin = "Anonymous";
       await new Promise((resolve, reject) => {
         img.onload = resolve;
         img.onerror = reject;
-        img.src = url;
+        img.src = proxyUrl;
       });
 
       const canvas = document.createElement("canvas");

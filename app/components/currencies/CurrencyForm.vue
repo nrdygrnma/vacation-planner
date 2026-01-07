@@ -10,22 +10,25 @@
   >
     <template #default="{ state }">
       <div class="space-y-4">
+        <UFormField label="Symbol" name="symbol" required>
+          <div class="flex gap-2">
+            <UInput
+              v-model="state.symbol"
+              class="flex-1"
+              placeholder="e.g. USD"
+              @blur="fetchName"
+            />
+            <UButton
+              color="neutral"
+              icon="i-lucide-refresh-cw"
+              size="sm"
+              variant="ghost"
+              @click="fetchName"
+            />
+          </div>
+        </UFormField>
         <UFormField label="Name" name="name" required>
           <UInput v-model="state.name" placeholder="e.g. US Dollar" />
-        </UFormField>
-        <UFormField label="Symbol" name="symbol" required>
-          <UInput v-model="state.symbol" placeholder="e.g. USD" />
-        </UFormField>
-        <UFormField
-          label="Rate to EUR (1 [Currency] = X EUR)"
-          name="rateToEUR"
-          required
-        >
-          <UInput
-            v-model.number="state.rateToEUR"
-            step="0.0001"
-            type="number"
-          />
         </UFormField>
       </div>
     </template>
@@ -41,7 +44,6 @@ const props = withDefaults(
     initialValues?: Partial<{
       name: string;
       symbol: string;
-      rateToEUR: number;
     }>;
     submitLabel?: string;
     cancelLabel?: string;
@@ -60,13 +62,28 @@ const emit = defineEmits<{
 const state = reactive({
   name: props.initialValues?.name ?? "",
   symbol: props.initialValues?.symbol ?? "",
-  rateToEUR: props.initialValues?.rateToEUR ?? 1,
 });
+
+const fetchName = async () => {
+  if (!state.symbol || state.symbol.length < 3) return;
+  const symbol = state.symbol.toUpperCase();
+  state.symbol = symbol;
+
+  try {
+    const data = await $fetch<Record<string, string>>(
+      "https://api.frankfurter.dev/v1/currencies",
+    );
+    if (data[symbol]) {
+      state.name = data[symbol];
+    }
+  } catch (e) {
+    console.error("Failed to fetch currency name", e);
+  }
+};
 
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required."),
-  symbol: z.string().trim().min(1, "Symbol is required."),
-  rateToEUR: z.coerce.number().positive("Rate must be positive."),
+  symbol: z.string().trim().min(3, "Symbol must be 3 characters.").max(3),
 });
 
 const onSubmit = (data: any) => {

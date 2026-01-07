@@ -122,12 +122,12 @@ const sections: DocSection[] = [
     title: "Currency Management",
     icon: "i-lucide-coins",
     content: `
-      <p>Managing multiple currencies is a core feature of the Vacation Planner. It allows you to track expenses in their original currency while seeing a unified total in your preferred base currency.</p>
-      <p><strong>How to manage currencies:</strong></p>
+      <p>Managing currencies is streamlined in the Vacation Planner, focusing on EUR and USD to ensure simplicity and accuracy.</p>
+      <p><strong>How it works:</strong></p>
       <ul class="list-disc ml-5 space-y-2">
         <li><strong>Access the page:</strong> Navigate to the <span class="text-primary font-bold">"Currencies"</span> page from the top navigation bar.</li>
-        <li><strong>Add/Edit:</strong> Click "Add Currency" to define a new currency or use the edit icon to update existing ones.</li>
-        <li><strong>Exchange Rates:</strong> Set the rate relative to EUR (e.g., how many EUR equals 1 unit of this currency). This ensures all costs are accurately normalized.</li>
+        <li><strong>Automated Rates:</strong> Exchange rates for EUR and USD are fetched automatically upon application start via the Frankfurter API.</li>
+        <li><strong>Manual Update:</strong> You can trigger a manual rate update at any time by clicking the <span class="text-primary font-bold">"Fetch Rates"</span> button on the Currencies page.</li>
       </ul>
     `,
   },

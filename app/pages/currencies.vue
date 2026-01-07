@@ -5,18 +5,30 @@
     <div class="mt-2">
       <UCard class="w-full">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold">
-            Exchange Rates (Relative to EUR)
-          </h2>
-          <UButton
-            color="primary"
-            icon="i-lucide-plus"
-            label="Add Currency"
-            @click="openAddModal"
-          />
+          <div>
+            <h2 class="text-lg font-semibold">
+              Exchange Rates (Relative to EUR)
+            </h2>
+            <p class="text-xs text-gray-500 italic">
+              Rates are updated live via Frankfurter API
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <UButton
+              :loading="syncing"
+              color="neutral"
+              icon="i-lucide-refresh-cw"
+              label="Fetch Rates"
+              variant="outline"
+              @click="onSync"
+            />
+          </div>
         </div>
 
-        <UTable :columns="columns" :data="tableData">
+        <UTable
+          :columns="columns.filter((c) => c.id !== 'actions')"
+          :data="tableData"
+        >
           <template #rateToEUR-cell="{ row }">
             {{ Number((row.original as Currency).rateToEUR).toFixed(4) }} EUR
           </template>
@@ -101,6 +113,21 @@ const columns = [
 
 const isModalOpen = ref(false);
 const isEditing = ref(false);
+const syncing = ref(false);
+
+const onSync = async () => {
+  try {
+    syncing.value = true;
+    await $fetch("/api/currencies/sync", { method: "POST" });
+    await refresh();
+    toast.success("Exchange rates synchronized");
+  } catch (e) {
+    console.error(e);
+    toast.error("Failed to synchronize rates");
+  } finally {
+    syncing.value = false;
+  }
+};
 const editingId = ref<string | null>(null);
 const formKey = ref(0);
 const formRef = ref<InstanceType<typeof CurrencyForm> | null>(null);
@@ -114,7 +141,6 @@ const formInitialValues = computed(() => {
   return {
     name: c.name,
     symbol: c.symbol,
-    rateToEUR: Number(c.rateToEUR),
   };
 });
 

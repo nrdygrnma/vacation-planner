@@ -4,10 +4,8 @@ import { Currency } from "../app/types/tripTypes";
 const prisma = new PrismaClient();
 
 const currencies: Currency[] = [
-  { name: "Euro (EUR)", symbol: "€" },
-  { name: "US Dollar (USD)", symbol: "$" },
-  { name: "British Pound (GBP)", symbol: "£" },
-  { name: "Costa Rican Colón (CRC)", symbol: "₡" },
+  { name: "Euro", symbol: "EUR" },
+  { name: "US Dollar", symbol: "USD" },
 ];
 
 const carTypes = [
