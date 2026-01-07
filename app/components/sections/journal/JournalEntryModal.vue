@@ -1,8 +1,8 @@
 <template>
   <UModal
+    :description="entry ? 'Update your daily journal' : 'Write about your day'"
     :open="open"
     :title="entry ? 'Edit Journal Entry' : 'New Journal Entry'"
-    :description="entry ? 'Update your daily journal' : 'Write about your day'"
     @update:open="$emit('update:open', $event)"
   >
     <template #body>
@@ -20,6 +20,7 @@
           <UTextarea
             v-model="state.content"
             :rows="6"
+            class="w-full"
             placeholder="Write your thoughts..."
           />
         </UFormField>
@@ -67,7 +68,7 @@
         <div class="flex justify-end gap-3 pt-4">
           <UButton
             color="neutral"
-            variant="ghost"
+            variant="soft"
             @click="$emit('update:open', false)"
           >
             Cancel
