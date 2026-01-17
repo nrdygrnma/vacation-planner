@@ -356,7 +356,11 @@ const formatDate = (date: string | null | undefined) => {
 const formatCurrency = (val: number | string | undefined | null) => {
   const v = Number(val) || 0;
   const symbol = props.rental.currency?.symbol || "€";
-  return `${symbol}${v.toFixed(2)}`;
+  const formatted = new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(v);
+  return `${symbol}${formatted}`;
 };
 
 const totalPriceDisplay = computed(() => {
@@ -407,6 +411,10 @@ const totalPriceInTripCurrencyDisplay = computed(() => {
   const rateToEUR = Number(props.tripCurrency.rateToEUR) || 1;
   const totalInTripCurrency = totalEUR / rateToEUR;
 
-  return `${props.tripCurrency.symbol}${totalInTripCurrency.toFixed(2)}`;
+  const formatted = new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(totalInTripCurrency);
+  return `${props.tripCurrency.symbol}${formatted}`;
 });
 </script>

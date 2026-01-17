@@ -50,8 +50,16 @@
             Price
           </span>
           <div class="space-y-0.5">
-            <p class="text-sm font-bold text-gray-700 leading-none">
+            <p
+              class="text-sm font-bold text-gray-700 leading-none flex items-baseline gap-2"
+            >
               {{ formatCurrency(displayPrice.value, accommodation) }}
+              <span
+                v-if="eurBracket"
+                class="text-[11px] font-medium text-gray-500"
+              >
+                ({{ eurBracket }})
+              </span>
             </p>
             <p
               class="text-[10px] text-gray-500 font-medium flex items-center gap-1"
@@ -106,6 +114,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import type { AccommodationOption } from "~/types/tripTypes";
+import { useCurrencyUtils } from "~/composables/useCurrencyUtils";
 
 const props = defineProps<{
   accommodation: AccommodationOption;
@@ -119,6 +128,18 @@ const displayPrice = computed(() =>
 const secondaryPrice = computed(() =>
   getSecondaryPrice(props.accommodation, props.nights),
 );
+
+const { convertToEUR, formatEUR } = useCurrencyUtils();
+const eurBracket = computed<string | null>(() => {
+  const acc = props.accommodation;
+  if (!acc?.currencyId) return null;
+  // Skip when already EUR
+  if ((acc.currency?.symbol || "").toUpperCase() === "EUR") return null;
+  const total = Number(displayPrice.value.value) || 0;
+  if (total <= 0) return null;
+  const eur = convertToEUR(total, acc.currencyId);
+  return formatEUR(eur);
+});
 
 const getDisplayPrice = (acc: AccommodationOption, nightsCount: number) => {
   if (acc.totalPrice) return { value: acc.totalPrice, label: "total" };
@@ -144,9 +165,11 @@ const formatCurrency = (
   acc: AccommodationOption,
 ) => {
   const value = Number(amount) || 0;
-  if (acc.currency?.symbol) {
-    return `${acc.currency.symbol}${value.toFixed(2)}`;
-  }
-  return `€${value.toFixed(2)}`;
+  const symbol = acc.currency?.symbol || "€";
+  const formatted = new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+  return `${symbol}${formatted}`;
 };
 </script>

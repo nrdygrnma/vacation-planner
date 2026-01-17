@@ -183,9 +183,15 @@
 <script lang="ts" setup>
 import CrudForm from "~/components/base/CrudForm.vue";
 import AirlineSelect from "~/components/flights/AirlineSelect.vue";
-import { type Currency, type FlightOption, travelClassLabels } from "@/types/tripTypes";
+import {
+  type Currency,
+  type FlightOption,
+  travelClassLabels,
+} from "@/types/tripTypes";
 import { z } from "zod";
-import FlightSegmentForm, { type FormSegment } from "~/components/flights/FlightSegmentForm.vue";
+import FlightSegmentForm, {
+  type FormSegment,
+} from "~/components/flights/FlightSegmentForm.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -252,6 +258,7 @@ if (
       arrivalDate: toDateInput(s.arrivalDate),
       arrivalTime: toTimeInput(s.arrivalDate),
       isReturn: !!s.isReturn,
+      flightNumber: s.flightNumber || "",
     };
     if (seg.isReturn) initialReturn.push(seg);
     else initialOutbound.push(seg);
@@ -269,6 +276,7 @@ if (initialOutbound.length === 0) {
     arrivalDate: "",
     arrivalTime: "",
     isReturn: false,
+    flightNumber: "",
   });
 }
 
@@ -446,6 +454,7 @@ const schema = z
         departureTime: z.string().min(1, "Required"),
         arrivalDate: z.string().min(1, "Required"),
         arrivalTime: z.string().min(1, "Required"),
+        flightNumber: z.string().trim().optional().or(z.literal("")),
       }),
     ),
     returnSegments: z.array(
@@ -456,6 +465,7 @@ const schema = z
         departureTime: z.string().min(1, "Required"),
         arrivalDate: z.string().min(1, "Required"),
         arrivalTime: z.string().min(1, "Required"),
+        flightNumber: z.string().trim().optional().or(z.literal("")),
       }),
     ),
   })
@@ -520,6 +530,7 @@ const onSubmit = (formData: any) => {
       toAirportTimezone: s.toAirportTimezone,
       departureDate: toIsoFromDateTimeUtc(s.departureDate, s.departureTime),
       arrivalDate: toIsoFromDateTimeUtc(s.arrivalDate, s.arrivalTime),
+      flightNumber: s.flightNumber?.trim() || undefined,
       isReturn: false,
     })),
     ...(data.isRoundTrip
@@ -530,6 +541,7 @@ const onSubmit = (formData: any) => {
           toAirportTimezone: s.toAirportTimezone,
           departureDate: toIsoFromDateTimeUtc(s.departureDate, s.departureTime),
           arrivalDate: toIsoFromDateTimeUtc(s.arrivalDate, s.arrivalTime),
+          flightNumber: s.flightNumber?.trim() || undefined,
           isReturn: true,
         }))
       : []),

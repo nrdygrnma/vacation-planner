@@ -38,6 +38,10 @@ export default defineEventHandler(async (event) => {
       stopOverDurationMinutes?: number | null;
       stopOverAirports?: any[] | null;
       segments?: any[] | null;
+      // Optional, not always present in payload, but supported by schema
+      isRoundTrip?: boolean;
+      returnDepartureDate?: string | null;
+      returnArrivalDate?: string | null;
     }>
   >(event);
 
@@ -65,6 +69,11 @@ export default defineEventHandler(async (event) => {
   if (body.stops !== undefined) data.stops = body.stops;
   if (body.baseFare !== undefined) data.baseFare = body.baseFare;
   if (body.extras !== undefined) data.extras = body.extras;
+  if (body.isRoundTrip !== undefined) data.isRoundTrip = body.isRoundTrip;
+  if (body.returnDepartureDate !== undefined)
+    data.returnDepartureDate = body.returnDepartureDate;
+  if (body.returnArrivalDate !== undefined)
+    data.returnArrivalDate = body.returnArrivalDate;
   if (body.currencyId !== undefined) data.currencyId = body.currencyId;
   if (body.totalCostEUR !== undefined) data.totalCostEUR = body.totalCostEUR;
   if (body.bookingUrl !== undefined) data.bookingUrl = body.bookingUrl;

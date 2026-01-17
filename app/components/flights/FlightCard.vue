@@ -465,7 +465,11 @@ const hasExtras = computed(() => {
 const formatCurrency = (val: number | string | undefined | null) => {
   const v = Number(val) || 0;
   const symbol = props.flight.currency?.symbol || "€";
-  return `${symbol}${v.toFixed(2)}`;
+  const formatted = new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(v);
+  return `${symbol}${formatted}`;
 };
 
 const totalPriceDisplay = computed(() => {

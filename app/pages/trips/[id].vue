@@ -52,6 +52,7 @@
         :trip="trip"
         @refresh="refresh"
       />
+      <!-- <JournalSection v-else-if="activeTab === 'journal'" :trip="trip" /> -->
       <TripMap v-else-if="activeTab === 'map' && trip" :trip="trip" />
     </div>
 
@@ -126,6 +127,7 @@ const tabItems = [
   { label: "Car Rentals", icon: "i-lucide-car", value: "cars" },
   { label: "Itinerary", icon: "i-lucide-map-pin", value: "itinerary" },
   { label: "Comparisons", icon: "i-lucide-layers", value: "comparisons" },
+  // { label: "Journal", icon: "i-lucide-book-marked", value: "journal" },
   { label: "Map", icon: "i-lucide-map", value: "map" },
 ];
 const activeTab = ref<string>("flights");

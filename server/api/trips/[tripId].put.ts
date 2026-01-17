@@ -102,11 +102,90 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
+    // Update trip first
     const updated = await prisma.trip.update({
       where: { id },
       data,
       include: { currency: true },
     });
+
+    // Auto-manage HUB itinerary items based on trip start/end configuration
+    // We keep this best-effort and non-fatal: if HUB creation fails, the trip update still succeeds.
+    try {
+      await prisma.$transaction(async (tx) => {
+        // START HUB
+        if (updated.startDate) {
+          const startHub = await tx.tripStop.findFirst({
+            where: { tripId: id, type: "HUB", order: 0 },
+          });
+          if (startHub) {
+            await tx.tripStop.update({
+              where: { id: startHub.id },
+              data: {
+                name: updated.startLocationName || "Start",
+                startDate: updated.startDate,
+                endDate: updated.startDate,
+                lat: updated.startLat ?? null,
+                lng: updated.startLng ?? null,
+                type: "HUB",
+                order: 0,
+              },
+            });
+          } else {
+            await tx.tripStop.create({
+              data: {
+                tripId: id,
+                name: updated.startLocationName || "Start",
+                startDate: updated.startDate,
+                endDate: updated.startDate,
+                lat: updated.startLat ?? null,
+                lng: updated.startLng ?? null,
+                type: "HUB",
+                order: 0,
+              },
+            });
+          }
+        }
+
+        // END HUB
+        if (updated.endDate) {
+          const endHub = await tx.tripStop.findFirst({
+            where: { tripId: id, type: "HUB", order: 999999 },
+          });
+          if (endHub) {
+            await tx.tripStop.update({
+              where: { id: endHub.id },
+              data: {
+                name: updated.endLocationName || "End",
+                startDate: updated.endDate,
+                endDate: updated.endDate,
+                lat: updated.endLat ?? null,
+                lng: updated.endLng ?? null,
+                type: "HUB",
+                order: 999999,
+              },
+            });
+          } else {
+            await tx.tripStop.create({
+              data: {
+                tripId: id,
+                name: updated.endLocationName || "End",
+                startDate: updated.endDate,
+                endDate: updated.endDate,
+                lat: updated.endLat ?? null,
+                lng: updated.endLng ?? null,
+                type: "HUB",
+                order: 999999,
+              },
+            });
+          }
+        }
+      });
+    } catch (e) {
+      // Non-fatal: log and continue
+      console.error("Failed to upsert HUB stops for trip", id, e);
+    }
+
     return updated;
   } catch (e: any) {
     if (e.code === "P2025") {

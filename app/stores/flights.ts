@@ -62,6 +62,14 @@ export const useFlightsStore = defineStore("flights", () => {
           "",
         toAirport:
           data.toAirport?.symbol?.trim() || data.toAirport?.name?.trim() || "",
+        // Pass through round-trip related fields so downstream code can rely on them
+        isRoundTrip: !!data.isRoundTrip,
+        returnDepartureDate: data.isRoundTrip
+          ? (data.returnDepartureDate ?? null)
+          : null,
+        returnArrivalDate: data.isRoundTrip
+          ? (data.returnArrivalDate ?? null)
+          : null,
         extras:
           data.extras && typeof data.extras === "object"
             ? JSON.stringify(data.extras)
@@ -122,6 +130,14 @@ export const useFlightsStore = defineStore("flights", () => {
       toAirport: (data.toAirport || "").trim(),
       departureDate: combine(data.departureDate, data.departureTime),
       arrivalDate: combine(data.arrivalDate, data.arrivalTime),
+      // Include optional round-trip fields for type stability
+      isRoundTrip: !!data.isRoundTrip,
+      returnDepartureDate: data.isRoundTrip
+        ? combine(data.returnDepartureDate, data.returnDepartureTime)
+        : null,
+      returnArrivalDate: data.isRoundTrip
+        ? combine(data.returnArrivalDate, data.returnArrivalTime)
+        : null,
       travelClass: data.travelClass,
       flightNumber: data.flightNumber || null,
       stops: Number(data.stops) || 0,

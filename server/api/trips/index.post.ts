@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "Invalid currency." });
   }
 
-  return prisma.trip.create({
+  const created = await prisma.trip.create({
     data: {
       title: body.title,
       startDate: body.startDate ? new Date(body.startDate) : null,
@@ -54,4 +54,42 @@ export default defineEventHandler(async (event) => {
       splitAccommodationCost: body.splitAccommodationCost ?? true,
     },
   });
+
+  // Best-effort: create HUB stops for start/end if provided
+  try {
+    await prisma.$transaction(async (tx) => {
+      if (created.startDate) {
+        await tx.tripStop.create({
+          data: {
+            tripId: created.id,
+            name: created.startLocationName || "Start",
+            startDate: created.startDate,
+            endDate: created.startDate,
+            lat: created.startLat ?? null,
+            lng: created.startLng ?? null,
+            type: "HUB",
+            order: 0,
+          },
+        });
+      }
+      if (created.endDate) {
+        await tx.tripStop.create({
+          data: {
+            tripId: created.id,
+            name: created.endLocationName || "End",
+            startDate: created.endDate,
+            endDate: created.endDate,
+            lat: created.endLat ?? null,
+            lng: created.endLng ?? null,
+            type: "HUB",
+            order: 999999,
+          },
+        });
+      }
+    });
+  } catch (e) {
+    console.error("Failed to create HUB stops for new trip", created.id, e);
+  }
+
+  return created;
 });

@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
       },
       carRentals: true,
       tripStops: {
-        orderBy: [{ startDate: "asc" }, { type: "asc" }, { order: "asc" }],
+        orderBy: [{ order: "asc" }, { startDate: "asc" }],
         include: {
           accommodations: {
             include: {

@@ -43,7 +43,7 @@
 
         <!-- Empty State / Missing Coords Warning -->
         <div
-          v-if="stopsWithCoords.length === 0"
+          v-if="!hasAnyCoords"
           class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/80 backdrop-blur-sm z-10"
         >
           <UIcon class="size-10 text-gray-400 mb-2" name="lucide:map-pin-off" />
@@ -174,6 +174,14 @@ const stopsWithCoords = computed(() =>
     ),
 );
 
+// Show map even if only trip start/end exists (no stops)
+const hasAnyCoords = computed(() => {
+  const hasTripStart =
+    props.trip.startLat != null && props.trip.startLng != null;
+  const hasTripEnd = props.trip.endLat != null && props.trip.endLng != null;
+  return hasTripStart || hasTripEnd || stopsWithCoords.value.length > 0;
+});
+
 const isStartAndEndSame = computed(() => {
   const { startLat, startLng, endLat, endLng } = props.trip;
   if (!startLat || !startLng || !endLat || !endLng) return false;
@@ -266,6 +274,24 @@ const initMap = async () => {
 
   const latLngs: [number, number][] = [];
 
+  // Normalize coordinates: accept numbers/strings, convert microdegrees, filter invalid
+  const normalizeLatLng = (lat: any, lng: any): [number, number] | null => {
+    let la = Number(lat);
+    let ln = Number(lng);
+    if (!Number.isFinite(la) || !Number.isFinite(ln)) return null;
+    // Convert microdegrees like -84204460 -> -84.20446
+    if (
+      (Math.abs(la) > 90 || Math.abs(ln) > 180) &&
+      Math.abs(la) <= 90_000_000 &&
+      Math.abs(ln) <= 180_000_000
+    ) {
+      la = la / 1_000_000;
+      ln = ln / 1_000_000;
+    }
+    if (Math.abs(la) > 90 || Math.abs(ln) > 180) return null;
+    return [la, ln];
+  };
+
   // MARKERS (START / STOPS / END)
   const allStops = stopsWithCoords.value;
   let markerCount = 0;
@@ -278,7 +304,8 @@ const initMap = async () => {
     lng: number,
     type: "START" | "STOP" | "END" | "HUB",
   ) => {
-    latLngs.push([lat, lng]);
+    const norm = normalizeLatLng(lat, lng);
+    if (norm) latLngs.push(norm);
     const totalStops =
       (props.trip.startLat != null && props.trip.startLng != null ? 1 : 0) +
       allStops.filter(
@@ -325,7 +352,8 @@ const initMap = async () => {
       bgColor = "bg-primary-500";
     }
 
-    const marker = L.marker([lat, lng], {
+    const markerPos = norm ?? [lat, lng];
+    const marker = L.marker(markerPos, {
       icon: L.divIcon({
         html: `
           <div class="custom-pin">
@@ -452,7 +480,12 @@ const initMap = async () => {
     if (container) container.style.display = "none";
   }
 
-  map.fitBounds(L.latLngBounds(latLngs), { padding: [50, 50], maxZoom: 12 });
+  // Safely adjust viewport depending on number of valid points
+  if (latLngs.length === 1) {
+    map.setView(L.latLng(latLngs[0][0], latLngs[0][1]), 10);
+  } else if (latLngs.length > 1) {
+    map.fitBounds(L.latLngBounds(latLngs), { padding: [50, 50], maxZoom: 12 });
+  }
 };
 
 onMounted(initMap);

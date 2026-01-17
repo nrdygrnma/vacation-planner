@@ -69,6 +69,11 @@
           >
             {{ getDisplayPrice(acc).label }}
           </p>
+          <template v-if="getDisplayPriceInEUR(acc)">
+            <p class="text-[9px] text-gray-600 font-medium ml-1">
+              ({{ getDisplayPriceInEUR(acc) }})
+            </p>
+          </template>
           <template v-if="getDisplayPriceInTripCurrency(acc)">
             <p class="text-[9px] text-primary-500 font-bold ml-1">
               ({{ getDisplayPriceInTripCurrency(acc) }})
@@ -221,7 +226,7 @@ defineEmits<{
   (e: "delete", id: string): void;
 }>();
 
-const { convertToEUR } = useCurrencyUtils();
+const { convertToEUR, formatEUR } = useCurrencyUtils();
 
 const getDisplayPrice = (acc: any): { value: number; label: string } => {
   if (acc.totalPrice) return { value: Number(acc.totalPrice), label: "total" };
@@ -247,7 +252,11 @@ const getSecondaryPrice = (
 const formatCurrency = (val: number | string, acc?: any) => {
   const v = Number(val) || 0;
   const symbol = acc?.currency?.symbol || "€";
-  return `${symbol}${v.toFixed(2)}`;
+  const formatted = new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(v);
+  return `${symbol}${formatted}`;
 };
 
 const getDisplayPriceInTripCurrency = (acc: any) => {
@@ -266,6 +275,19 @@ const getDisplayPriceInTripCurrency = (acc: any) => {
   const rateToEUR = Number(props.tripCurrency.rateToEUR) || 1;
   const totalInTripCurrency = totalEUR / rateToEUR;
 
-  return `${props.tripCurrency.symbol}${totalInTripCurrency.toFixed(2)}`;
+  const formatted = new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(totalInTripCurrency);
+  return `${props.tripCurrency.symbol}${formatted}`;
+};
+
+const getDisplayPriceInEUR = (acc: any) => {
+  if (!acc?.currencyId) return null;
+  if ((acc?.currency?.symbol || "").toUpperCase() === "EUR") return null;
+  const { value } = getDisplayPrice(acc);
+  if (!value || value <= 0) return null;
+  const eur = convertToEUR(value, acc.currencyId);
+  return formatEUR(eur);
 };
 </script>

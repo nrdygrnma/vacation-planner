@@ -2,8 +2,19 @@
   <section class="space-y-6">
     <TripsToolbar v-model="search" @open-create="onOpenCreate" />
 
+    <div
+      v-if="pending && !items?.length"
+      class="flex flex-col items-center justify-center py-20 space-y-4"
+    >
+      <UIcon
+        class="size-10 animate-spin text-primary"
+        name="i-lucide-loader-2"
+      />
+      <p class="text-gray-500 font-medium">Loading your trips...</p>
+    </div>
+
     <TripGrid
-      v-if="filtered.length"
+      v-else-if="filtered.length"
       :trips="filtered"
       @changed="refresh()"
       @delete="onCardDelete"
@@ -11,7 +22,11 @@
       @open="onCardOpen"
     />
 
-    <TripsEmptyState v-else :total="items?.length || 0" />
+    <TripsEmptyState
+      v-else-if="tripsStore.hasLoaded && !items.length"
+      :total="items?.length || 0"
+      @open-create="onOpenCreate"
+    />
 
     <CrudModal
       v-model:open="isFormOpen"

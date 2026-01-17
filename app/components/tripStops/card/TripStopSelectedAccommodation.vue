@@ -45,6 +45,12 @@
             }}
           </span>
           <span
+            v-if="getDisplayPriceInEUR(stop.selectedAccommodation)"
+            class="text-[10px] text-primary-700/70 font-medium ml-1"
+          >
+            ({{ getDisplayPriceInEUR(stop.selectedAccommodation) }})
+          </span>
+          <span
             class="text-[10px] text-primary-600/70 font-medium uppercase tracking-tight"
           >
             {{ getDisplayPrice(stop.selectedAccommodation).label }}
@@ -144,7 +150,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TripStop, Currency } from "~/types/tripTypes";
+import type { Currency, TripStop } from "~/types/tripTypes";
 import { useCurrencyUtils } from "~/composables/useCurrencyUtils";
 
 const props = defineProps<{
@@ -159,7 +165,7 @@ defineEmits<{
   (e: "toggleExpand"): void;
 }>();
 
-const { convertToEUR } = useCurrencyUtils();
+const { convertToEUR, formatEUR } = useCurrencyUtils();
 
 const getDisplayPrice = (acc: any): { value: number; label: string } => {
   if (acc.totalPrice) return { value: Number(acc.totalPrice), label: "total" };
@@ -188,7 +194,11 @@ const formatCurrency = (val: number | string, acc?: any) => {
     acc?.currency?.symbol ||
     props.stop.selectedAccommodation?.currency?.symbol ||
     "€";
-  return `${symbol}${v.toFixed(2)}`;
+  const formatted = new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(v);
+  return `${symbol}${formatted}`;
 };
 
 const getDisplayPriceInTripCurrency = (acc: any) => {
@@ -207,6 +217,19 @@ const getDisplayPriceInTripCurrency = (acc: any) => {
   const rateToEUR = Number(props.tripCurrency.rateToEUR) || 1;
   const totalInTripCurrency = totalEUR / rateToEUR;
 
-  return `${props.tripCurrency.symbol}${totalInTripCurrency.toFixed(2)}`;
+  const formatted = new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(totalInTripCurrency);
+  return `${props.tripCurrency.symbol}${formatted}`;
+};
+
+const getDisplayPriceInEUR = (acc: any) => {
+  if (!acc?.currencyId) return null;
+  if ((acc?.currency?.symbol || "").toUpperCase() === "EUR") return null;
+  const { value } = getDisplayPrice(acc);
+  if (!value || value <= 0) return null;
+  const eur = convertToEUR(value, acc.currencyId);
+  return formatEUR(eur);
 };
 </script>

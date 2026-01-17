@@ -8,6 +8,7 @@ export const useTripsStore = defineStore("trips", () => {
   // ------------------------
   const items = ref<Trip[]>([]);
   const pending = ref(false);
+  const hasLoaded = ref(false);
   const error = ref<string | null>(null);
   const search = ref("");
 
@@ -33,6 +34,7 @@ export const useTripsStore = defineStore("trips", () => {
       error.value = e?.statusMessage || "Failed to load trips";
     } finally {
       pending.value = false;
+      hasLoaded.value = true;
     }
   };
 
@@ -70,6 +72,7 @@ export const useTripsStore = defineStore("trips", () => {
   return {
     items,
     pending,
+    hasLoaded,
     error,
     search,
     filtered,

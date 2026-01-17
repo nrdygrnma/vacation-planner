@@ -63,6 +63,21 @@
 
       <div class="grid grid-cols-2 gap-4">
         <UFormField
+          :name="`${namePrefix}.flightNumber`"
+          label="Leg Flight Number"
+        >
+          <UInput
+            v-model="modelValue.flightNumber"
+            class="w-full"
+            maxlength="8"
+            placeholder="e.g. BA123"
+          />
+        </UFormField>
+        <div></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <UFormField
           :name="`${namePrefix}.departureDate`"
           label="Departure Date"
           required
@@ -109,6 +124,7 @@ export interface FormSegment {
   arrivalDate: string;
   arrivalTime: string;
   isReturn: boolean;
+  flightNumber?: string;
 }
 
 const modelValue = defineModel<FormSegment>({ required: true });
