@@ -49,9 +49,9 @@ model Trip {
   carRentals             CarRental[]          @relation("TripCarRentals")
   snapshots              ComparisonSnapshot[]
   flights                Flight[]             @relation("TripFlights")
-  currency               Currency             @relation(fields: [currencyId], references: [id])
-  selectedFlight         Flight?              @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
   selectedCarRental      CarRental?           @relation("SelectedCarOnTrip", fields: [selectedCarRentalId], references: [id])
+  selectedFlight         Flight?              @relation("SelectedFlightOnTrip", fields: [selectedFlightId], references: [id])
+  currency               Currency             @relation(fields: [currencyId], references: [id])
   tripStops              TripStop[]
 
   @@index([startDate])
@@ -104,8 +104,8 @@ model Flight {
   outboundNetDurationMin  Int?
   returnNetDurationMin    Int?
   airlineLogoUrl          String?
-  trip                    Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
   currency                Currency  @relation(fields: [currencyId], references: [id])
+  trip                    Trip      @relation("TripFlights", fields: [tripId], references: [id], onDelete: Cascade)
   selectedOnTrip          Trip?     @relation("SelectedFlightOnTrip")
 
   @@index([tripId])
@@ -138,9 +138,9 @@ model CarRental {
   notes           String?
   imageUrl        String?
   url             String?
-  carType         CarType?  @relation(fields: [carTypeId], references: [id])
-  currency        Currency  @relation(fields: [currencyId], references: [id])
   trip            Trip      @relation("TripCarRentals", fields: [tripId], references: [id], onDelete: Cascade)
+  currency        Currency  @relation(fields: [currencyId], references: [id])
+  carType         CarType?  @relation(fields: [carTypeId], references: [id])
   selectedOnTrip  Trip?     @relation("SelectedCarOnTrip")
 }
 
@@ -158,8 +158,8 @@ model TripStop {
   createdAt               DateTime        @default(now())
   updatedAt               DateTime        @updatedAt
   accommodations          Accommodation[] @relation("TripStopAccommodation")
-  trip                    Trip            @relation(fields: [tripId], references: [id])
   selectedAccommodation   Accommodation?  @relation("SelectedAccommodationOnStop", fields: [selectedAccommodationId], references: [id])
+  trip                    Trip            @relation(fields: [tripId], references: [id])
 }
 
 model RoomType {
@@ -182,9 +182,9 @@ model Accommodation {
   updatedAt      DateTime             @updatedAt
   notes          String?
   url            String?
-  tripStop       TripStop?            @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
-  currency       Currency             @relation(fields: [currencyId], references: [id])
   roomType       RoomType?            @relation(fields: [roomTypeId], references: [id])
+  currency       Currency             @relation(fields: [currencyId], references: [id])
+  tripStop       TripStop?            @relation("TripStopAccommodation", fields: [tripStopId], references: [id])
   images         AccommodationImage[]
   selectedOnStop TripStop?            @relation("SelectedAccommodationOnStop")
 }
