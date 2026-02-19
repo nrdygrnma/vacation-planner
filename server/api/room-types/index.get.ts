@@ -2,21 +2,7 @@ import { prisma } from "~~/server/utils/prisma";
 
 export default defineEventHandler(async () => {
   // Ensure a sensible default set exists, then return all types
-  const defaults = [
-    "Standard",
-    "Single",
-    "Double",
-    "Twin",
-    "Triple",
-    "Suite",
-    "Studio",
-    "Apartment",
-    "Family Room",
-    "Deluxe",
-    "Superior",
-    "King Room",
-    "Queen Room",
-  ];
+  const defaults = ["Hotel", "Studio", "Cabin", "House", "Apartment"];
 
   try {
     const existing = await prisma.roomType.findMany({ select: { name: true } });
